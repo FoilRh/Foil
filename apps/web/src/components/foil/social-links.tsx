@@ -5,7 +5,7 @@ import {PixelIcon} from "@/components/ui/pixel-icon";
 import { Modal } from "./modal";
 
 /** A channel with an `href` links out (new tab, no referrer); the others open a "coming soon" note. */
-const socials:readonly {name:string;icon:"telegram"|"github"|"x";href?:string}[]=[{name:"Telegram",icon:"telegram"},{name:"GitHub",icon:"github"},{name:"X",icon:"x",href:"https://x.com/FoilPrivacy"}];
+const socials:readonly {name:string;icon:"telegram"|"github"|"x";href?:string}[]=[{name:"Telegram",icon:"telegram",href:"https://t.me/foilprivacyonrobinhood"},{name:"GitHub",icon:"github"},{name:"X",icon:"x",href:"https://x.com/FoilPrivacy"}];
 export function SocialLinks({channels,labels=false}:{channels?:readonly string[];labels?:boolean}={}){
   const [open,setOpen]=useState<string|null>(null);
   return <>
