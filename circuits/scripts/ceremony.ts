@@ -34,8 +34,9 @@ const ptauPath = () => {
 /** Latest zkey index for a circuit (0000, 0001, …). */
 function latest(c: string): number {
   const ns = readdirSync(dir).flatMap((f) => {
-    const m = new RegExp(`^${c}_(\\d{4})\\.zkey$`).exec(f);
-    return m ? [Number(m[1])] : [];
+    // <circuit>_NNNN.zkey, matched without building a regex from the name.
+    const n = f.startsWith(`${c}_`) && f.endsWith(".zkey") ? f.slice(c.length + 1, -".zkey".length) : "";
+    return /^\d{4}$/.test(n) ? [Number(n)] : [];
   });
   if (!ns.length) throw new Error(`no ${c} zkey in ${dir}`);
   return Math.max(...ns);

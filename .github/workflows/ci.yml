@@ -45,6 +45,7 @@ jobs:
         run: bun test services
       - name: symbolic checks (Halmos 0.3.3, core fee math)
         working-directory: contracts
+        env: { HALMOS_ALLOW_DOWNLOAD: "1" } # Halmos fetches its pinned bitwuzla build
         run: |
           pipx install halmos==0.3.3
           halmos --match-contract FormalTest --solver bitwuzla --solver-timeout-assertion 1800s
@@ -118,6 +119,7 @@ jobs:
         with:
           target: contracts/
           slither-version: 0.11.6
+          slither-config: contracts/slither.config.json # skips OpenZeppelin, generated verifiers, tests
           fail-on: high
 
   circomspect:

@@ -2,7 +2,10 @@
 const port = chrome.runtime.connect({ name: "page" });
 
 window.addEventListener("message", (e: MessageEvent) => {
-  if (e.source !== window) return;
+  if (e.origin !== window.location.origin) {
+    return; // same origin only
+  }
+  if (e.source !== window) return; // and this window only
   const d = e.data as { __foil?: string; id?: number; method?: string; params?: unknown[] };
   if (d?.__foil !== "req") return;
   port.postMessage({ id: d.id, method: d.method, params: d.params ?? [], origin: window.location.origin });

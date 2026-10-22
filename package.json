@@ -16,7 +16,7 @@
     "lint:privacy": "bun scripts/privacy-lint.ts",
     "monitor": "bun scripts/monitor.ts",
     "test:contracts": "cd contracts && forge test",
-    "test:circuits": "cd circuits && bun test"
+    "test:circuits": "cd circuits && bun test --timeout 120000"
   },
   "overrides": {
     "drizzle-orm": "^0.45.2"

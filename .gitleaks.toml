@@ -1,0 +1,7 @@
+# gitleaks: the default rules, plus one documented exception.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "RFC 9458 Appendix A test vectors (published example keys, not secrets)"
+paths = ['''packages/ohttp/src/ohttp\.test\.ts''']

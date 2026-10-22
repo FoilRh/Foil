@@ -35,7 +35,10 @@ const provider = {
 };
 
 window.addEventListener("message", (e: MessageEvent) => {
-  if (e.source !== window) return;
+  if (e.origin !== window.location.origin) {
+    return; // same origin only
+  }
+  if (e.source !== window) return; // and this window only
   const d = e.data as { __foil?: string; id?: number; result?: unknown; error?: { code: number; message: string }; event?: string; data?: unknown };
   if (d?.__foil === "res" && d.id !== undefined) {
     const p = pending.get(d.id);
@@ -44,7 +47,7 @@ window.addEventListener("message", (e: MessageEvent) => {
     if (d.error) p.reject(new ProviderRpcError(d.error.code, d.error.message));
     else p.resolve(d.result);
   } else if (d?.__foil === "event" && d.event) {
-    listeners.get(d.event)?.forEach((fn) => fn(d.data));
+    for (const fn of listeners.get(d.event) ?? []) fn(d.data);
   }
 });
 

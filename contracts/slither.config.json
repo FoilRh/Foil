@@ -1,0 +1,4 @@
+{
+  "filter_paths": "node_modules|lib/|src/verifiers/|test/|script/",
+  "exclude_informational": true
+}
