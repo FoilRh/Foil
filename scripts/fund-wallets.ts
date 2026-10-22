@@ -23,9 +23,11 @@ const env = Object.fromEntries(readFileSync(join(import.meta.dir, "..", "deploy"
  * operator fronts each tin's ETH and pays executeRound gas (≈100 tins); relayer pays gas for
  * users' spends (≈100 at ~2M gas); ppoi nodes post a root hourly and flag.
  */
-const TARGETS = NETWORK === "mainnet"
+const DEFAULTS = NETWORK === "mainnet"
   ? { DEPLOY_RESERVE: "0.0015", OPERATOR: "0.006", RELAYER: "0.005", PPOI1: "0.001", PPOI2: "0.001" }
   : { DEPLOY_RESERVE: "0.0003", OPERATOR: "0.0005", RELAYER: "0.0002", PPOI1: "0.0001", PPOI2: "0.0001" };
+/** Any target can be overridden per run, e.g. FUND_OPERATOR=0.00575. */
+const TARGETS = Object.fromEntries(Object.entries(DEFAULTS).map(([k, v]) => [k, process.env[`FUND_${k}`] ?? v])) as typeof DEFAULTS;
 
 const rpc = env.RPC_URL ?? `https://rpc.${NETWORK}.chain.robinhood.com`;
 const chain = { id: NETWORK === "mainnet" ? 4663 : 46630, name: `rhc-${NETWORK}`, nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 }, rpcUrls: { default: { http: [rpc] } } } as const;
@@ -48,6 +50,7 @@ for (const r of rows) {
   if (!need) continue;
   if (need > available) {
     short += need - (available > 0n ? available : 0n);
+    available = 0n; // what is left cannot cover this wallet; count the whole gap once
     continue;
   }
   if (send) {
