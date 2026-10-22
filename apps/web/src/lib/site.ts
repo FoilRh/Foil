@@ -29,8 +29,8 @@ export const siteConfig = {
   /** Default Open Graph / Twitter share image (path under `public/`), 1200×630. */
   ogImage: "/open-graph.png",
   ogImageAlt: "FOIL — Your cards. Your business.: private collecting on your terms",
-  /** No X account yet — add one (e.g. "@heldmint") to emit twitter:site. */
-  twitterHandle: undefined as string | undefined,
+  /** Foil on X (https://x.com/FoilPrivacy): emitted as twitter:site / twitter:creator. */
+  twitterHandle: "@FoilPrivacy" as string | undefined,
   author: "FOIL",
   locale: "en_US",
   /** Browser theme-color (address bar / PWA) — the page background, ink-950. */
