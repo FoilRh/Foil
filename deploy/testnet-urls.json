@@ -6,6 +6,6 @@
   "indexer": "https://foil-testnet-indexer.vercel.app",
   "api": "https://foil-testnet-api.vercel.app",
   "relay": "https://foil-testnet-relay.vercel.app",
-  "web": "https://foil-testnet.vercel.app",
-  "monitor": "https://foil-testnet-monitor.vercel.app"
+  "monitor": "https://foil-testnet-monitor.vercel.app",
+  "web": "https://foil-delta.vercel.app"
 }

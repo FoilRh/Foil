@@ -143,20 +143,29 @@ function monitor() {
   saveUrls();
 }
 
-/** The relay only forwards to the API's gateway, and only for the web app's origin. */
+/** Web project and custom domain, from deploy/<network>.env (WEB_PROJECT, WEB_DOMAIN). */
+const WEB_PROJECT = env.WEB_PROJECT ?? PREFIX;
+const WEB_DOMAIN = env.WEB_DOMAIN;
+/** Every origin the web app is served from: the custom domain (and www) and the Vercel alias. */
+const webOrigins = () => [
+  ...(WEB_DOMAIN ? [`https://${WEB_DOMAIN}`, `https://www.${WEB_DOMAIN}`] : []),
+  urls.web ?? `https://${WEB_PROJECT}.vercel.app`,
+];
+
+/** The relay only forwards to the API's gateway, and only for the web app's origins. */
 function relay() {
   const project = `${PREFIX}-relay`;
   ensureProject(project);
-  setEnv(project, svc("ohttp-relay", { GATEWAY_URL: `${urls.api}/gateway`, ALLOWED_ORIGINS: urls.web ?? `https://${PREFIX}.vercel.app` }));
+  setEnv(project, svc("ohttp-relay", { GATEWAY_URL: `${urls.api}/gateway`, ALLOWED_ORIGINS: [...new Set(webOrigins())].join(",") }));
   urls.relay = deployOnly(project, buildDir);
   saveUrls();
 }
 
 function web() {
   if (!urls.relay) throw new Error("deploy services first");
-  const project = PREFIX;
+  const project = WEB_PROJECT;
   ensureProject(project);
-  const site = urls.web ?? `https://${PREFIX}.vercel.app`;
+  const site = WEB_DOMAIN ? `https://${WEB_DOMAIN}` : urls.web ?? `https://${project}.vercel.app`;
   const webDir = join(root, "apps", "web");
   const b = Bun.spawnSync(["bun", "run", "build"], {
     cwd: webDir, stdout: "inherit", stderr: "inherit",
@@ -178,6 +187,15 @@ function web() {
   }));
   urls.web = deployOnly(project, dir);
   saveUrls();
+  if (WEB_DOMAIN) {
+    // Apex and www on this project; "already" errors mean it is attached.
+    for (const d of [WEB_DOMAIN, `www.${WEB_DOMAIN}`]) {
+      const r = vercel(["domains", "add", d, project]);
+      if (!r.ok && !/already|in use by this project/i.test(r.out + r.err)) throw new Error(`domains add ${d}: ${(r.out + r.err).slice(-400)}`);
+    }
+    relay(); // the relay must accept the domain's origin
+    return;
+  }
   if (urls.web !== site) {
     console.log(`web origin is ${urls.web}; rebuilding with it and updating the relay`);
     relay();
@@ -210,4 +228,5 @@ if (step === "services") await services();
 else if (step === "web") web();
 else if (step === "cron") await cron();
 else if (step === "monitor") monitor();
-else throw new Error("usage: deploy.ts services|web|cron|monitor");
+else if (step === "relay") relay();
+else throw new Error("usage: deploy.ts services|web|cron|monitor|relay");
