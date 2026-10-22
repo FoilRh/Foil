@@ -26,7 +26,11 @@ export const ANVIL_KEYS: Hex[] = [
 ];
 
 export function hasFoundry() {
-  return Bun.spawnSync([bin("anvil"), "--version"], { stdout: "ignore", stderr: "ignore" }).exitCode === 0;
+  try {
+    return Bun.spawnSync([bin("anvil"), "--version"], { stdout: "ignore", stderr: "ignore" }).exitCode === 0;
+  } catch {
+    return false; // Bun throws when the executable is not on PATH at all
+  }
 }
 
 export interface Deployment { chainId: number; usdg: Address; gate: Address; pool: Address; startBlock: number }
