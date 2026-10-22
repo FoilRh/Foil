@@ -12,6 +12,7 @@
     "lint": "bun run --filter '*' lint",
     "typecheck": "bun run --filter '*' typecheck",
     "test": "bun test packages services apps/api apps/extension apps/web/src scripts e2e",
+    "test:unit": "bun test packages services apps/api apps/extension apps/web/src scripts",
     "lint:copy": "bun scripts/copy-lint.ts",
     "lint:privacy": "bun scripts/privacy-lint.ts",
     "monitor": "bun scripts/monitor.ts",
