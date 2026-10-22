@@ -216,12 +216,14 @@ function web() {
 /** Supabase pg_cron + pg_net call each service's /tick. The token is stored in cron.job (server-only DB). */
 async function cron() {
   const sql = postgres(env.DATABASE_URL!, { prepare: false, max: 1 });
+  // One shared database: job names carry the network (testnet keeps its original names).
+  const job = (svc: string) => (NETWORK === "testnet" ? `foil-${svc}-tick` : `foil-${NETWORK}-${svc}-tick`);
   const jobs: [string, string, string][] = [
-    ["foil-operator-tick", "* * * * *", "operator"],
-    ["foil-indexer-tick", "* * * * *", "indexer"],
-    ["foil-ppoi-1-tick", "7 * * * *", "ppoi-1"],
-    ["foil-ppoi-2-tick", "37 * * * *", "ppoi-2"],
-    ["foil-monitor-tick", "*/10 * * * *", "monitor"],
+    [job("operator"), "* * * * *", "operator"],
+    [job("indexer"), "* * * * *", "indexer"],
+    [job("ppoi-1"), "7 * * * *", "ppoi-1"],
+    [job("ppoi-2"), "37 * * * *", "ppoi-2"],
+    [job("monitor"), "*/10 * * * *", "monitor"],
   ];
   for (const [name, schedule, svcName] of jobs) {
     const base = urls[svcName];
