@@ -40,7 +40,9 @@ const tickToken = (name: string) => {
   if ((env.TICK_TOKEN ?? "").length < 32) throw new Error("TICK_TOKEN (>= 32 chars) missing from deploy env");
   return createHmac("sha256", env.TICK_TOKEN!).update(`foil-tick:${NETWORK}:${name}`).digest("hex");
 };
-const dep =JSON.parse(readFileSync(join(root, "contracts", "deployments", `${CHAIN_ID}.json`), "utf8"));
+const depFile = join(root, "contracts", "deployments", `${CHAIN_ID}.json`);
+/** The contract manifest; empty before the network's contracts are deployed (only `web` works then). */
+const dep: Record<string, string> = existsSync(depFile) ? JSON.parse(readFileSync(depFile, "utf8")) : {};
 const urls: Record<string, string> = existsSync(urlsFile) ? JSON.parse(readFileSync(urlsFile, "utf8")) : {};
 const saveUrls = () => writeFileSync(urlsFile, JSON.stringify(urls, null, 2) + "\n");
 
@@ -99,6 +101,7 @@ const cc: Record<string, string> = NETWORK === "mainnet"
 
 async function services() {
   if (!existsSync(join(buildDir, ".vercel", "output", "config.json"))) throw new Error("run bun scripts/vercel/build.ts first");
+  if (!dep.pool) throw new Error(`no contracts/deployments/${CHAIN_ID}.json: deploy the contracts first`);
   const plan: [string, Record<string, string>][] = [
     ["relayer", svc("relayer", { RPC_URL: chain.RPC_URL, POOL_ADDRESS: chain.POOL_ADDRESS, RELAYER_PRIVATE_KEY: env.RELAYER_PRIVATE_KEY!, INTERNAL_TOKEN: env.RELAYER_TOKEN! })],
     ["operator", svc("round-operator", { RPC_URL: chain.RPC_URL, CHAIN_ID: chain.CHAIN_ID, POOL_ADDRESS: chain.POOL_ADDRESS, OPERATOR_PRIVATE_KEY: env.OPERATOR_PRIVATE_KEY!, DATABASE_URL: env.DATABASE_URL!, INTERNAL_TOKEN: env.OPERATOR_TOKEN!, TICK_TOKEN: tickToken("operator") })],
@@ -156,22 +159,35 @@ const webOrigins = () => [
 function relay() {
   const project = `${PREFIX}-relay`;
   ensureProject(project);
-  setEnv(project, svc("ohttp-relay", { GATEWAY_URL: `${urls.api}/gateway`, ALLOWED_ORIGINS: [...new Set(webOrigins())].join(",") }));
+  if (!urls.api) throw new Error("deploy the API first (deploy.ts services)");
+  // Only the mainnet relay serves the public website; testnet's accepts local development only.
+  const origins = NETWORK === "mainnet" ? [...new Set(webOrigins())] : ["http://localhost:3000"];
+  setEnv(project, svc("ohttp-relay", { GATEWAY_URL: `${urls.api}/gateway`, ALLOWED_ORIGINS: origins.join(",") }));
   urls.relay = deployOnly(project, buildDir);
   saveUrls();
 }
 
+/**
+ * The public website is mainnet-only (WEB_PROJECT / WEB_DOMAIN in deploy/mainnet.env). Until the
+ * mainnet relay is deployed it is built with no backend, so the dashboard runs in its local
+ * example mode; once `deploy.ts services` has run on mainnet it is built against that relay.
+ */
 function web() {
-  if (!urls.relay) throw new Error("deploy services first");
+  if (NETWORK !== "mainnet") throw new Error("the website is mainnet-only: run NETWORK=mainnet bun scripts/vercel/deploy.ts web");
   const project = WEB_PROJECT;
   ensureProject(project);
   const site = WEB_DOMAIN ? `https://${WEB_DOMAIN}` : urls.web ?? `https://${project}.vercel.app`;
+  const live = Boolean(urls.relay && env.OHTTP_KEY_CONFIG);
   const webDir = join(root, "apps", "web");
   const b = Bun.spawnSync(["bun", "run", "build"], {
     cwd: webDir, stdout: "inherit", stderr: "inherit",
-    env: { ...process.env, NEXT_PUBLIC_OHTTP_RELAY_URL: urls.relay, NEXT_PUBLIC_OHTTP_KEY_CONFIG: env.OHTTP_KEY_CONFIG!, NEXT_PUBLIC_CHAIN_ID: String(CHAIN_ID), NEXT_PUBLIC_SITE_URL: site },
+    env: {
+      ...process.env, NEXT_PUBLIC_CHAIN_ID: String(CHAIN_ID), NEXT_PUBLIC_SITE_URL: site,
+      NEXT_PUBLIC_OHTTP_RELAY_URL: live ? urls.relay! : "", NEXT_PUBLIC_OHTTP_KEY_CONFIG: live ? env.OHTTP_KEY_CONFIG! : "",
+    },
   });
   if (b.exitCode !== 0) throw new Error("web build failed");
+  console.log(live ? `web: live against ${urls.relay}` : "web: no mainnet backend yet, built in example mode");
   const dir = join(root, ".vercel-build-web");
   const out = join(dir, ".vercel", "output");
   rmSync(out, { recursive: true, force: true });
@@ -193,14 +209,8 @@ function web() {
       const r = vercel(["domains", "add", d, project]);
       if (!r.ok && !/already|in use by this project/i.test(r.out + r.err)) throw new Error(`domains add ${d}: ${(r.out + r.err).slice(-400)}`);
     }
-    relay(); // the relay must accept the domain's origin
-    return;
   }
-  if (urls.web !== site) {
-    console.log(`web origin is ${urls.web}; rebuilding with it and updating the relay`);
-    relay();
-    web();
-  }
+  if (live) relay(); // the mainnet relay must accept the site's origins
 }
 
 /** Supabase pg_cron + pg_net call each service's /tick. The token is stored in cron.job (server-only DB). */

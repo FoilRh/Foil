@@ -50,8 +50,11 @@ for (const name of ["relayer", "operator", "ppoi-1", "ppoi-2"]) {
 }
 const keys = await fetch(`${urls.api}/ohttp-keys`, { signal: AbortSignal.timeout(60_000) }).catch(() => null);
 line(!!keys?.ok, `api       /ohttp-keys ${keys?.status ?? "unreachable"}`);
-const web = await fetch(urls.web!, { signal: AbortSignal.timeout(60_000) }).catch(() => null);
-line(!!web?.ok, `web       ${web?.status ?? "unreachable"}`);
+// The public website is mainnet-only (deploy/mainnet-urls.json); testnet has none.
+if (urls.web) {
+  const web = await fetch(urls.web, { signal: AbortSignal.timeout(60_000) }).catch(() => null);
+  line(!!web?.ok, `web       ${web?.status ?? "unreachable"}`);
+}
 
 // Database: heartbeats, cron calls, indexer lag
 const sql = postgres(env.DATABASE_URL!, { prepare: false, max: 1 });

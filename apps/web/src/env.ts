@@ -29,8 +29,8 @@ const publicSchema = z.object({
   NEXT_PUBLIC_OHTTP_RELAY_URL: optionalUrl(),
   /** Pinned gateway key config (hex, from the API's GET /ohttp-keys minus its 2-byte length). */
   NEXT_PUBLIC_OHTTP_KEY_CONFIG: z.preprocess((v) => (v === "" ? undefined : v), z.string().regex(/^[0-9a-f]+$/).optional()),
-  /** Expected chain: 4663 (RHC mainnet, default) or 46630 (RHC testnet). */
-  NEXT_PUBLIC_CHAIN_ID: z.preprocess((v) => (v === "" || v === undefined ? "4663" : v), z.coerce.number().refine((n) => n === 4663 || n === 46630)),
+  /** Expected chain: Robinhood Chain mainnet (4663). The public site is never built for testnet. */
+  NEXT_PUBLIC_CHAIN_ID: z.preprocess((v) => (v === "" || v === undefined ? "4663" : v), z.coerce.number().refine((n) => n === 4663, "the website is mainnet-only (4663)")),
   /** Chrome ID of the Foil extension (browser mode). Unset: ripping stays unavailable. */
   NEXT_PUBLIC_FOIL_EXTENSION_ID: z.preprocess((v) => (v === "" ? undefined : v), z.string().regex(/^[a-p]{32}$/).optional()),
 });

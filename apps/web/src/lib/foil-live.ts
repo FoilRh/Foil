@@ -91,7 +91,7 @@ async function persist(mnemonic: string, w: WalletState) {
 async function openWallet(mnemonic: string, saved: WalletState | null) {
   const api = createApi({ relayUrl: relayUrl!, keyConfig: keyConfig! });
   const cfg = await api.config.query();
-  // The API must serve the chain this build expects (mainnet or testnet), never another.
+  // The API must serve the chain this build expects (mainnet), never another.
   if (cfg.chainId !== publicEnv.NEXT_PUBLIC_CHAIN_ID && process.env.NODE_ENV === "production") throw new Error("Unexpected network.");
   const c = await loadCrypto();
   const startBlock = BigInt(cfg.startBlock);
