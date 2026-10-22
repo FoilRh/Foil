@@ -1,0 +1,11 @@
+{
+  "relayer": "https://foil-testnet-relayer.vercel.app",
+  "operator": "https://foil-testnet-operator.vercel.app",
+  "ppoi-1": "https://foil-testnet-ppoi-1.vercel.app",
+  "ppoi-2": "https://foil-testnet-ppoi-2.vercel.app",
+  "indexer": "https://foil-testnet-indexer.vercel.app",
+  "api": "https://foil-testnet-api.vercel.app",
+  "relay": "https://foil-testnet-relay.vercel.app",
+  "web": "https://foil-testnet.vercel.app",
+  "monitor": "https://foil-testnet-monitor.vercel.app"
+}

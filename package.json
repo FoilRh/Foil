@@ -1,0 +1,34 @@
+{
+  "name": "foil-monorepo",
+  "private": true,
+  "packageManager": "bun@1.3.13",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "services/*",
+    "circuits"
+  ],
+  "scripts": {
+    "lint": "bun run --filter '*' lint",
+    "typecheck": "bun run --filter '*' typecheck",
+    "test": "bun test packages services apps/api apps/extension apps/web/src scripts e2e",
+    "lint:copy": "bun scripts/copy-lint.ts",
+    "lint:privacy": "bun scripts/privacy-lint.ts",
+    "monitor": "bun scripts/monitor.ts",
+    "test:contracts": "cd contracts && forge test",
+    "test:circuits": "cd circuits && bun test"
+  },
+  "overrides": {
+    "drizzle-orm": "^0.45.2"
+  },
+  "trustedDependencies": [
+    "esbuild",
+    "unrs-resolver"
+  ],
+  "devDependencies": {
+    "@openzeppelin/contracts": "5.4.0",
+    "@types/bun": "^1.3.13",
+    "poseidon-solidity": "0.0.5",
+    "typescript": "^5.9.3"
+  }
+}

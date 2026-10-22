@@ -1,0 +1,23 @@
+# fly deploy --config services/ppoi-node/fly.toml (from the repo root)
+# Run a second instance (foil-ppoi-node-2, its own key) and, before launch, independent providers.
+# Secrets: fly secrets set RPC_URL=… POOL_ADDRESS=… PPOI_PRIVATE_KEY=… GATE_ADDRESS=… USDG_ADDRESS=… START_BLOCK=… BLOCKLIST_URL=… INTERNAL_TOKEN=… (unique; the API holds it as this node's entry in PPOI_TOKENS)
+app = "foil-ppoi-node-1"
+primary_region = "iad"
+
+[build]
+  dockerfile = "../Dockerfile"
+  [build.args]
+    SERVICE = "ppoi-node"
+
+# Public HTTPS, but every route except /health needs this service's own bearer token
+# (the API on Vercel is outside Fly's private network). CHAIN_ID is set per deploy.
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "off"
+  auto_start_machines = true
+  min_machines_running = 1
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"

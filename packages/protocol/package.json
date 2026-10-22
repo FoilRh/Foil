@@ -1,0 +1,15 @@
+{
+  "name": "@foil/protocol",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "viem": "2.38.0",
+    "zod": "^4.6.5"
+  }
+}

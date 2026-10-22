@@ -1,0 +1,10 @@
+import { HomePageView } from "@/views/home-page";
+
+/**
+ * The home page as robots get it — reached only through the proxy's rewrite of
+ * `/` (D-016). Inherits the root metadata, so its canonical is `/`: a crawler
+ * indexing the home page reads this document under the home page's URL.
+ */
+export default function RobotHome() {
+  return <HomePageView robot />;
+}

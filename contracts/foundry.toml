@@ -1,0 +1,68 @@
+# Test depth
+#   forge test                       fuzz 512 runs; every invariant 256 runs x 500 calls = 128,000 calls
+#   FOUNDRY_PROFILE=deep forge test  fuzz 10,000 runs; every invariant 512 x 1,000 = 512,000 calls
+#
+# Coverage (src/ without the generated verifiers):
+#   FOUNDRY_PROFILE=coverage forge coverage --ir-minimum --skip script #     --no-match-coverage "src/verifiers|test/|script/" --report summary
+# --ir-minimum: StashPool needs via-IR, which plain coverage turns off ("stack too deep").
+# --skip script: Deploy.s.sol is still stack-too-deep at --ir-minimum; no test imports it.
+# Test helpers must use assembly ("memory-safe"), or via-IR cannot move variables to memory.
+# Windows only: forge's source analyser cannot resolve imports under the relative
+# ../node_modules lib, so pass absolute remappings (Git Bash):
+#   NM="$(cd .. && pwd -W)/node_modules"; FOUNDRY_PROFILE=coverage forge coverage --ir-minimum #     --skip script -R "@openzeppelin/=$NM/@openzeppelin/" -R "poseidon-solidity/=$NM/poseidon-solidity/" #     --no-match-coverage "src/verifiers|test/|script/" --report summary
+#
+# Mutation sample: bash test/mutation.sh
+
+[profile.default]
+src = "src"
+test = "test"
+script = "script"
+libs = ["lib", "../node_modules"]
+solc_version = "0.8.26"
+evm_version = "cancun"
+optimizer = true
+optimizer_runs = 200
+via_ir = true
+bytecode_hash = "none"
+fs_permissions = [{ access = "read", path = "./" }, { access = "read-write", path = "./deployments" }]
+no_match_path = "test/{ffi,fork}/*"
+
+[fuzz]
+runs = 512
+
+[invariant]
+show_metrics = true
+runs = 256
+depth = 500
+
+[rpc_endpoints]
+rhc = "${RHC_RPC_URL}"
+
+# Default runs skip real-proof tests; `FOUNDRY_PROFILE=ffi forge test` runs them
+# (needs `bun run setup:dev` in circuits/ first).
+[profile.ffi]
+ffi = true
+match_path = "test/ffi/*"
+no_match_path = "test/none/*"
+
+# Fork of Robinhood Chain against real USDG: RHC_RPC_URL=… FOUNDRY_PROFILE=fork forge test
+[profile.fork]
+match_path = "test/fork/*"
+no_match_path = "test/none/*"
+
+# Nightly depth: `FOUNDRY_PROFILE=deep forge test`
+[profile.deep.fuzz]
+runs = 10000
+
+[profile.deep.invariant]
+runs = 512
+depth = 1000
+
+# Coverage replays every test under instrumentation; lighter invariant campaigns suffice.
+# PostDeployCheck compares deployed bytecode with the build, which instrumentation changes.
+[profile.coverage]
+no_match_path = "test/{ffi/*,fork/*,PostDeployCheck.t.sol}"
+
+[profile.coverage.invariant]
+runs = 64
+depth = 200

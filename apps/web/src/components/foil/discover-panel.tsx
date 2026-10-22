@@ -1,0 +1,19 @@
+"use client";
+import {money,type Workspace} from "@/lib/foil-workspace";
+import {PixelIcon} from "@/components/ui/pixel-icon";
+import {Action} from "./dashboard-ui";
+import {CollectionPanel} from "./collection-panel";
+import type {WorkspaceDialog} from "./workspace-dialogs";
+
+export function DiscoverPanel({workspace,open,navigate}:{workspace:Workspace;open:(d:WorkspaceDialog)=>void;navigate:(tab:string)=>void}){
+  return <div className="space-y-7">
+    <section className="relative overflow-hidden rounded-2xl bg-(image:--dawn-gradient) p-7 text-display-ink mobile:p-5">
+      <div aria-hidden className="pointer-events-none absolute -top-5 -right-4 grid w-48 grid-cols-4 gap-3 opacity-35 mobile:w-28">{Array.from({length:16},(_,i)=><span key={i} className={`aspect-square ${i%3===0?"bg-lavender":i%3===1?"bg-peach":"bg-accent"}`}/>)}</div>
+      <p className="type-script relative text-xl">Your cards. Your business.</p><h2 className="type-display relative mt-4 max-w-xl whitespace-normal text-5xl leading-display mobile:text-4xl">A fresh tin.<br/>A little more privacy.</h2><p className="relative mt-4 max-w-xl text-sm leading-copy text-display-ink/80">Start with a shielded USDG Stash. Open a supported trading-card pack through a fresh tin, then keep, sell back when eligible, gift or ship your pull. You choose which hits to share.</p>
+      <div className="relative mt-6 flex flex-wrap gap-3"><button type="button" onClick={()=>navigate("rips")} className="flex min-h-12 items-center gap-4 rounded-lg bg-display-ink px-5 text-xs text-display-surface">Explore pack rips <PixelIcon name="arrow" className="size-4"/></button><button type="button" onClick={()=>navigate("stash")} className="flex min-h-12 items-center gap-4 rounded-lg border border-display-ink/30 px-5 text-xs">Your Stash <PixelIcon name="wallet" className="size-4"/></button></div>
+    </section>
+    <div className="grid grid-cols-3 gap-3 mobile:grid-cols-1">{[{tab:"stash",label:"Your Stash",value:`${money(workspace.balance)} USDG`,icon:"wallet",color:"text-accent"},{tab:"tins",label:"Single-use tins",value:`${workspace.tins.length} in your collection`,icon:"tin",color:"text-lavender"},{tab:"settings",label:"Your pace",value:"Pack-spend limits on",icon:"shield",color:"text-peach"}].map(item=><button type="button" key={item.tab} onClick={()=>navigate(item.tab)} className="flex items-center justify-between gap-4 rounded-xl border border-lavender/20 bg-surface bg-(image:--panel-gradient) px-5 py-4 text-left"><div><p className="text-xs text-foreground-subtle">{item.label}</p><p className={`type-caps mt-2 whitespace-normal text-xl leading-display ${item.color}`}>{item.value}</p></div><PixelIcon name={item.icon as "wallet"|"tin"|"shield"} className={`size-7 ${item.color}`}/></button>)}</div>
+    <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-peach/20 bg-surface bg-(image:--panel-gradient) p-5"><div className="flex items-start gap-4"><PixelIcon name="browser" className="mt-1 size-6 text-peach"/><div><p className="type-caps text-lg text-peach">Browser mode comes first</p><p className="mt-2 max-w-xl text-xs leading-copy text-foreground-subtle">Fresh tins connect to approved pack sites. Native rip screens arrive only with an active key integration.</p></div></div><Action secondary onClick={()=>navigate("rips")}>See the flow →</Action></div>
+    <div><p className="mb-2 text-xs tracking-widest text-lavender uppercase">Pokémon TCG · One Piece · Sports · More</p><h2 className="type-display mb-3 whitespace-normal text-3xl leading-display">Explore the cards</h2><p className="mb-5 max-w-2xl text-xs leading-copy text-foreground-subtle">Reference scans across supported trading-card categories. These cards illustrate the collection; a live machine determines each pull.</p><CollectionPanel workspace={workspace} open={open} catalog discovery/></div>
+  </div>;
+}

@@ -1,0 +1,14 @@
+# fly deploy --config services/indexer/fly.toml (from the repo root)
+# Secrets: fly secrets set RPC_URL=… POOL_ADDRESS=… USDG_ADDRESS=… CARD_NFT_ADDRESS=… START_BLOCK=… DATABASE_URL=…
+# Background worker: no public port.
+app = "foil-indexer"
+primary_region = "iad"
+
+[build]
+  dockerfile = "../Dockerfile"
+  [build.args]
+    SERVICE = "indexer"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"

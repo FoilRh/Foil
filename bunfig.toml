@@ -1,0 +1,3 @@
+[install]
+# Refuse package versions published less than 3 days ago (supply-chain cooldown).
+minimumReleaseAge = 259200

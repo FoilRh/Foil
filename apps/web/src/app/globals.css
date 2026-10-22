@@ -1,0 +1,714 @@
+/* `source("../")` limits class detection to `src/` (this file lives in src/app).
+   Without it Tailwind v4 scans the whole repo — including obsidian/ and .claude/,
+   where documented class *patterns* like duration-[var(--duration-*)] parse as
+   real candidates and emit CSS warnings. Docs are not a source of utilities. */
+@import "tailwindcss" source("../");
+
+/* ---------------------------------------------------------------------------
+   BREAKPOINT VARIANTS — one designed frame per range (Figma "Get Layers").
+   The reference widths 1400/1440, 1024, 768 and 390 render the frames 1:1;
+   every other width scales the nearest frame, with range edges placed so the
+   scale stays within ~0.85–1.2 (no 11px body copy, no 23px body copy):
+     desktop  ≥ 1200       frame 1400  (Concept 16 — 1440, node 5162:14427)
+     laptop   896 – 1199   frame 1024  (node 5249:549)
+     tablet   700 – 895    frame 768   (node 5249:943)
+     mobile   < 700        frame 390   (node 5249:1298) — grows to 1.2× (468px),
+                           then the content column stops and centres
+   The four ranges never overlap, so a range-prefixed class can't leak into
+   another range. `compact` (< 1200) and `handheld` (< 896) group ranges that
+   share structure — never set the same property with a group and a range.
+   --------------------------------------------------------------------------- */
+@custom-variant desktop (@media (width >= 1200px));
+@custom-variant compact (@media (width < 1200px));
+@custom-variant laptop (@media (896px <= width < 1200px));
+@custom-variant handheld (@media (width < 896px));
+@custom-variant tablet (@media (700px <= width < 896px));
+@custom-variant mobile (@media (width < 700px));
+/* Tall screens (phones in portrait) — the preloader stacks its cards in a column. */
+@custom-variant tall (@media (max-aspect-ratio: 5/8));
+/* Short laptop screens prioritize the complete application navigation. */
+@custom-variant short-screen (@media (height < 850px));
+
+/* ---------------------------------------------------------------------------
+   TIER 1 — PRIMITIVES  (`--raw-*`)
+   Raw literal values. The only tier allowed to contain a hex/px/ms literal.
+   Never referenced in markup, never bound into @theme. Rename freely.
+   Grammar: --raw-<category>-<name>[-<shade>]
+   See obsidian/frontend/design-system.md → "Token naming convention".
+   --------------------------------------------------------------------------- */
+:root {
+  --raw-color-white: #fff4d9;
+  /* Foil meadow banner / logo palette, carried into the collection application. */
+  --raw-color-lavender-200: #d9c5ed;
+  --raw-color-peach-200: #f3bca3;
+  --raw-color-plum-950: #19161f;
+  --raw-color-plum-900: #24202c;
+  --raw-color-plum-200: #c9bfce;
+  --raw-color-paper-100: #f3eddf;
+  --raw-gradient-workspace: radial-gradient(ellipse at 100% 0%, rgb(187 147 181 / 0.16), transparent 60%), linear-gradient(145deg, #282331, #1e202a 60%, #263329);
+  --raw-gradient-navigation: linear-gradient(165deg, #342b40, #252932 58%, #293b2e);
+  --raw-gradient-panel: linear-gradient(135deg, rgb(217 197 237 / 0.08), rgb(243 188 163 / 0.04) 50%, rgb(252 212 124 / 0.03));
+  --raw-gradient-display: linear-gradient(150deg, #fae9cf, #f0e4e2 55%, #d8d1e6);
+  --raw-gradient-gold: linear-gradient(115deg, #ffe6a7, #fbd17d 60%, #efb6a2);
+  --raw-gradient-dawn: linear-gradient(112deg, #d4b9e5 0%, #efb4ad 57%, #f8d699 100%);
+  --raw-size-inspector-height: min(59svh, 39rem);
+  --raw-size-inspector-expanded: 65svh;
+  --raw-size-inspector-shell-height: 96svh;
+  --raw-size-inspector-shell-width: calc(100% - 2rem);
+  --raw-size-dashboard-body-height: calc(100svh - 5rem);
+  --raw-size-inspection-perspective: 1100px;
+  --raw-size-touch-target: 44px;
+  /* Foil stepped collector sleeves: 2px rim, 4px pixel, 12px corner. */
+  --raw-z-route-transition: 90;
+  --raw-size-collectible-rim: 2px;
+  --raw-size-collectible-pixel: 4px;
+  --raw-size-collectible-corner: 12px;
+  --raw-gradient-collectible-rim: linear-gradient(135deg, #d9c5ed, #f9dd9d 40%, #b882a1 72%, #d9c5ed);
+  --raw-gradient-collectible-hover: linear-gradient(135deg, #fff4d9, #fbd17d 40%, #d9c5ed 72%, #efb6a2);
+
+  /* Foil overlays and dashboard, fitted to the retained template. */
+  --raw-size-overlay-height: 85svh;
+  --raw-size-overlay-width: calc(100% - 2rem);
+  --raw-color-plum-400: #aa7c9b;
+  --raw-color-neutral-100: #efe7d0;
+  --raw-color-neutral-900: #171717;
+  --raw-color-neutral-950: #0a0a0a;
+
+  /* Figma "Get Layers" → Concept 16 */
+  --raw-color-ink-1000: #07110d;
+  --raw-color-ink-975: #09160f;
+  --raw-color-ink-950: #08140f;
+  --raw-color-ink-900: #0c1b14;
+  --raw-color-ink-850: #11251c;
+  --raw-color-paper-50: #fff4d9;
+  --raw-color-paper-200: #eeddb5;
+  --raw-color-slate-200: #d4d6be;
+  --raw-color-slate-250: #c3c8ad;
+  --raw-color-slate-400: #a0aa96;
+  --raw-color-blue-500: #fcd47c;
+  --raw-color-blue-600: #99712e;
+
+  /* Gradients — literal stops copied from the Figma frames. */
+  --raw-gradient-header-scrim: radial-gradient(
+    110.46% 100% at 50% 0%,
+    rgb(12 27 20 / 1) 0%,
+    rgb(12 27 20 / 0) 100%
+  );
+  --raw-gradient-header-shade: linear-gradient(
+    180deg,
+    rgb(8 20 15 / 0.92) 0%,
+    rgb(8 20 15 / 0.55) 50%,
+    rgb(8 20 15 / 0) 100%
+  );
+  --raw-gradient-hero-vignette: radial-gradient(
+    52.63% 66.67% at 47.37% 50%,
+    rgb(8 20 15 / 0) 0%,
+    rgb(8 20 15 / 0) 55%,
+    rgb(8 20 15 / 0.72) 100%
+  );
+  --raw-gradient-hero-fade: linear-gradient(
+    180deg,
+    rgb(8 20 15 / 0) 0%,
+    rgb(8 20 15 / 0.06) 8.8235%,
+    rgb(8 20 15 / 0.24) 17.647%,
+    rgb(8 20 15 / 0.52) 26.471%,
+    rgb(8 20 15 / 0.76) 33.824%,
+    rgb(8 20 15 / 0.92) 41.176%,
+    rgb(8 20 15 / 1) 48.529%,
+    rgb(8 20 15 / 1) 65.441%,
+    rgb(8 20 15 / 0.88) 73.529%,
+    rgb(8 20 15 / 0.55) 82.353%,
+    rgb(8 20 15 / 0.2) 91.176%,
+    rgb(8 20 15 / 0) 100%
+  );
+  --raw-gradient-hero-fade-compact: linear-gradient(
+    180deg,
+    rgb(8 20 15 / 0) 0%,
+    rgb(8 20 15 / 0.88) 60%,
+    rgb(8 20 15 / 1) 100%
+  );
+  --raw-gradient-card-fade: linear-gradient(
+    180deg,
+    rgb(8 20 15 / 0.96) 0%,
+    rgb(8 20 15 / 0.8) 25%,
+    rgb(8 20 15 / 0.35) 60%,
+    rgb(8 20 15 / 0) 100%
+  );
+
+  --raw-shadow-card: 0.5rem 0.875rem 1.5rem 0 rgb(0 0 0 / 0.35);
+  --raw-drop-shadow-wire: 0.5rem 0.75rem 0.625rem rgb(0 0 0 / 0.4);
+  --raw-drop-shadow-wire-compact: 0.375rem 0.625rem 0.625rem rgb(0 0 0 / 0.4);
+
+  /* Type scale — Figma px ÷ 16 (1rem = 16px at each frame's base width). */
+  --raw-font-size-380: 23.75rem;
+  --raw-font-size-360: 22.5rem;
+  --raw-font-size-337: 21.0625rem;
+  --raw-font-size-330: 20.625rem;
+  --raw-font-size-300: 18.75rem;
+  --raw-font-size-280: 17.5rem;
+  --raw-font-size-260: 16.25rem;
+  --raw-font-size-248: 15.5rem;
+  --raw-font-size-240: 15rem;
+  --raw-font-size-220: 13.75rem;
+  --raw-font-size-200: 12.5rem;
+  --raw-font-size-190: 11.875rem;
+  --raw-font-size-186: 11.625rem;
+  --raw-font-size-170: 10.625rem;
+  --raw-font-size-153: 9.5625rem;
+  --raw-font-size-150: 9.375rem;
+  --raw-font-size-140: 8.75rem;
+  --raw-font-size-132: 8.25rem;
+  --raw-font-size-130: 8.125rem;
+  --raw-font-size-128: 8rem;
+  --raw-font-size-122: 7.625rem;
+  --raw-font-size-120: 7.5rem;
+  --raw-font-size-106: 6.625rem;
+  --raw-font-size-101: 6.3125rem;
+  --raw-font-size-98: 6.125rem;
+  --raw-font-size-96: 6rem;
+  --raw-font-size-94: 5.875rem;
+  --raw-font-size-92: 5.75rem;
+  --raw-font-size-88: 5.5rem;
+  --raw-font-size-82: 5.125rem;
+  --raw-font-size-80: 5rem;
+  --raw-font-size-79: 4.9375rem;
+  --raw-font-size-73: 4.5625rem;
+  --raw-font-size-72: 4.5rem;
+  --raw-font-size-70: 4.375rem;
+  --raw-font-size-64: 4rem;
+  --raw-font-size-59: 3.6875rem;
+  --raw-font-size-58: 3.625rem;
+  --raw-font-size-54: 3.375rem;
+  --raw-font-size-53: 3.3125rem;
+  --raw-font-size-49: 3.0625rem;
+  --raw-font-size-48: 3rem;
+  --raw-font-size-44: 2.75rem;
+  --raw-font-size-42: 2.625rem;
+  --raw-font-size-40: 2.5rem;
+  --raw-font-size-38: 2.375rem;
+  --raw-font-size-36: 2.25rem;
+  --raw-font-size-34: 2.125rem;
+  --raw-font-size-32: 2rem;
+  --raw-font-size-30: 1.875rem;
+  --raw-font-size-28: 1.75rem;
+  --raw-font-size-26: 1.625rem;
+  --raw-font-size-24: 1.5rem;
+  --raw-font-size-22: 1.375rem;
+  --raw-font-size-21: 1.3125rem;
+  --raw-font-size-20: 1.25rem;
+  --raw-font-size-19: 1.1875rem;
+  --raw-font-size-18: 1.125rem;
+  --raw-font-size-17: 1.0625rem;
+  --raw-font-size-16: 1rem;
+  --raw-font-size-15: 0.9375rem;
+  --raw-font-size-14: 0.875rem;
+
+  --raw-leading-094: 0.94;
+  --raw-leading-096: 0.96;
+  --raw-leading-112: 1.12;
+  --raw-leading-130: 1.3;
+  --raw-leading-150: 1.5;
+  --raw-leading-155: 1.55;
+
+  --raw-tracking-003: 0.03em;
+  --raw-tracking-006: 0.06em;
+  --raw-tracking-008: 0.08em;
+  --raw-tracking-010: 0.1em;
+  --raw-tracking-012: 0.12em;
+  --raw-tracking-016: 0.16em;
+
+  --raw-radius-6: 0.375rem;
+  --raw-radius-7: 0.4375rem;
+  --raw-radius-10: 0.625rem;
+  --raw-radius-11: 0.6875rem;
+  --raw-radius-13: 0.8125rem;
+  --raw-radius-14: 0.875rem;
+  --raw-radius-15: 0.9375rem;
+  --raw-radius-17: 1.0625rem;
+  --raw-radius-20: 1.25rem;
+  --raw-radius-21: 1.3125rem;
+  --raw-radius-22: 1.375rem;
+
+  --raw-duration-fast: 150ms;
+  --raw-duration-normal: 250ms;
+}
+
+/* ---------------------------------------------------------------------------
+   TIER 2 — SEMANTIC  (role names, no namespace prefix)
+   Purpose, not appearance. Always `var(--raw-*)` — never a literal.
+   This is the themeable layer: the type roles below are re-pointed per
+   breakpoint, so `text-display` is 150px on desktop and 48px on mobile.
+   Grammar: --<role>[-<variant>][-<state>]
+   --------------------------------------------------------------------------- */
+:root {
+  --overlay-height: var(--raw-size-overlay-height);
+  --overlay-width: var(--raw-size-overlay-width);
+  --highlight-secondary: var(--raw-color-plum-400);
+  /* The design is dark-only — no prefers-color-scheme split. */
+  --background: var(--raw-color-ink-950);
+  --foreground: var(--raw-color-paper-50);
+  --foreground-muted: var(--raw-color-slate-200);
+  --foreground-soft: var(--raw-color-slate-250);
+  --foreground-subtle: var(--raw-color-slate-400);
+  --surface: var(--raw-color-ink-850);
+  --surface-inverse: var(--raw-color-paper-50);
+  --surface-poster: var(--raw-color-paper-200);
+  --on-inverse: var(--raw-color-ink-1000);
+  --on-poster: var(--raw-color-ink-975);
+  --accent: var(--raw-color-blue-500);
+  --accent-strong: var(--raw-color-blue-600);
+  --border-strong: var(--raw-color-white);
+
+  --header-scrim: var(--raw-gradient-header-scrim);
+  --header-shade: var(--raw-gradient-header-shade);
+  --hero-vignette: var(--raw-gradient-hero-vignette);
+  --hero-fade: var(--raw-gradient-hero-fade);
+  --hero-fade-compact: var(--raw-gradient-hero-fade-compact);
+  --card-fade: var(--raw-gradient-card-fade);
+
+  --elevation-card: var(--raw-shadow-card);
+  --elevation-wire: var(--raw-drop-shadow-wire);
+
+  --type-ghost-xl: var(--raw-font-size-380);
+  --type-ghost-lg: var(--raw-font-size-360);
+  --type-ghost-md: var(--raw-font-size-330);
+  --type-ghost-sm: var(--raw-font-size-300);
+  --type-wordmark: var(--raw-font-size-337);
+  --type-script-xl: var(--raw-font-size-170);
+  --type-script-lg: var(--raw-font-size-153);
+  --type-script-md: var(--raw-font-size-150);
+  --type-script-sm: var(--raw-font-size-128);
+  --type-script-xs: var(--raw-font-size-122);
+  --type-display: var(--raw-font-size-150);
+  --type-display-sm: var(--raw-font-size-120);
+  --type-step-number: var(--raw-font-size-120);
+  --type-stat-lg: var(--raw-font-size-140);
+  --type-stat: var(--raw-font-size-130);
+  --type-stat-ring: var(--raw-font-size-150);
+  --type-poster-title: var(--raw-font-size-132);
+  --type-statement: var(--raw-font-size-58);
+  --type-card-title: var(--raw-font-size-42);
+  --type-footer-logo: var(--raw-font-size-40);
+  --type-eyebrow: var(--raw-font-size-34);
+  --type-eyebrow-sm: var(--raw-font-size-30);
+  --type-bracket: var(--raw-font-size-30);
+  --type-button: var(--raw-font-size-26);
+  --type-row-title: var(--raw-font-size-26);
+  --type-stamp: var(--raw-font-size-26);
+  --type-logo: var(--raw-font-size-26);
+  --type-row-date: var(--raw-font-size-22);
+  --type-poster-meta: var(--raw-font-size-22);
+  --type-footer-link: var(--raw-font-size-22);
+  --type-button-sm: var(--raw-font-size-20);
+  --type-plate: var(--raw-font-size-20);
+  --type-meta: var(--raw-font-size-18);
+  --type-nav: var(--raw-font-size-18);
+  --type-fine: var(--raw-font-size-17);
+  --type-column: var(--raw-font-size-16);
+  --type-legal: var(--raw-font-size-15);
+  --type-body: var(--raw-font-size-16);
+  --type-caption: var(--raw-font-size-15);
+  --type-body-sm: var(--raw-font-size-14);
+  --type-poster-copy: var(--raw-font-size-14);
+
+  /* Figma snaps every text line to whole pixels (15px × 1.5 → 23px), so line
+     heights round to the nearest design pixel (0.0625rem at every base). */
+  --line-copy: round(nearest, calc(var(--raw-leading-150) * 1em + 0.001rem), 0.0625rem);
+  --line-statement: round(nearest, calc(var(--raw-leading-094) * 1em + 0.001rem), 0.0625rem);
+  --line-row: round(nearest, calc(var(--raw-leading-112) * 1em + 0.001rem), 0.0625rem);
+  --line-meta: round(nearest, calc(var(--raw-leading-130) * 1em + 0.001rem), 0.0625rem);
+  --line-poster: round(nearest, calc(var(--raw-leading-155) * 1em + 0.001rem), 0.0625rem);
+
+  --letter-row: var(--raw-tracking-003);
+  --letter-nav: var(--raw-tracking-006);
+  --letter-address: var(--raw-tracking-008);
+  --letter-caps: var(--raw-tracking-010);
+  --letter-caps-wide: var(--raw-tracking-012);
+  --letter-column: var(--raw-tracking-016);
+
+  --corner-plate: var(--raw-radius-10);
+  --corner-sticker: var(--raw-radius-14);
+  --corner-card: var(--raw-radius-20);
+  --corner-art-xs: var(--raw-radius-7);
+  --corner-art-sm: var(--raw-radius-13);
+  --corner-art-md: var(--raw-radius-15);
+  --corner-art-lg: var(--raw-radius-17);
+  --corner-art-xl: var(--raw-radius-21);
+  --corner-art-2xl: var(--raw-radius-22);
+  /* The tilted yellow Prime Ape card (hero/intro): 14px on its 293px frame card, kept proportional below. */
+  --corner-art-tilt: var(--raw-radius-14);
+
+  --duration-fast: var(--raw-duration-fast);
+  --duration-normal: var(--raw-duration-normal);
+  /* Hover/focus CSS transitions (ADR-0014). */
+  --duration-hover: var(--raw-duration-normal);
+}
+
+@media (width < 1200px) {
+  :root {
+    --type-ghost-lg: var(--raw-font-size-280);
+    --type-ghost-md: var(--raw-font-size-260);
+    --type-ghost-sm: var(--raw-font-size-240);
+    --type-wordmark: var(--raw-font-size-248);
+    --type-script-xl: var(--raw-font-size-106);
+    --type-script-lg: var(--raw-font-size-98);
+    --type-script-md: var(--raw-font-size-96);
+    --type-script-sm: var(--raw-font-size-96);
+    --type-script-xs: var(--raw-font-size-82);
+    --type-display: var(--raw-font-size-96);
+    --type-display-sm: var(--raw-font-size-80);
+    --type-step-number: var(--raw-font-size-88);
+    --type-stat-lg: var(--raw-font-size-92);
+    --type-stat: var(--raw-font-size-92);
+    --type-stat-ring: var(--raw-font-size-101);
+    --type-poster-title: var(--raw-font-size-96);
+    --type-statement: var(--raw-font-size-44);
+    --type-card-title: var(--raw-font-size-34);
+    --type-footer-logo: var(--raw-font-size-36);
+    --type-eyebrow: var(--raw-font-size-28);
+    --type-eyebrow-sm: var(--raw-font-size-28);
+    --type-button: var(--raw-font-size-24);
+    --type-row-title: var(--raw-font-size-24);
+    --type-stamp: var(--raw-font-size-22);
+    --type-row-date: var(--raw-font-size-21);
+    --type-poster-meta: var(--raw-font-size-20);
+    --type-footer-link: var(--raw-font-size-20);
+    --type-button-sm: var(--raw-font-size-18);
+    --type-nav: var(--raw-font-size-17);
+    --type-fine: var(--raw-font-size-18);
+    --type-column: var(--raw-font-size-18);
+    --type-legal: var(--raw-font-size-18);
+    --type-body: var(--raw-font-size-15);
+    --type-body-sm: var(--raw-font-size-15);
+    --type-poster-copy: var(--raw-font-size-18);
+    --line-statement: round(nearest, calc(var(--raw-leading-096) * 1em + 0.001rem), 0.0625rem);
+    --line-poster: round(nearest, calc(var(--raw-leading-150) * 1em + 0.001rem), 0.0625rem);
+    --elevation-wire: var(--raw-drop-shadow-wire-compact);
+  }
+}
+
+@media (width < 896px) {
+  :root {
+    --corner-art-tilt: var(--raw-radius-11);
+    --type-ghost-lg: var(--raw-font-size-220);
+    --type-ghost-md: var(--raw-font-size-200);
+    --type-ghost-sm: var(--raw-font-size-190);
+    --type-wordmark: var(--raw-font-size-186);
+    --type-script-xl: var(--raw-font-size-79);
+    --type-script-lg: var(--raw-font-size-73);
+    --type-script-md: var(--raw-font-size-72);
+    --type-script-sm: var(--raw-font-size-72);
+    --type-script-xs: var(--raw-font-size-73);
+    --type-display: var(--raw-font-size-72);
+    --type-display-sm: var(--raw-font-size-72);
+    --type-step-number: var(--raw-font-size-80);
+    --type-stat-lg: var(--raw-font-size-64);
+    --type-stat: var(--raw-font-size-64);
+    --type-stat-ring: var(--raw-font-size-70);
+    --type-poster-title: var(--raw-font-size-72);
+    --type-statement: var(--raw-font-size-38);
+    --type-card-title: var(--raw-font-size-32);
+    --type-eyebrow: var(--raw-font-size-26);
+    --type-eyebrow-sm: var(--raw-font-size-26);
+    --type-button: var(--raw-font-size-22);
+    --type-row-title: var(--raw-font-size-22);
+    --type-row-date: var(--raw-font-size-20);
+    --type-poster-meta: var(--raw-font-size-19);
+    --type-plate: var(--raw-font-size-19);
+    --type-meta: var(--raw-font-size-17);
+    --type-fine: var(--raw-font-size-17);
+    --type-column: var(--raw-font-size-17);
+    --type-legal: var(--raw-font-size-17);
+    --type-poster-copy: var(--raw-font-size-16);
+  }
+}
+
+@media (width < 700px) {
+  :root {
+    --corner-art-tilt: var(--raw-radius-6);
+    --type-wordmark: var(--raw-font-size-94);
+    --type-script-xl: var(--raw-font-size-53);
+    --type-script-lg: var(--raw-font-size-49);
+    --type-script-md: var(--raw-font-size-48);
+    --type-script-sm: var(--raw-font-size-48);
+    --type-script-xs: var(--raw-font-size-49);
+    --type-display: var(--raw-font-size-48);
+    --type-display-sm: var(--raw-font-size-48);
+    --type-step-number: var(--raw-font-size-72);
+    --type-stat-lg: var(--raw-font-size-54);
+    --type-stat: var(--raw-font-size-54);
+    --type-stat-ring: var(--raw-font-size-59);
+    --type-poster-title: var(--raw-font-size-48);
+    --type-statement: var(--raw-font-size-30);
+    --type-card-title: var(--raw-font-size-30);
+    --type-footer-logo: var(--raw-font-size-32);
+    --type-eyebrow: var(--raw-font-size-22);
+    --type-eyebrow-sm: var(--raw-font-size-22);
+    --type-button: var(--raw-font-size-20);
+    --type-row-title: var(--raw-font-size-20);
+    --type-stamp: var(--raw-font-size-20);
+    --type-row-date: var(--raw-font-size-18);
+    --type-poster-meta: var(--raw-font-size-17);
+    --type-footer-link: var(--raw-font-size-18);
+    --type-plate: var(--raw-font-size-17);
+    --type-meta: var(--raw-font-size-15);
+    --type-fine: var(--raw-font-size-15);
+    --type-column: var(--raw-font-size-15);
+    --type-legal: var(--raw-font-size-15);
+    --type-poster-copy: var(--raw-font-size-15);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   THEME BINDINGS — map semantic tokens into Tailwind namespaces.
+   Every entry is exactly `--<tw-namespace>-<role>: var(--<role>)`.
+   `inline` is required: it inlines the var() into each utility, so the
+   per-breakpoint overrides on the Tier 2 tokens above cascade.
+
+   Only these namespaces generate utilities (verified against tailwindcss
+   v4.3.3): --color-* --spacing-* --radius-* --leading-* --tracking-* --text-*
+   --font-* --ease-* --breakpoint-* --container-* --shadow-* --blur-* --animate-*
+   --drop-shadow-*
+   NOTE: there is NO --duration-* namespace in v4 — `duration-fast` compiles to
+   nothing. Durations stay Tier 2 only and are used as duration-[var(--duration-fast)].
+   --------------------------------------------------------------------------- */
+@theme inline {
+  --color-lavender: var(--lavender);
+  --color-peach: var(--peach);
+  --color-navigation: var(--navigation);
+  --color-display-surface: var(--display-surface);
+  --color-display-ink: var(--display-ink);
+  --color-dawn: var(--dawn);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-foreground-muted: var(--foreground-muted);
+  --color-foreground-soft: var(--foreground-soft);
+  --color-foreground-subtle: var(--foreground-subtle);
+  --color-surface: var(--surface);
+  --color-surface-inverse: var(--surface-inverse);
+  --color-surface-poster: var(--surface-poster);
+  --color-on-inverse: var(--on-inverse);
+  --color-on-poster: var(--on-poster);
+  --color-highlight-secondary: var(--highlight-secondary);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-border-strong: var(--border-strong);
+
+  --font-sans: var(--font-sora);
+  --font-display: var(--font-barlow-condensed);
+  --font-script: var(--font-sedgwick);
+
+  --text-ghost-xl: var(--type-ghost-xl);
+  --text-ghost-lg: var(--type-ghost-lg);
+  --text-ghost-md: var(--type-ghost-md);
+  --text-ghost-sm: var(--type-ghost-sm);
+  --text-wordmark: var(--type-wordmark);
+  --text-script-xl: var(--type-script-xl);
+  --text-script-lg: var(--type-script-lg);
+  --text-script-md: var(--type-script-md);
+  --text-script-sm: var(--type-script-sm);
+  --text-script-xs: var(--type-script-xs);
+  --text-display: var(--type-display);
+  --text-display-sm: var(--type-display-sm);
+  --text-step-number: var(--type-step-number);
+  --text-stat-lg: var(--type-stat-lg);
+  --text-stat: var(--type-stat);
+  --text-stat-ring: var(--type-stat-ring);
+  --text-poster-title: var(--type-poster-title);
+  --text-statement: var(--type-statement);
+  --text-card-title: var(--type-card-title);
+  --text-footer-logo: var(--type-footer-logo);
+  --text-eyebrow: var(--type-eyebrow);
+  --text-eyebrow-sm: var(--type-eyebrow-sm);
+  --text-bracket: var(--type-bracket);
+  --text-button: var(--type-button);
+  --text-row-title: var(--type-row-title);
+  --text-stamp: var(--type-stamp);
+  --text-logo: var(--type-logo);
+  --text-row-date: var(--type-row-date);
+  --text-poster-meta: var(--type-poster-meta);
+  --text-footer-link: var(--type-footer-link);
+  --text-button-sm: var(--type-button-sm);
+  --text-plate: var(--type-plate);
+  --text-meta: var(--type-meta);
+  --text-nav: var(--type-nav);
+  --text-fine: var(--type-fine);
+  --text-column: var(--type-column);
+  --text-legal: var(--type-legal);
+  --text-body: var(--type-body);
+  --text-caption: var(--type-caption);
+  --text-body-sm: var(--type-body-sm);
+  --text-poster-copy: var(--type-poster-copy);
+
+  /* Leading floor for clipped TextEngine reveals — see
+     obsidian/frontend/text-engine.md → "Alignment & line-height". */
+  --leading-display: 1.1;
+  --leading-copy: var(--line-copy);
+  --leading-statement: var(--line-statement);
+  --leading-row: var(--line-row);
+  --leading-meta: var(--line-meta);
+  --leading-poster: var(--line-poster);
+
+  --tracking-row: var(--letter-row);
+  --tracking-nav: var(--letter-nav);
+  --tracking-address: var(--letter-address);
+  --tracking-caps: var(--letter-caps);
+  --tracking-caps-wide: var(--letter-caps-wide);
+  --tracking-column: var(--letter-column);
+
+  --radius-plate: var(--corner-plate);
+  --radius-sticker: var(--corner-sticker);
+  --radius-card: var(--corner-card);
+  --radius-art-xs: var(--corner-art-xs);
+  --radius-art-sm: var(--corner-art-sm);
+  --radius-art-md: var(--corner-art-md);
+  --radius-art-lg: var(--corner-art-lg);
+  --radius-art-xl: var(--corner-art-xl);
+  --radius-art-2xl: var(--corner-art-2xl);
+  --radius-art-tilt: var(--corner-art-tilt);
+
+  --shadow-card: var(--elevation-card);
+  --drop-shadow-wire: var(--elevation-wire);
+
+  --ease-entrance: cubic-bezier(0.2, 0, 0, 1);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+@layer base {
+  /* Adaptive scaling grid — the root font-size tracks the viewport so the
+     rem-based layout is each Figma frame scaled to the window:
+       font-size: 16 * 100 / frameWidth  (vw)
+     Above 1400px AdaptiveGrid (coef 1) applies the same value at runtime.
+     Mobile stops growing at 1.2× (19.2px root, a 468px viewport); wider
+     phones get the 390 column centred (`mobile:max-w-97.5` in views/home).
+     Keep in sync with src/components/common/grid/grid.config.ts. */
+  html {
+    font-size: 1.142857vw; /* 16 * 100 / 1400 */
+  }
+
+  @media (width < 1200px) {
+    html {
+      font-size: 1.5625vw; /* 16 * 100 / 1024 */
+    }
+  }
+
+  @media (width < 896px) {
+    html {
+      font-size: 2.083333vw; /* 16 * 100 / 768 */
+    }
+  }
+
+  @media (width < 700px) {
+    html {
+      font-size: min(4.102564vw, 19.2px); /* 16 * 100 / 390, capped at 1.2× */
+    }
+  }
+}
+
+@layer utilities {
+}
+
+/* Repeated type treatments from the Figma frames. */
+@utility type-display {
+  @apply font-display font-black whitespace-nowrap uppercase italic leading-none;
+}
+
+@utility type-caps {
+  @apply font-display font-semibold whitespace-nowrap uppercase leading-none;
+}
+
+@utility type-script {
+  @apply font-script font-normal whitespace-nowrap leading-none;
+}
+
+/* The consent banner is server-rendered (it paints with the page). Hidden before
+   paint for a visitor who already chose (`consent-flag.ts`) and on the robot
+   form, which has no visitor to ask (D-016). */
+html[data-consent] [data-cookie-banner],
+html:has(meta[name="x-robot-view"]) [data-cookie-banner] {
+  display: none;
+}
+
+@layer base {
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+  html { scroll-padding-top: 6rem; }
+  button, a, summary { -webkit-tap-highlight-color: transparent; }
+}
+@layer utilities {
+  .pixel-art { image-rendering: pixelated; }
+}
+
+/* The application keeps the source typefaces but uses browser-sized controls.
+   Its new responsive grid should not shrink form controls with the poster grid. */
+html:has(.foil-dashboard) { font-size: 100% !important; }
+
+:root {
+  --lavender: var(--raw-color-lavender-200);
+  --peach: var(--raw-color-peach-200);
+  --navigation: var(--raw-color-ink-900);
+  --display-surface: var(--raw-color-paper-100);
+  --display-ink: var(--raw-color-ink-950);
+  --dawn: var(--raw-color-peach-200);
+  --dawn-gradient: var(--raw-gradient-dawn);
+  --workspace-gradient: var(--raw-gradient-workspace);
+  --navigation-gradient: var(--raw-gradient-navigation);
+  --panel-gradient: var(--raw-gradient-panel);
+  --display-gradient: var(--raw-gradient-display);
+  --gold-gradient: var(--raw-gradient-gold);
+  --inspection-height: var(--raw-size-inspector-height);
+  --inspection-expanded: var(--raw-size-inspector-expanded);
+  --inspector-shell-height: var(--raw-size-inspector-shell-height);
+  --inspector-shell-width: var(--raw-size-inspector-shell-width);
+  --dashboard-body-height: var(--raw-size-dashboard-body-height);
+  --inspection-perspective: var(--raw-size-inspection-perspective);
+  --touch-target: var(--raw-size-touch-target);
+  --z-route-transition: var(--raw-z-route-transition);
+  --collectible-rim: var(--raw-size-collectible-rim);
+  --collectible-pixel: var(--raw-size-collectible-pixel);
+  --collectible-corner: var(--raw-size-collectible-corner);
+  --collectible-rim-gradient: var(--raw-gradient-collectible-rim);
+  --collectible-hover-gradient: var(--raw-gradient-collectible-hover);
+}
+.foil-dashboard {
+  --background: var(--raw-color-plum-950);
+  --surface: var(--raw-color-plum-900);
+  --foreground-subtle: var(--raw-color-plum-200);
+}
+
+@layer utilities {
+  .pixel-control { min-inline-size: var(--touch-target); min-block-size: var(--touch-target); }
+}
+
+@layer base {
+  .pixel-icon { display: inline-block; vertical-align: middle; }
+}
+
+/* Pixel-cut sleeves frame the interface; the authentic scan remains untouched. */
+.foil-collectible {
+  --sleeve-cut: polygon(0 var(--collectible-corner), var(--collectible-pixel) var(--collectible-corner), var(--collectible-pixel) var(--collectible-pixel), var(--collectible-corner) var(--collectible-pixel), var(--collectible-corner) 0, calc(100% - var(--collectible-corner)) 0, calc(100% - var(--collectible-corner)) var(--collectible-pixel), calc(100% - var(--collectible-pixel)) var(--collectible-pixel), calc(100% - var(--collectible-pixel)) var(--collectible-corner), 100% var(--collectible-corner), 100% calc(100% - var(--collectible-corner)), calc(100% - var(--collectible-pixel)) calc(100% - var(--collectible-corner)), calc(100% - var(--collectible-pixel)) calc(100% - var(--collectible-pixel)), calc(100% - var(--collectible-corner)) calc(100% - var(--collectible-pixel)), calc(100% - var(--collectible-corner)) 100%, var(--collectible-corner) 100%, var(--collectible-corner) calc(100% - var(--collectible-pixel)), var(--collectible-pixel) calc(100% - var(--collectible-pixel)), var(--collectible-pixel) calc(100% - var(--collectible-corner)), 0 calc(100% - var(--collectible-corner)));
+  padding: var(--collectible-rim);
+  clip-path: var(--sleeve-cut);
+  background: var(--collectible-rim-gradient);
+}
+.foil-collectible:hover, .foil-collectible:focus-within { background: var(--collectible-hover-gradient); }
+.foil-collectible-body { clip-path: var(--sleeve-cut); }
+.foil-collectible-stage::before {
+  content: "";
+  position: absolute;
+  inset: var(--collectible-pixel);
+  pointer-events: none;
+  border-inline: var(--collectible-rim) solid color-mix(in srgb, var(--display-ink) 12%, transparent);
+  border-bottom: var(--collectible-rim) solid color-mix(in srgb, var(--display-ink) 12%, transparent);
+}
+.foil-collectible[data-kind="pack"] .foil-collectible-label {
+  border-top: var(--collectible-pixel) solid transparent;
+  border-image: repeating-linear-gradient(90deg, var(--peach) 0 var(--collectible-pixel), var(--lavender) var(--collectible-pixel) calc(var(--collectible-pixel) * 2)) 1;
+}
+.foil-collectible[data-kind="pack"] .foil-collectible-stage::before { border-inline-style: dashed; }
+.foil-route-shutter {
+  clip-path: polygon(0 0, 25% 0, 25% var(--collectible-pixel), 50% var(--collectible-pixel), 50% 0, 75% 0, 75% var(--collectible-corner), 100% var(--collectible-corner), 100% 100%, 0 100%);
+}

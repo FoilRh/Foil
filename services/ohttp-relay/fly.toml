@@ -1,0 +1,21 @@
+# fly deploy --config services/ohttp-relay/fly.toml (from the repo root)
+# Env/secrets: GATEWAY_URL=https://<api>/gateway ALLOWED_ORIGINS=https://<web>
+# Public: this is the only Foil host browsers talk to for API traffic. No access logs.
+app = "foil-ohttp-relay"
+primary_region = "iad"
+
+[build]
+  dockerfile = "../Dockerfile"
+  [build.args]
+    SERVICE = "ohttp-relay"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 1
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"

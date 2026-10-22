@@ -1,0 +1,486 @@
+{
+  "notice": "Authentic public scans are reference imagery for the Foil interface. Metadata describes the photographed card and label. No inventory availability or pricing is asserted.",
+  "scans": [
+    {
+      "id": "vault-01",
+      "slug": "rayquaza-vmax",
+      "side": "front",
+      "sourceUrl": "https://static.courtyard.io/graded-cards-scans/CGC%206200767112/slab_front.jpg",
+      "sourcePage": "https://courtyard.io/marketplace",
+      "observedRenderUrl": "https://static.courtyard.io/graded-cards-renders/CGC%206200767112/render_front.w600.webp?w=3840&q=75",
+      "observedTitle": "2022 VSTAR Universe #108/172 Rayquaza VMAX - Holo (CGC 10 GEM MINT)",
+      "sourceSHA256": "b4003da36feace6dbd646507c30abcb432505106ca5f941d94da9f2ea0155673",
+      "sourceDimensions": {
+        "width": 1000,
+        "height": 1641
+      },
+      "outputDimensions": {
+        "width": 1000,
+        "height": 1641
+      },
+      "outputPath": "/assets/foil/slabs/vault-01-front.webp",
+      "processing": "Entire authentic slab scan, original native dimensions, WebP quality 96, no cropping or synthetic reconstruction."
+    },
+    {
+      "id": "vault-01",
+      "slug": "rayquaza-vmax",
+      "side": "back",
+      "sourceUrl": "https://static.courtyard.io/graded-cards-scans/CGC%206200767112/slab_back.jpg",
+      "sourcePage": "https://courtyard.io/marketplace",
+      "observedRenderUrl": "https://static.courtyard.io/graded-cards-renders/CGC%206200767112/render_front.w600.webp?w=3840&q=75",
+      "observedTitle": "2022 VSTAR Universe #108/172 Rayquaza VMAX - Holo (CGC 10 GEM MINT)",
+      "sourceSHA256": "ad9baa20b6d13b2c2a8dadb9c3e0cd536e43f1e76f3ea14f4d60787ddbc1527e",
+      "sourceDimensions": {
+        "width": 1000,
+        "height": 1658
+      },
+      "outputDimensions": {
+        "width": 1000,
+        "height": 1658
+      },
+      "outputPath": "/assets/foil/slabs/vault-01-back.webp",
+      "processing": "Entire authentic slab scan, original native dimensions, WebP quality 96, no cropping or synthetic reconstruction."
+    },
+    {
+      "id": "vault-02",
+      "slug": "kyogre",
+      "side": "front",
+      "sourceUrl": "https://static.courtyard.io/graded-cards-scans/PSA%20166169071/slab_front.jpg",
+      "sourcePage": "https://courtyard.io/marketplace",
+      "observedRenderUrl": "https://static.courtyard.io/graded-cards-renders/PSA%20166169071/render_front.w600.webp?w=3840&q=75",
+      "observedTitle": "2020 Pokémon Sword & Shield Shiny Star V #036 Kyogre (PSA 10 GEM MINT)",
+      "sourceSHA256": "22324cb1c34550228f26903d7dca464cac1da9e56fc36e7d62f50b5a8517c7e0",
+      "sourceDimensions": {
+        "width": 1000,
+        "height": 1687
+      },
+      "outputDimensions": {
+        "width": 1000,
+        "height": 1687
+      },
+      "outputPath": "/assets/foil/slabs/vault-02-front.webp",
+      "processing": "Entire authentic slab scan, original native dimensions, WebP quality 96, no cropping or synthetic reconstruction."
+    },
+    {
+      "id": "vault-02",
+      "slug": "kyogre",
+      "side": "back",
+      "sourceUrl": "https://static.courtyard.io/graded-cards-scans/PSA%20166169071/slab_back.jpg",
+      "sourcePage": "https://courtyard.io/marketplace",
+      "observedRenderUrl": "https://static.courtyard.io/graded-cards-renders/PSA%20166169071/render_front.w600.webp?w=3840&q=75",
+      "observedTitle": "2020 Pokémon Sword & Shield Shiny Star V #036 Kyogre (PSA 10 GEM MINT)",
+      "sourceSHA256": "7cbe445ff2cd5556a584a1dd09171ee063f3d9164d70f8fd0b819cd38e1205e6",
+      "sourceDimensions": {
+        "width": 1000,
+        "height": 1684
+      },
+      "outputDimensions": {
+        "width": 1000,
+        "height": 1684
+      },
+      "outputPath": "/assets/foil/slabs/vault-02-back.webp",
+      "processing": "Entire authentic slab scan, original native dimensions, WebP quality 96, no cropping or synthetic reconstruction."
+    },
+    {
+      "id": "vault-03",
+      "slug": "magneton",
+      "side": "front",
+      "sourceUrl": "https://static.courtyard.io/graded-cards-scans/PSA%20142590488/slab_front.jpg",
+      "sourcePage": "https://courtyard.io/marketplace",
+      "observedRenderUrl": "https://static.courtyard.io/graded-cards-renders/PSA%20142590488/render_front.w600.webp?w=3840&q=75",
+      "observedTitle": "2024 Pokémon Svp EN-SV Black Star Promo #159 Magneton - Surging Sparks Elite Trainer Box (PSA 9 MINT)",
+      "sourceSHA256": "ea16a9227d68f83d54048edf29c85877d72633a05d0d4c443ec6072872390f1d",
+      "sourceDimensions": {
+        "width": 1000,
+        "height": 1673
+      },
+      "outputDimensions": {
+        "width": 1000,
+        "height": 1673
+      },
+      "outputPath": "/assets/foil/slabs/vault-03-front.webp",
+      "processing": "Entire authentic slab scan, original native dimensions, WebP quality 96, no cropping or synthetic reconstruction."
+    },
+    {
+      "id": "vault-03",
+      "slug": "magneton",
+      "side": "back",
+      "sourceUrl": "https://static.courtyard.io/graded-cards-scans/PSA%20142590488/slab_back.jpg",
+      "sourcePage": "https://courtyard.io/marketplace",
+      "observedRenderUrl": "https://static.courtyard.io/graded-cards-renders/PSA%20142590488/render_front.w600.webp?w=3840&q=75",
+      "observedTitle": "2024 Pokémon Svp EN-SV Black Star Promo #159 Magneton - Surging Sparks Elite Trainer Box (PSA 9 MINT)",
+      "sourceSHA256": "d33e5906a48f6d9f555421c353948caf5cf4d58289bc3c0d32c7b4ec01f61380",
+      "sourceDimensions": {
+        "width": 1000,
+        "height": 1679
+      },
+      "outputDimensions": {
+        "width": 1000,
+        "height": 1679
+      },
+      "outputPath": "/assets/foil/slabs/vault-03-back.webp",
+      "processing": "Entire authentic slab scan, original native dimensions, WebP quality 96, no cropping or synthetic reconstruction."
+    },
+    {
+      "id": "vault-04",
+      "slug": "jolteon",
+      "side": "front",
+      "sourceUrl": "https://static.courtyard.io/graded-cards-scans/PSA%20107820122/slab_front.jpg",
+      "sourcePage": "https://courtyard.io/marketplace",
+      "observedRenderUrl": "https://static.courtyard.io/graded-cards-renders/PSA%20107820122/render_front.w600.webp?w=3840&q=75",
+      "observedTitle": "2024 Pokémon Sv8a-Terastal Fest EX #051 Jolteon (PSA 10 GEM MINT)",
+      "sourceSHA256": "fac627e0d2b26ac4a502ffcc8bd6921a3c8bbb81942ca82c4c44265de0f3d780",
+      "sourceDimensions": {
+        "width": 1000,
+        "height": 1654
+      },
+      "outputDimensions": {
+        "width": 1000,
+        "height": 1654
+      },
+      "outputPath": "/assets/foil/slabs/vault-04-front.webp",
+      "processing": "Entire authentic slab scan, original native dimensions, WebP quality 96, no cropping or synthetic reconstruction."
+    },
+    {
+      "id": "vault-04",
+      "slug": "jolteon",
+      "side": "back",
+      "sourceUrl": "https://static.courtyard.io/graded-cards-scans/PSA%20107820122/slab_back.jpg",
+      "sourcePage": "https://courtyard.io/marketplace",
+      "observedRenderUrl": "https://static.courtyard.io/graded-cards-renders/PSA%20107820122/render_front.w600.webp?w=3840&q=75",
+      "observedTitle": "2024 Pokémon Sv8a-Terastal Fest EX #051 Jolteon (PSA 10 GEM MINT)",
+      "sourceSHA256": "33908b23aec5ebbdefb494aef68262f99a925e5b8f58fca4ac766303d480d3fc",
+      "sourceDimensions": {
+        "width": 1000,
+        "height": 1678
+      },
+      "outputDimensions": {
+        "width": 1000,
+        "height": 1678
+      },
+      "outputPath": "/assets/foil/slabs/vault-04-back.webp",
+      "processing": "Entire authentic slab scan, original native dimensions, WebP quality 96, no cropping or synthetic reconstruction."
+    },
+    {
+      "id": "vault-05",
+      "slug": "lillies-clefairy-ex",
+      "side": "front",
+      "sourceUrl": "https://static.courtyard.io/graded-cards-scans/PSA%20161204824/slab_front.jpg",
+      "sourcePage": "https://courtyard.io/marketplace",
+      "observedRenderUrl": "https://static.courtyard.io/graded-cards-renders/PSA%20161204824/render_front.w600.webp?w=3840&q=75",
+      "observedTitle": "2026 Pokémon Asc EN-Ascended Heroes #280 Lillie's Clefairy EX - Holo Special Illustration Rare (PSA 9 MINT)",
+      "sourceSHA256": "60c4b5799d6a64f6f505d9ac01cc60cfe9b67d38641e1ba8ec9670a8d171dda8",
+      "sourceDimensions": {
+        "width": 1000,
+        "height": 1659
+      },
+      "outputDimensions": {
+        "width": 1000,
+        "height": 1659
+      },
+      "outputPath": "/assets/foil/slabs/vault-05-front.webp",
+      "processing": "Entire authentic slab scan, original native dimensions, WebP quality 96, no cropping or synthetic reconstruction."
+    },
+    {
+      "id": "vault-05",
+      "slug": "lillies-clefairy-ex",
+      "side": "back",
+      "sourceUrl": "https://static.courtyard.io/graded-cards-scans/PSA%20161204824/slab_back.jpg",
+      "sourcePage": "https://courtyard.io/marketplace",
+      "observedRenderUrl": "https://static.courtyard.io/graded-cards-renders/PSA%20161204824/render_front.w600.webp?w=3840&q=75",
+      "observedTitle": "2026 Pokémon Asc EN-Ascended Heroes #280 Lillie's Clefairy EX - Holo Special Illustration Rare (PSA 9 MINT)",
+      "sourceSHA256": "310a507b9b45f8d61f414b6b58b8d364b751d665503d9aaa2f6fd9dc53bdf186",
+      "sourceDimensions": {
+        "width": 1000,
+        "height": 1654
+      },
+      "outputDimensions": {
+        "width": 1000,
+        "height": 1654
+      },
+      "outputPath": "/assets/foil/slabs/vault-05-back.webp",
+      "processing": "Entire authentic slab scan, original native dimensions, WebP quality 96, no cropping or synthetic reconstruction."
+    },
+    {
+      "id": "vault-06",
+      "slug": "kaido-linlin",
+      "side": "front",
+      "sourceUrl": "https://static.courtyard.io/graded-cards-scans/CGC%206152418295/slab_front.jpg",
+      "sourcePage": "https://courtyard.io/marketplace",
+      "observedRenderUrl": "https://static.courtyard.io/graded-cards-renders/CGC%206152418295/render_front.w600.webp?w=3840&q=75",
+      "observedTitle": "2024 Two Legends (OP08) - English #OP08-119 Kaido & LinlinÂ (CGC 9 MINT)",
+      "sourceSHA256": "4c770942e9e719c52a34f8f434e5355b96761b15294cd93c09acf953a3622409",
+      "sourceDimensions": {
+        "width": 1000,
+        "height": 1652
+      },
+      "outputDimensions": {
+        "width": 1000,
+        "height": 1652
+      },
+      "outputPath": "/assets/foil/slabs/vault-06-front.webp",
+      "processing": "Entire authentic slab scan, original native dimensions, WebP quality 96, no cropping or synthetic reconstruction."
+    },
+    {
+      "id": "vault-06",
+      "slug": "kaido-linlin",
+      "side": "back",
+      "sourceUrl": "https://static.courtyard.io/graded-cards-scans/CGC%206152418295/slab_back.jpg",
+      "sourcePage": "https://courtyard.io/marketplace",
+      "observedRenderUrl": "https://static.courtyard.io/graded-cards-renders/CGC%206152418295/render_front.w600.webp?w=3840&q=75",
+      "observedTitle": "2024 Two Legends (OP08) - English #OP08-119 Kaido & LinlinÂ (CGC 9 MINT)",
+      "sourceSHA256": "bea76f405905f4726d4dce924d65d35d7b7c6031b57d3611dc55e2eb3674ba67",
+      "sourceDimensions": {
+        "width": 1000,
+        "height": 1671
+      },
+      "outputDimensions": {
+        "width": 1000,
+        "height": 1671
+      },
+      "outputPath": "/assets/foil/slabs/vault-06-back.webp",
+      "processing": "Entire authentic slab scan, original native dimensions, WebP quality 96, no cropping or synthetic reconstruction."
+    },
+    {
+      "id": "vault-07",
+      "slug": "kaido",
+      "side": "front",
+      "sourceUrl": "https://static.courtyard.io/graded-cards-scans/PSA%20142120158/slab_front.jpg",
+      "sourcePage": "https://courtyard.io/marketplace",
+      "observedRenderUrl": "https://static.courtyard.io/graded-cards-renders/PSA%20142120158/render_front.w600.webp?w=3840&q=75",
+      "observedTitle": "2024 One Piece Premium Card Collection -Leader Collection #001 Kaido (PSA 10 GEM MINT)",
+      "sourceSHA256": "3962aa18a4a6157cca6a239e23e70c0d904fe7765dad5285f4a3fa9f9c549b88",
+      "sourceDimensions": {
+        "width": 1000,
+        "height": 1674
+      },
+      "outputDimensions": {
+        "width": 1000,
+        "height": 1674
+      },
+      "outputPath": "/assets/foil/slabs/vault-07-front.webp",
+      "processing": "Entire authentic slab scan, original native dimensions, WebP quality 96, no cropping or synthetic reconstruction."
+    },
+    {
+      "id": "vault-07",
+      "slug": "kaido",
+      "side": "back",
+      "sourceUrl": "https://static.courtyard.io/graded-cards-scans/PSA%20142120158/slab_back.jpg",
+      "sourcePage": "https://courtyard.io/marketplace",
+      "observedRenderUrl": "https://static.courtyard.io/graded-cards-renders/PSA%20142120158/render_front.w600.webp?w=3840&q=75",
+      "observedTitle": "2024 One Piece Premium Card Collection -Leader Collection #001 Kaido (PSA 10 GEM MINT)",
+      "sourceSHA256": "52c28e0433b06616d5ecd257f55115cffcfe0a48d800873f7944e123cac7be7a",
+      "sourceDimensions": {
+        "width": 1000,
+        "height": 1681
+      },
+      "outputDimensions": {
+        "width": 1000,
+        "height": 1681
+      },
+      "outputPath": "/assets/foil/slabs/vault-07-back.webp",
+      "processing": "Entire authentic slab scan, original native dimensions, WebP quality 96, no cropping or synthetic reconstruction."
+    },
+    {
+      "id": "vault-08",
+      "slug": "paige-bueckers",
+      "side": "front",
+      "sourceUrl": "https://static.courtyard.io/graded-cards-scans/PSA%20119146493/slab_front.jpg",
+      "sourcePage": "https://courtyard.io/marketplace",
+      "observedRenderUrl": "https://static.courtyard.io/graded-cards-renders/PSA%20119146493/render_front.w600.webp?w=3840&q=75",
+      "observedTitle": "2025 Panini Instant WNBA Draft Night #DN1 Paige Bueckers (PSA 9 MINT)",
+      "sourceSHA256": "970dcf6c7d235a8998430ba57f25ca2d64169ed00c50190cec9f1e5d71e174cf",
+      "sourceDimensions": {
+        "width": 954,
+        "height": 1610
+      },
+      "outputDimensions": {
+        "width": 954,
+        "height": 1610
+      },
+      "outputPath": "/assets/foil/slabs/vault-08-front.webp",
+      "processing": "Entire authentic slab scan, original native dimensions, WebP quality 96, no cropping or synthetic reconstruction."
+    },
+    {
+      "id": "vault-08",
+      "slug": "paige-bueckers",
+      "side": "back",
+      "sourceUrl": "https://static.courtyard.io/graded-cards-scans/PSA%20119146493/slab_back.jpg",
+      "sourcePage": "https://courtyard.io/marketplace",
+      "observedRenderUrl": "https://static.courtyard.io/graded-cards-renders/PSA%20119146493/render_front.w600.webp?w=3840&q=75",
+      "observedTitle": "2025 Panini Instant WNBA Draft Night #DN1 Paige Bueckers (PSA 9 MINT)",
+      "sourceSHA256": "38507eaa553826e1475bc5edaee800f1000043821d9b5567158193b4b6f3c831",
+      "sourceDimensions": {
+        "width": 946,
+        "height": 1622
+      },
+      "outputDimensions": {
+        "width": 946,
+        "height": 1622
+      },
+      "outputPath": "/assets/foil/slabs/vault-08-back.webp",
+      "processing": "Entire authentic slab scan, original native dimensions, WebP quality 96, no cropping or synthetic reconstruction."
+    },
+    {
+      "id": "vault-09",
+      "slug": "ronald-acuna-jr",
+      "side": "front",
+      "sourceUrl": "https://static.courtyard.io/graded-cards-scans/PSA%2042999122/slab_front.jpg",
+      "sourcePage": "https://courtyard.io/marketplace",
+      "observedRenderUrl": "https://static.courtyard.io/graded-cards-renders/PSA%2042999122/render_front.w600.webp?w=3840&q=75",
+      "observedTitle": "2018 Topps Update #US252 Ronald Acuna Jr. - Rainbow Foil (PSA 10 GEM MINT)",
+      "sourceSHA256": "a8ad3e61c4155df212168ece66e7652fb429e861f24d9a1268312fba6006fb0d",
+      "sourceDimensions": {
+        "width": 954,
+        "height": 1611
+      },
+      "outputDimensions": {
+        "width": 954,
+        "height": 1611
+      },
+      "outputPath": "/assets/foil/slabs/vault-09-front.webp",
+      "processing": "Entire authentic slab scan, original native dimensions, WebP quality 96, no cropping or synthetic reconstruction."
+    },
+    {
+      "id": "vault-09",
+      "slug": "ronald-acuna-jr",
+      "side": "back",
+      "sourceUrl": "https://static.courtyard.io/graded-cards-scans/PSA%2042999122/slab_back.jpg",
+      "sourcePage": "https://courtyard.io/marketplace",
+      "observedRenderUrl": "https://static.courtyard.io/graded-cards-renders/PSA%2042999122/render_front.w600.webp?w=3840&q=75",
+      "observedTitle": "2018 Topps Update #US252 Ronald Acuna Jr. - Rainbow Foil (PSA 10 GEM MINT)",
+      "sourceSHA256": "7fc570b1824bb222015a07337256ecc761eec9d1d17562208d7b33515c8aa280",
+      "sourceDimensions": {
+        "width": 950,
+        "height": 1606
+      },
+      "outputDimensions": {
+        "width": 950,
+        "height": 1606
+      },
+      "outputPath": "/assets/foil/slabs/vault-09-back.webp",
+      "processing": "Entire authentic slab scan, original native dimensions, WebP quality 96, no cropping or synthetic reconstruction."
+    },
+    {
+      "id": "vault-10",
+      "slug": "christian-pulisic",
+      "side": "front",
+      "sourceUrl": "https://static.courtyard.io/graded-cards-scans/PSA%2069735163/slab_front.jpg",
+      "sourcePage": "https://courtyard.io/marketplace",
+      "observedRenderUrl": "https://static.courtyard.io/graded-cards-renders/PSA%2069735163/render_front.w600.webp?w=3840&q=75",
+      "observedTitle": "2022 Panini Prizm World Cup Qatar Scorers Club #22 Christian Pulisic - Silver Prizm (PSA 10 GEM MINT)",
+      "sourceSHA256": "6d712082ba9e8ead5f9dfebf380f53bd2eed6f83db1602e8d860e52f34aa418a",
+      "sourceDimensions": {
+        "width": 1000,
+        "height": 1672
+      },
+      "outputDimensions": {
+        "width": 1000,
+        "height": 1672
+      },
+      "outputPath": "/assets/foil/slabs/vault-10-front.webp",
+      "processing": "Entire authentic slab scan, original native dimensions, WebP quality 96, no cropping or synthetic reconstruction."
+    },
+    {
+      "id": "vault-10",
+      "slug": "christian-pulisic",
+      "side": "back",
+      "sourceUrl": "https://static.courtyard.io/graded-cards-scans/PSA%2069735163/slab_back.jpg",
+      "sourcePage": "https://courtyard.io/marketplace",
+      "observedRenderUrl": "https://static.courtyard.io/graded-cards-renders/PSA%2069735163/render_front.w600.webp?w=3840&q=75",
+      "observedTitle": "2022 Panini Prizm World Cup Qatar Scorers Club #22 Christian Pulisic - Silver Prizm (PSA 10 GEM MINT)",
+      "sourceSHA256": "9333e0232db2278a539835485ea97ed96e472a0849d2bb7bf115d6cdcfd5cb61",
+      "sourceDimensions": {
+        "width": 1000,
+        "height": 1678
+      },
+      "outputDimensions": {
+        "width": 1000,
+        "height": 1678
+      },
+      "outputPath": "/assets/foil/slabs/vault-10-back.webp",
+      "processing": "Entire authentic slab scan, original native dimensions, WebP quality 96, no cropping or synthetic reconstruction."
+    },
+    {
+      "id": "vault-11",
+      "slug": "jesus-made",
+      "side": "front",
+      "sourceUrl": "https://static.courtyard.io/graded-cards-scans/PSA%20141916313/slab_front.jpg",
+      "sourcePage": "https://courtyard.io/marketplace",
+      "observedRenderUrl": "https://static.courtyard.io/graded-cards-renders/PSA%20141916313/render_front.w600.webp?w=3840&q=75",
+      "observedTitle": "2025 Bowman Chrome Prospects #BCP50 Jesus Made (PSA 10 GEM MINT)",
+      "sourceSHA256": "0f3cdc1ef69e53720840adbe806f81bfa36d5e62b8054c447a9e3856cc429c96",
+      "sourceDimensions": {
+        "width": 1000,
+        "height": 1655
+      },
+      "outputDimensions": {
+        "width": 1000,
+        "height": 1655
+      },
+      "outputPath": "/assets/foil/slabs/vault-11-front.webp",
+      "processing": "Entire authentic slab scan, original native dimensions, WebP quality 96, no cropping or synthetic reconstruction."
+    },
+    {
+      "id": "vault-11",
+      "slug": "jesus-made",
+      "side": "back",
+      "sourceUrl": "https://static.courtyard.io/graded-cards-scans/PSA%20141916313/slab_back.jpg",
+      "sourcePage": "https://courtyard.io/marketplace",
+      "observedRenderUrl": "https://static.courtyard.io/graded-cards-renders/PSA%20141916313/render_front.w600.webp?w=3840&q=75",
+      "observedTitle": "2025 Bowman Chrome Prospects #BCP50 Jesus Made (PSA 10 GEM MINT)",
+      "sourceSHA256": "8e693ed663c1f67c80f4eed143476165d21a97711ea05dccaf0bded077e09569",
+      "sourceDimensions": {
+        "width": 1000,
+        "height": 1681
+      },
+      "outputDimensions": {
+        "width": 1000,
+        "height": 1681
+      },
+      "outputPath": "/assets/foil/slabs/vault-11-back.webp",
+      "processing": "Entire authentic slab scan, original native dimensions, WebP quality 96, no cropping or synthetic reconstruction."
+    },
+    {
+      "id": "vault-12",
+      "slug": "drake-maye",
+      "side": "front",
+      "sourceUrl": "https://static.courtyard.io/graded-cards-scans/PSA%20126270983/slab_front.jpg",
+      "sourcePage": "https://courtyard.io/marketplace",
+      "observedRenderUrl": "https://static.courtyard.io/graded-cards-renders/PSA%20126270983/render_front.w600.webp?w=3840&q=75",
+      "observedTitle": "2024 Topps Now #10 Drake Maye (PSA 10 GEM MINT)",
+      "sourceSHA256": "eeacdb9f14e2e14e29147771431d2ac26f977302981e3196e1849a9c35ad6ca7",
+      "sourceDimensions": {
+        "width": 1000,
+        "height": 1673
+      },
+      "outputDimensions": {
+        "width": 1000,
+        "height": 1673
+      },
+      "outputPath": "/assets/foil/slabs/vault-12-front.webp",
+      "processing": "Entire authentic slab scan, original native dimensions, WebP quality 96, no cropping or synthetic reconstruction."
+    },
+    {
+      "id": "vault-12",
+      "slug": "drake-maye",
+      "side": "back",
+      "sourceUrl": "https://static.courtyard.io/graded-cards-scans/PSA%20126270983/slab_back.jpg",
+      "sourcePage": "https://courtyard.io/marketplace",
+      "observedRenderUrl": "https://static.courtyard.io/graded-cards-renders/PSA%20126270983/render_front.w600.webp?w=3840&q=75",
+      "observedTitle": "2024 Topps Now #10 Drake Maye (PSA 10 GEM MINT)",
+      "sourceSHA256": "7eb5cdca64bf2da3c2fbfa2b8aa3b1ede23122084edb18976239e50e6263b23e",
+      "sourceDimensions": {
+        "width": 1000,
+        "height": 1683
+      },
+      "outputDimensions": {
+        "width": 1000,
+        "height": 1683
+      },
+      "outputPath": "/assets/foil/slabs/vault-12-back.webp",
+      "processing": "Entire authentic slab scan, original native dimensions, WebP quality 96, no cropping or synthetic reconstruction."
+    }
+  ],
+  "unavailableBacks": []
+}

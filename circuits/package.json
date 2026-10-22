@@ -1,0 +1,16 @@
+{
+  "name": "@foil/circuits",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "bun scripts/build.ts",
+    "setup:dev": "bun scripts/setup-dev.ts"
+  },
+  "dependencies": {
+    "circomlib": "2.0.5",
+    "circomlibjs": "0.1.7",
+    "ffjavascript": "0.3.1",
+    "snarkjs": "0.7.5"
+  }
+}

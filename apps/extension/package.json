@@ -1,0 +1,17 @@
+{
+  "name": "@foil/extension",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "bun scripts/build.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@foil/guard": "workspace:*",
+    "viem": "2.38.0"
+  },
+  "devDependencies": {
+    "@types/chrome": "0.1.4"
+  }
+}

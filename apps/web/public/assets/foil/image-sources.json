@@ -1,0 +1,887 @@
+{
+  "notice": "Sourced product photography illustrates the interface and is not an assertion of inventory, grading service endorsement, a sale offer, or a promised pack pull. All card/wrapper art and photographed grade labels are authentic source photography, not AI-generated.",
+  "assets": [
+    {
+      "path": "intro/intro-card-front.png",
+      "product": "Surging Sparks Booster Pack — Pikachu artwork",
+      "sourcePage": "https://card-binder.com/products/pokemon-surging-sparks-booster-pack",
+      "sourceUrl": "https://cdn.shopify.com/s/files/1/0865/2816/4189/files/Surging-Sparks-Booster-pack-1.webp?v=1725131997",
+      "kind": "pack",
+      "originalDimensions": [
+        650,
+        650
+      ],
+      "sourceSHA256": "94e897ed0b47dad35288be86cb59daf01b2f43ad4be98a8eb9c2e405237f0f68",
+      "outputDimensions": [
+        678,
+        899
+      ],
+      "productRenderedDimensions": [
+        472,
+        863
+      ],
+      "pixelBaseDimensions": [
+        236,
+        432
+      ],
+      "assetPath": "/assets/intro/intro-card-front.png",
+      "processing": "Authentic product photo, transparent contain composition, uniform scaling, 192-color reduction with no dithering and nearest-neighbor pixel cells. Printed artwork and actual slab label retained."
+    },
+    {
+      "path": "intro/intro-card-tucked.png",
+      "product": "Journey Together Booster Pack",
+      "sourcePage": "https://card-binder.com/products/pokemon-tcg-journey-together-booster-pack",
+      "sourceUrl": "https://cdn.shopify.com/s/files/1/0865/2816/4189/files/Pokemon_TCG_Scarlet_Violet_Journey_Together_Booster_Wrap_Iono_s_Bellibolt.webp?v=1740410141",
+      "kind": "pack",
+      "originalDimensions": [
+        600,
+        600
+      ],
+      "sourceSHA256": "5a3c67e1618b10e9644cc27798a580fbda39ce1c5219210f5421c0d1ed75af98",
+      "outputDimensions": [
+        1200,
+        1620
+      ],
+      "productRenderedDimensions": [
+        858,
+        1555
+      ],
+      "pixelBaseDimensions": [
+        286,
+        518
+      ],
+      "assetPath": "/assets/intro/intro-card-tucked.png",
+      "processing": "Authentic product photo, transparent contain composition, uniform scaling, 192-color reduction with no dithering and nearest-neighbor pixel cells. Printed artwork and actual slab label retained."
+    },
+    {
+      "path": "intro/intro-card-tucked-overlay.png",
+      "product": "PSA 9 FA / GENGAR VMAX 002/019 2021 POKEMON JP SGG GENGAR VMAX HIGH CLASS DECK",
+      "sourcePage": "https://slabbed.eu/product/psa-9-fa-gengar-vmax-002-019-2021-pokemon-jp-sgg-gengar-vmax-high-class-deck",
+      "sourceUrl": "https://cdn.shopify.com/s/files/1/1024/4748/1219/files/s-l1600_a70451a2-466c-414c-bc6a-c83a07c993f5.jpg?v=1786533721",
+      "kind": "slab",
+      "originalDimensions": [
+        397,
+        656
+      ],
+      "sourceSHA256": "fa320e82f01c7296506d9e05bb06688f8db4e1f5c58aadf603b4cd00a8774a27",
+      "outputDimensions": [
+        1200,
+        1607
+      ],
+      "productRenderedDimensions": [
+        934,
+        1543
+      ],
+      "assetPath": "/assets/intro/intro-card-tucked-overlay.png",
+      "processing": "Direct authentic original photograph, full color, uniformly contained in unchanged canvas. No pixelization, quantization, synthetic sharpening, artwork reconstruction, or nonuniform stretch."
+    },
+    {
+      "path": "vault/vault-card-1.png",
+      "product": "Paradox Rift Booster Pack",
+      "sourcePage": "https://card-binder.com/products/pokemon-paradox-rift-booster-pack",
+      "sourceUrl": "https://cdn.shopify.com/s/files/1/0865/2816/4189/files/Paradox-Rift-Booster-Pack-3.webp?v=1723835267",
+      "kind": "pack",
+      "originalDimensions": [
+        600,
+        600
+      ],
+      "sourceSHA256": "f2df83f999802bf9ecf6bf275e5f719d8e896f0cf3abd217b11acdbf6e631684",
+      "outputDimensions": [
+        1000,
+        1339
+      ],
+      "productRenderedDimensions": [
+        709,
+        1285
+      ],
+      "pixelBaseDimensions": [
+        354,
+        642
+      ],
+      "assetPath": "/assets/vault/vault-card-1.png",
+      "processing": "Authentic product photo, transparent contain composition, uniform scaling, 192-color reduction with no dithering and nearest-neighbor pixel cells. Printed artwork and actual slab label retained."
+    },
+    {
+      "path": "vault/vault-card-2.png",
+      "product": "Bulbasaur 001/165 Japanese Pokemon 151 Master Ball Reverse Holo PSA 10",
+      "sourcePage": "https://slabbed.eu/product/bulbasaur-001-165-japanese-pokemon-151-master-ball-reverse-holo-psa-10",
+      "sourceUrl": "https://cdn.shopify.com/s/files/1/1024/4748/1219/files/s-l1600_ca8045e7-e6eb-4b77-949f-528dafe05a4e.jpg?v=1786461709",
+      "kind": "slab",
+      "originalDimensions": [
+        438,
+        716
+      ],
+      "sourceSHA256": "765ccd59f1e535380fe2ae46626cef131b7add097d586e9cd64785c79e7a224d",
+      "outputDimensions": [
+        1000,
+        1339
+      ],
+      "productRenderedDimensions": [
+        786,
+        1285
+      ],
+      "assetPath": "/assets/vault/vault-card-2.png",
+      "processing": "Direct authentic original photograph, full color, uniformly contained in unchanged canvas. No pixelization, quantization, synthetic sharpening, artwork reconstruction, or nonuniform stretch."
+    },
+    {
+      "path": "vault/vault-card-3.png",
+      "product": "Terastal Festival ex Booster Pack",
+      "sourcePage": "https://card-binder.com/products/pokemon-terastal-festival-ex-japanese-booster-pack",
+      "sourceUrl": "https://cdn.shopify.com/s/files/1/0865/2816/4189/files/Pokemon-Terastal-Festival-Booster-Pack-Japanese.webp?v=1732735030",
+      "kind": "pack",
+      "originalDimensions": [
+        600,
+        600
+      ],
+      "sourceSHA256": "96b9e07d8778bc0ca6ab5b047d874c7da762a9ca83855b04ae3000acc73a3e59",
+      "outputDimensions": [
+        1000,
+        1339
+      ],
+      "productRenderedDimensions": [
+        691,
+        1285
+      ],
+      "pixelBaseDimensions": [
+        346,
+        642
+      ],
+      "assetPath": "/assets/vault/vault-card-3.png",
+      "processing": "Authentic product photo, transparent contain composition, uniform scaling, 192-color reduction with no dithering and nearest-neighbor pixel cells. Printed artwork and actual slab label retained."
+    },
+    {
+      "path": "vault/vault-card-4.png",
+      "product": "[PSA 10] Espeon 062/187 Terastal Festival Master Ball Reverse Japanese POKEMON",
+      "sourcePage": "https://slabbed.eu/product/psa-10-espeon-062-187-terastal-festival-master-ball-reverse-japanese-pokemon-1",
+      "sourceUrl": "https://cdn.shopify.com/s/files/1/1024/4748/1219/files/s-l1600_ea5c9a31-d90b-4711-a9f4-e174af37b1b5.jpg?v=1782747178",
+      "kind": "slab",
+      "originalDimensions": [
+        459,
+        761
+      ],
+      "sourceSHA256": "14eaa6cff5fd3747727cacbfe06afdebef13541ebdbdb765eb09806c207bc86a",
+      "outputDimensions": [
+        1000,
+        1494
+      ],
+      "productRenderedDimensions": [
+        865,
+        1434
+      ],
+      "assetPath": "/assets/vault/vault-card-4.png",
+      "processing": "Direct authentic original photograph, full color, uniformly contained in unchanged canvas. No pixelization, quantization, synthetic sharpening, artwork reconstruction, or nonuniform stretch."
+    },
+    {
+      "path": "vault/vault-card-5.png",
+      "product": "Vstar Universe Japanese Booster Pack",
+      "sourcePage": "https://card-binder.com/products/pokemon-vstar-universe-japanese-booster-pack",
+      "sourceUrl": "https://cdn.shopify.com/s/files/1/0865/2816/4189/files/Vstar-Universe-Booster-Pack.webp?v=1724834166",
+      "kind": "pack",
+      "originalDimensions": [
+        450,
+        450
+      ],
+      "sourceSHA256": "4d248157af6e1d5d8daa8a195b1e138420b98dd13f31ad95c291673198e94878",
+      "outputDimensions": [
+        1000,
+        1339
+      ],
+      "productRenderedDimensions": [
+        675,
+        1285
+      ],
+      "pixelBaseDimensions": [
+        338,
+        642
+      ],
+      "assetPath": "/assets/vault/vault-card-5.png",
+      "processing": "Authentic product photo, transparent contain composition, uniform scaling, 192-color reduction with no dithering and nearest-neighbor pixel cells. Printed artwork and actual slab label retained."
+    },
+    {
+      "path": "drop/drop-card.png",
+      "product": "BGS 9.5 Iono's Wattrel SV-P 232 PROMO JAPANESE SV9 BOX PURCHASE CAMPAIGN NOT PSA",
+      "sourcePage": "https://slabbed.eu/product/bgs-9-5-ionos-wattrel-sv-p-232-promo-japanese-sv9-box-purchase-campaign-not-psa",
+      "sourceUrl": "https://cdn.shopify.com/s/files/1/1024/4748/1219/files/s-l1600_ffc77c90-5b93-4f61-832b-2337546f9a44.jpg?v=1788642927",
+      "kind": "slab",
+      "originalDimensions": [
+        429,
+        652
+      ],
+      "sourceSHA256": "d37a5fa78a2d9dbf35abd641731d5d5e79c5040bed3dcb52e2355e9b76e97582",
+      "outputDimensions": [
+        904,
+        1184
+      ],
+      "productRenderedDimensions": [
+        748,
+        1137
+      ],
+      "assetPath": "/assets/drop/drop-card.png",
+      "processing": "Direct authentic original photograph, full color, uniformly contained in unchanged canvas. No pixelization, quantization, synthetic sharpening, artwork reconstruction, or nonuniform stretch."
+    },
+    {
+      "path": "join/join-card.png",
+      "product": "151 Korean Booster Pack",
+      "sourcePage": "https://card-binder.com/products/pokemon-151-korean-booster-pack",
+      "sourceUrl": "https://cdn.shopify.com/s/files/1/0865/2816/4189/files/Pokemon-151-Booster-Pack.webp?v=1723872533",
+      "kind": "pack",
+      "originalDimensions": [
+        450,
+        450
+      ],
+      "sourceSHA256": "674327d9f28ed2e813a7a7f361aec37c32fe9117e4016ab297a5a2ccf827d074",
+      "outputDimensions": [
+        1000,
+        1339
+      ],
+      "productRenderedDimensions": [
+        644,
+        1285
+      ],
+      "pixelBaseDimensions": [
+        322,
+        642
+      ],
+      "assetPath": "/assets/join/join-card.png",
+      "processing": "Authentic product photo, transparent contain composition, uniform scaling, 192-color reduction with no dithering and nearest-neighbor pixel cells. Printed artwork and actual slab label retained.",
+      "displayLabel": "Pokémon Card 151 booster pack",
+      "note": "Retailer lists this as Korean, but supplied wrapper photograph carries Japanese typography; interface should avoid asserting a language."
+    },
+    {
+      "path": "foil/catalog/pack-01.png",
+      "product": "Mega Brave Booster Pack",
+      "sourcePage": "https://card-binder.com/products/pokemon-mega-brave-japanese-booster-pack",
+      "sourceUrl": "https://cdn.shopify.com/s/files/1/0865/2816/4189/files/Pokemon-TCG-Mega-Brave-Japan-Booster-Pack.webp?v=1751874538",
+      "kind": "pack",
+      "originalDimensions": [
+        406,
+        406
+      ],
+      "sourceSHA256": "f405bfb235ab23be6ea1be12ee80b70baf6dfb8d0c0facabd5d29c4fb7ff4e12",
+      "outputDimensions": [
+        640,
+        840
+      ],
+      "productRenderedDimensions": [
+        440,
+        806
+      ],
+      "pixelBaseDimensions": [
+        220,
+        403
+      ],
+      "assetPath": "/assets/foil/catalog/pack-01.png",
+      "processing": "Authentic product photo, transparent contain composition, uniform scaling, 192-color reduction with no dithering and nearest-neighbor pixel cells. Printed artwork and actual slab label retained."
+    },
+    {
+      "path": "foil/catalog/pack-02.png",
+      "product": "Battle Partners Booster Pack",
+      "sourcePage": "https://card-binder.com/products/pokemon-battle-partners-japanese-booster-pack",
+      "sourceUrl": "https://cdn.shopify.com/s/files/1/0865/2816/4189/files/Pokemon-TCG-Battle-Partners-SV9-Japanse-Booster-Pack.webp?v=1735282481",
+      "kind": "pack",
+      "originalDimensions": [
+        600,
+        600
+      ],
+      "sourceSHA256": "97f38ce113943be384482bc0ac9c0bf94aa4f854cd1c26946dbcd18fa369b675",
+      "outputDimensions": [
+        640,
+        840
+      ],
+      "productRenderedDimensions": [
+        407,
+        806
+      ],
+      "pixelBaseDimensions": [
+        204,
+        403
+      ],
+      "assetPath": "/assets/foil/catalog/pack-02.png",
+      "processing": "Authentic product photo, transparent contain composition, uniform scaling, 192-color reduction with no dithering and nearest-neighbor pixel cells. Printed artwork and actual slab label retained."
+    },
+    {
+      "path": "foil/catalog/pack-03.png",
+      "product": "The Glory of Team Rocket Booster Pack",
+      "sourcePage": "https://card-binder.com/products/pokemon-the-glory-of-team-rocket-booster-pack",
+      "sourceUrl": "https://cdn.shopify.com/s/files/1/0865/2816/4189/files/Pokemon-The-Glory-of-Team-Rocket-Booster-Pack-Japanese.webp?v=1743583257",
+      "kind": "pack",
+      "originalDimensions": [
+        600,
+        600
+      ],
+      "sourceSHA256": "cfac9f4a3ccdcac118ba289eee2b2f191539241d41e267af6798c61ee09ea44c",
+      "outputDimensions": [
+        640,
+        840
+      ],
+      "productRenderedDimensions": [
+        402,
+        806
+      ],
+      "pixelBaseDimensions": [
+        201,
+        403
+      ],
+      "assetPath": "/assets/foil/catalog/pack-03.png",
+      "processing": "Authentic product photo, transparent contain composition, uniform scaling, 192-color reduction with no dithering and nearest-neighbor pixel cells. Printed artwork and actual slab label retained."
+    },
+    {
+      "path": "foil/catalog/pack-04.png",
+      "product": "Inferno X Booster Pack",
+      "sourcePage": "https://card-binder.com/products/pokemon-inferno-x-japanese-booster-pack",
+      "sourceUrl": "https://cdn.shopify.com/s/files/1/0865/2816/4189/files/Pokemon-TCG-Inferno-X-Booster-Pack-Japanese-m2-Mega-Evolutions.webp?v=1756552739",
+      "kind": "pack",
+      "originalDimensions": [
+        470,
+        470
+      ],
+      "sourceSHA256": "41f8212a5608d94d51a8fd690cb6670c9e0a43408a6d91e0513270130b33e5ce",
+      "outputDimensions": [
+        640,
+        840
+      ],
+      "productRenderedDimensions": [
+        401,
+        806
+      ],
+      "pixelBaseDimensions": [
+        200,
+        403
+      ],
+      "assetPath": "/assets/foil/catalog/pack-04.png",
+      "processing": "Authentic product photo, transparent contain composition, uniform scaling, 192-color reduction with no dithering and nearest-neighbor pixel cells. Printed artwork and actual slab label retained."
+    },
+    {
+      "path": "foil/catalog/slab-01.png",
+      "product": "BGS 9.5 GEM MINT 2025 Pokemon Mcdonald's Promo JP Pikachu #020/M-P NOT PSA",
+      "sourcePage": "https://slabbed.eu/product/bgs-9-5-gem-mint-2025-pokemon-mcdonalds-promo-jp-pikachu-020-m-p-not-psa-2",
+      "sourceUrl": "https://cdn.shopify.com/s/files/1/1024/4748/1219/files/s-l1600_e552012e-718f-46e7-84c4-a1a6b82f507e.jpg?v=1788642918",
+      "kind": "slab",
+      "originalDimensions": [
+        548,
+        858
+      ],
+      "sourceSHA256": "d5dd299cad99cfed0bb907d31fa7342b44eb9f148184f543a4c0b0b72f7abf28",
+      "outputDimensions": [
+        640,
+        840
+      ],
+      "productRenderedDimensions": [
+        515,
+        806
+      ],
+      "assetPath": "/assets/foil/catalog/slab-01.png",
+      "processing": "Direct original photograph at full color, uniformly contained in original canvas. No pixelization or palette reduction."
+    },
+    {
+      "path": "foil/catalog/slab-02.png",
+      "product": "PSA 9 SYLVEON EX RR SV8A 069 POKEMON SCARLET & VIOLET TERASTAL FESTIVAL JAPAN",
+      "sourcePage": "https://slabbed.eu/product/psa-9-sylveon-ex-rr-sv8a-069-pokemon-scarlet-violet-terastal-festival-japan",
+      "sourceUrl": "https://cdn.shopify.com/s/files/1/1024/4748/1219/files/s-l1600_4ee9d554-7cc1-4111-9676-04d2598b433e.jpg?v=1782746479",
+      "kind": "slab",
+      "originalDimensions": [
+        477,
+        771
+      ],
+      "sourceSHA256": "c62ba3d48df2ca3c5c4b659dcdbc40380e9b8e29c747a6d720e576bf3a09cb43",
+      "outputDimensions": [
+        640,
+        840
+      ],
+      "productRenderedDimensions": [
+        499,
+        806
+      ],
+      "assetPath": "/assets/foil/catalog/slab-02.png",
+      "processing": "Direct original photograph at full color, uniformly contained in original canvas. No pixelization or palette reduction."
+    },
+    {
+      "path": "foil/catalog/slab-03.png",
+      "product": "PSA 10 Pokemon Card Jolteon Ex 052/187 RR SV8a Japanese Card GEM MINT",
+      "sourcePage": "https://slabbed.eu/product/psa-10-pokemon-card-jolteon-ex-052-187-rr-sv8a-japanese-card-gem-mint",
+      "sourceUrl": "https://cdn.shopify.com/s/files/1/1024/4748/1219/files/s-l1600_b670b539-3db1-4edb-b8d3-7740f1c7b31e.jpg?v=1782746218",
+      "kind": "slab",
+      "originalDimensions": [
+        401,
+        650
+      ],
+      "sourceSHA256": "9ff6350863b785eca24189206dc2889b999529daf3405f3ef07af5c523d3155d",
+      "outputDimensions": [
+        640,
+        840
+      ],
+      "productRenderedDimensions": [
+        497,
+        806
+      ],
+      "assetPath": "/assets/foil/catalog/slab-03.png",
+      "processing": "Direct original photograph at full color, uniformly contained in original canvas. No pixelization or palette reduction."
+    },
+    {
+      "path": "foil/catalog/slab-04.png",
+      "product": "PSA 9 Mint Leafeon GX 067/066 Ultra Sun Full Art 2017 Japanese Card Sun & Moon",
+      "sourcePage": "https://slabbed.eu/product/psa-9-mint-leafeon-gx-067-066-ultra-sun-full-art-2017-japanese-card-sun-moon",
+      "sourceUrl": "https://cdn.shopify.com/s/files/1/1024/4748/1219/files/s-l1600_37d372dd-9230-4488-b55f-c6acf414d0c0.jpg?v=1782746215",
+      "kind": "slab",
+      "originalDimensions": [
+        522,
+        849
+      ],
+      "sourceSHA256": "2f7a3f1f8a06782ebe1cee947364bb96f222fbf8c1a6639943558b1cfe2016ab",
+      "outputDimensions": [
+        640,
+        840
+      ],
+      "productRenderedDimensions": [
+        496,
+        806
+      ],
+      "assetPath": "/assets/foil/catalog/slab-04.png",
+      "processing": "Direct original photograph at full color, uniformly contained in original canvas. No pixelization or palette reduction."
+    },
+    {
+      "path": "foil/hero-slab.png",
+      "product": "Gyarados GX SM212 Hidden Fates promo — PSA 9",
+      "sourcePage": "https://slabbed.eu/product/gyarados-sm212-hidden-fates-tins-promo-pokemon-psa-9-mint-1",
+      "sourceUrl": "https://cdn.shopify.com/s/files/1/1024/4748/1219/files/s-l1600_45a2db9a-d6bf-446a-92ab-a85803e5bfda.jpg?v=1782746212",
+      "kind": "slab",
+      "originalDimensions": [
+        489,
+        778
+      ],
+      "sourceSHA256": "0eede17a2a98a36a0d748118edf41361b6b660d69cc2f150fe0ff3c2e7e576b3",
+      "outputDimensions": [
+        640,
+        840
+      ],
+      "productRenderedDimensions": [
+        507,
+        806
+      ],
+      "assetPath": "/assets/foil/hero-slab.png",
+      "processing": "Direct authentic original photograph, full color, uniformly contained in unchanged canvas. No pixelization, quantization, synthetic sharpening, artwork reconstruction, or nonuniform stretch."
+    }
+  ],
+  "sourcesByAsset": {
+    "/assets/intro/intro-card-front.png": {
+      "product": "Surging Sparks Booster Pack — Pikachu artwork",
+      "sourcePage": "https://card-binder.com/products/pokemon-surging-sparks-booster-pack",
+      "sourceUrl": "https://cdn.shopify.com/s/files/1/0865/2816/4189/files/Surging-Sparks-Booster-pack-1.webp?v=1725131997",
+      "kind": "pack",
+      "originalDimensions": [
+        650,
+        650
+      ],
+      "sourceSHA256": "94e897ed0b47dad35288be86cb59daf01b2f43ad4be98a8eb9c2e405237f0f68",
+      "outputDimensions": [
+        678,
+        899
+      ],
+      "productRenderedDimensions": [
+        472,
+        863
+      ],
+      "pixelBaseDimensions": [
+        236,
+        432
+      ],
+      "processing": "Authentic product photo, transparent contain composition, uniform scaling, 192-color reduction with no dithering and nearest-neighbor pixel cells. Printed artwork and actual slab label retained."
+    },
+    "/assets/intro/intro-card-tucked.png": {
+      "product": "Journey Together Booster Pack",
+      "sourcePage": "https://card-binder.com/products/pokemon-tcg-journey-together-booster-pack",
+      "sourceUrl": "https://cdn.shopify.com/s/files/1/0865/2816/4189/files/Pokemon_TCG_Scarlet_Violet_Journey_Together_Booster_Wrap_Iono_s_Bellibolt.webp?v=1740410141",
+      "kind": "pack",
+      "originalDimensions": [
+        600,
+        600
+      ],
+      "sourceSHA256": "5a3c67e1618b10e9644cc27798a580fbda39ce1c5219210f5421c0d1ed75af98",
+      "outputDimensions": [
+        1200,
+        1620
+      ],
+      "productRenderedDimensions": [
+        858,
+        1555
+      ],
+      "pixelBaseDimensions": [
+        286,
+        518
+      ],
+      "processing": "Authentic product photo, transparent contain composition, uniform scaling, 192-color reduction with no dithering and nearest-neighbor pixel cells. Printed artwork and actual slab label retained."
+    },
+    "/assets/intro/intro-card-tucked-overlay.png": {
+      "product": "PSA 9 FA / GENGAR VMAX 002/019 2021 POKEMON JP SGG GENGAR VMAX HIGH CLASS DECK",
+      "sourcePage": "https://slabbed.eu/product/psa-9-fa-gengar-vmax-002-019-2021-pokemon-jp-sgg-gengar-vmax-high-class-deck",
+      "sourceUrl": "https://cdn.shopify.com/s/files/1/1024/4748/1219/files/s-l1600_a70451a2-466c-414c-bc6a-c83a07c993f5.jpg?v=1786533721",
+      "kind": "slab",
+      "originalDimensions": [
+        397,
+        656
+      ],
+      "sourceSHA256": "fa320e82f01c7296506d9e05bb06688f8db4e1f5c58aadf603b4cd00a8774a27",
+      "outputDimensions": [
+        1200,
+        1607
+      ],
+      "productRenderedDimensions": [
+        934,
+        1543
+      ],
+      "processing": "Direct authentic original photograph, full color, uniformly contained in unchanged canvas. No pixelization, quantization, synthetic sharpening, artwork reconstruction, or nonuniform stretch."
+    },
+    "/assets/vault/vault-card-1.png": {
+      "product": "Paradox Rift Booster Pack",
+      "sourcePage": "https://card-binder.com/products/pokemon-paradox-rift-booster-pack",
+      "sourceUrl": "https://cdn.shopify.com/s/files/1/0865/2816/4189/files/Paradox-Rift-Booster-Pack-3.webp?v=1723835267",
+      "kind": "pack",
+      "originalDimensions": [
+        600,
+        600
+      ],
+      "sourceSHA256": "f2df83f999802bf9ecf6bf275e5f719d8e896f0cf3abd217b11acdbf6e631684",
+      "outputDimensions": [
+        1000,
+        1339
+      ],
+      "productRenderedDimensions": [
+        709,
+        1285
+      ],
+      "pixelBaseDimensions": [
+        354,
+        642
+      ],
+      "processing": "Authentic product photo, transparent contain composition, uniform scaling, 192-color reduction with no dithering and nearest-neighbor pixel cells. Printed artwork and actual slab label retained."
+    },
+    "/assets/vault/vault-card-2.png": {
+      "product": "Bulbasaur 001/165 Japanese Pokemon 151 Master Ball Reverse Holo PSA 10",
+      "sourcePage": "https://slabbed.eu/product/bulbasaur-001-165-japanese-pokemon-151-master-ball-reverse-holo-psa-10",
+      "sourceUrl": "https://cdn.shopify.com/s/files/1/1024/4748/1219/files/s-l1600_ca8045e7-e6eb-4b77-949f-528dafe05a4e.jpg?v=1786461709",
+      "kind": "slab",
+      "originalDimensions": [
+        438,
+        716
+      ],
+      "sourceSHA256": "765ccd59f1e535380fe2ae46626cef131b7add097d586e9cd64785c79e7a224d",
+      "outputDimensions": [
+        1000,
+        1339
+      ],
+      "productRenderedDimensions": [
+        786,
+        1285
+      ],
+      "processing": "Direct authentic original photograph, full color, uniformly contained in unchanged canvas. No pixelization, quantization, synthetic sharpening, artwork reconstruction, or nonuniform stretch."
+    },
+    "/assets/vault/vault-card-3.png": {
+      "product": "Terastal Festival ex Booster Pack",
+      "sourcePage": "https://card-binder.com/products/pokemon-terastal-festival-ex-japanese-booster-pack",
+      "sourceUrl": "https://cdn.shopify.com/s/files/1/0865/2816/4189/files/Pokemon-Terastal-Festival-Booster-Pack-Japanese.webp?v=1732735030",
+      "kind": "pack",
+      "originalDimensions": [
+        600,
+        600
+      ],
+      "sourceSHA256": "96b9e07d8778bc0ca6ab5b047d874c7da762a9ca83855b04ae3000acc73a3e59",
+      "outputDimensions": [
+        1000,
+        1339
+      ],
+      "productRenderedDimensions": [
+        691,
+        1285
+      ],
+      "pixelBaseDimensions": [
+        346,
+        642
+      ],
+      "processing": "Authentic product photo, transparent contain composition, uniform scaling, 192-color reduction with no dithering and nearest-neighbor pixel cells. Printed artwork and actual slab label retained."
+    },
+    "/assets/vault/vault-card-4.png": {
+      "product": "[PSA 10] Espeon 062/187 Terastal Festival Master Ball Reverse Japanese POKEMON",
+      "sourcePage": "https://slabbed.eu/product/psa-10-espeon-062-187-terastal-festival-master-ball-reverse-japanese-pokemon-1",
+      "sourceUrl": "https://cdn.shopify.com/s/files/1/1024/4748/1219/files/s-l1600_ea5c9a31-d90b-4711-a9f4-e174af37b1b5.jpg?v=1782747178",
+      "kind": "slab",
+      "originalDimensions": [
+        459,
+        761
+      ],
+      "sourceSHA256": "14eaa6cff5fd3747727cacbfe06afdebef13541ebdbdb765eb09806c207bc86a",
+      "outputDimensions": [
+        1000,
+        1494
+      ],
+      "productRenderedDimensions": [
+        865,
+        1434
+      ],
+      "processing": "Direct authentic original photograph, full color, uniformly contained in unchanged canvas. No pixelization, quantization, synthetic sharpening, artwork reconstruction, or nonuniform stretch."
+    },
+    "/assets/vault/vault-card-5.png": {
+      "product": "Vstar Universe Japanese Booster Pack",
+      "sourcePage": "https://card-binder.com/products/pokemon-vstar-universe-japanese-booster-pack",
+      "sourceUrl": "https://cdn.shopify.com/s/files/1/0865/2816/4189/files/Vstar-Universe-Booster-Pack.webp?v=1724834166",
+      "kind": "pack",
+      "originalDimensions": [
+        450,
+        450
+      ],
+      "sourceSHA256": "4d248157af6e1d5d8daa8a195b1e138420b98dd13f31ad95c291673198e94878",
+      "outputDimensions": [
+        1000,
+        1339
+      ],
+      "productRenderedDimensions": [
+        675,
+        1285
+      ],
+      "pixelBaseDimensions": [
+        338,
+        642
+      ],
+      "processing": "Authentic product photo, transparent contain composition, uniform scaling, 192-color reduction with no dithering and nearest-neighbor pixel cells. Printed artwork and actual slab label retained."
+    },
+    "/assets/drop/drop-card.png": {
+      "product": "BGS 9.5 Iono's Wattrel SV-P 232 PROMO JAPANESE SV9 BOX PURCHASE CAMPAIGN NOT PSA",
+      "sourcePage": "https://slabbed.eu/product/bgs-9-5-ionos-wattrel-sv-p-232-promo-japanese-sv9-box-purchase-campaign-not-psa",
+      "sourceUrl": "https://cdn.shopify.com/s/files/1/1024/4748/1219/files/s-l1600_ffc77c90-5b93-4f61-832b-2337546f9a44.jpg?v=1788642927",
+      "kind": "slab",
+      "originalDimensions": [
+        429,
+        652
+      ],
+      "sourceSHA256": "d37a5fa78a2d9dbf35abd641731d5d5e79c5040bed3dcb52e2355e9b76e97582",
+      "outputDimensions": [
+        904,
+        1184
+      ],
+      "productRenderedDimensions": [
+        748,
+        1137
+      ],
+      "processing": "Direct authentic original photograph, full color, uniformly contained in unchanged canvas. No pixelization, quantization, synthetic sharpening, artwork reconstruction, or nonuniform stretch."
+    },
+    "/assets/join/join-card.png": {
+      "product": "151 Korean Booster Pack",
+      "sourcePage": "https://card-binder.com/products/pokemon-151-korean-booster-pack",
+      "sourceUrl": "https://cdn.shopify.com/s/files/1/0865/2816/4189/files/Pokemon-151-Booster-Pack.webp?v=1723872533",
+      "kind": "pack",
+      "originalDimensions": [
+        450,
+        450
+      ],
+      "sourceSHA256": "674327d9f28ed2e813a7a7f361aec37c32fe9117e4016ab297a5a2ccf827d074",
+      "outputDimensions": [
+        1000,
+        1339
+      ],
+      "productRenderedDimensions": [
+        644,
+        1285
+      ],
+      "pixelBaseDimensions": [
+        322,
+        642
+      ],
+      "processing": "Authentic product photo, transparent contain composition, uniform scaling, 192-color reduction with no dithering and nearest-neighbor pixel cells. Printed artwork and actual slab label retained."
+    },
+    "/assets/foil/catalog/pack-01.png": {
+      "product": "Mega Brave Booster Pack",
+      "sourcePage": "https://card-binder.com/products/pokemon-mega-brave-japanese-booster-pack",
+      "sourceUrl": "https://cdn.shopify.com/s/files/1/0865/2816/4189/files/Pokemon-TCG-Mega-Brave-Japan-Booster-Pack.webp?v=1751874538",
+      "kind": "pack",
+      "originalDimensions": [
+        406,
+        406
+      ],
+      "sourceSHA256": "f405bfb235ab23be6ea1be12ee80b70baf6dfb8d0c0facabd5d29c4fb7ff4e12",
+      "outputDimensions": [
+        640,
+        840
+      ],
+      "productRenderedDimensions": [
+        440,
+        806
+      ],
+      "pixelBaseDimensions": [
+        220,
+        403
+      ],
+      "processing": "Authentic product photo, transparent contain composition, uniform scaling, 192-color reduction with no dithering and nearest-neighbor pixel cells. Printed artwork and actual slab label retained."
+    },
+    "/assets/foil/catalog/pack-02.png": {
+      "product": "Battle Partners Booster Pack",
+      "sourcePage": "https://card-binder.com/products/pokemon-battle-partners-japanese-booster-pack",
+      "sourceUrl": "https://cdn.shopify.com/s/files/1/0865/2816/4189/files/Pokemon-TCG-Battle-Partners-SV9-Japanse-Booster-Pack.webp?v=1735282481",
+      "kind": "pack",
+      "originalDimensions": [
+        600,
+        600
+      ],
+      "sourceSHA256": "97f38ce113943be384482bc0ac9c0bf94aa4f854cd1c26946dbcd18fa369b675",
+      "outputDimensions": [
+        640,
+        840
+      ],
+      "productRenderedDimensions": [
+        407,
+        806
+      ],
+      "pixelBaseDimensions": [
+        204,
+        403
+      ],
+      "processing": "Authentic product photo, transparent contain composition, uniform scaling, 192-color reduction with no dithering and nearest-neighbor pixel cells. Printed artwork and actual slab label retained."
+    },
+    "/assets/foil/catalog/pack-03.png": {
+      "product": "The Glory of Team Rocket Booster Pack",
+      "sourcePage": "https://card-binder.com/products/pokemon-the-glory-of-team-rocket-booster-pack",
+      "sourceUrl": "https://cdn.shopify.com/s/files/1/0865/2816/4189/files/Pokemon-The-Glory-of-Team-Rocket-Booster-Pack-Japanese.webp?v=1743583257",
+      "kind": "pack",
+      "originalDimensions": [
+        600,
+        600
+      ],
+      "sourceSHA256": "cfac9f4a3ccdcac118ba289eee2b2f191539241d41e267af6798c61ee09ea44c",
+      "outputDimensions": [
+        640,
+        840
+      ],
+      "productRenderedDimensions": [
+        402,
+        806
+      ],
+      "pixelBaseDimensions": [
+        201,
+        403
+      ],
+      "processing": "Authentic product photo, transparent contain composition, uniform scaling, 192-color reduction with no dithering and nearest-neighbor pixel cells. Printed artwork and actual slab label retained."
+    },
+    "/assets/foil/catalog/pack-04.png": {
+      "product": "Inferno X Booster Pack",
+      "sourcePage": "https://card-binder.com/products/pokemon-inferno-x-japanese-booster-pack",
+      "sourceUrl": "https://cdn.shopify.com/s/files/1/0865/2816/4189/files/Pokemon-TCG-Inferno-X-Booster-Pack-Japanese-m2-Mega-Evolutions.webp?v=1756552739",
+      "kind": "pack",
+      "originalDimensions": [
+        470,
+        470
+      ],
+      "sourceSHA256": "41f8212a5608d94d51a8fd690cb6670c9e0a43408a6d91e0513270130b33e5ce",
+      "outputDimensions": [
+        640,
+        840
+      ],
+      "productRenderedDimensions": [
+        401,
+        806
+      ],
+      "pixelBaseDimensions": [
+        200,
+        403
+      ],
+      "processing": "Authentic product photo, transparent contain composition, uniform scaling, 192-color reduction with no dithering and nearest-neighbor pixel cells. Printed artwork and actual slab label retained."
+    },
+    "/assets/foil/catalog/slab-01.png": {
+      "product": "BGS 9.5 GEM MINT 2025 Pokemon Mcdonald's Promo JP Pikachu #020/M-P NOT PSA",
+      "sourcePage": "https://slabbed.eu/product/bgs-9-5-gem-mint-2025-pokemon-mcdonalds-promo-jp-pikachu-020-m-p-not-psa-2",
+      "sourceUrl": "https://cdn.shopify.com/s/files/1/1024/4748/1219/files/s-l1600_e552012e-718f-46e7-84c4-a1a6b82f507e.jpg?v=1788642918",
+      "kind": "slab",
+      "originalDimensions": [
+        548,
+        858
+      ],
+      "sourceSHA256": "d5dd299cad99cfed0bb907d31fa7342b44eb9f148184f543a4c0b0b72f7abf28",
+      "outputDimensions": [
+        640,
+        840
+      ],
+      "productRenderedDimensions": [
+        515,
+        806
+      ],
+      "processing": "Direct original photograph at full color, uniformly contained in original canvas. No pixelization or palette reduction."
+    },
+    "/assets/foil/catalog/slab-02.png": {
+      "product": "PSA 9 SYLVEON EX RR SV8A 069 POKEMON SCARLET & VIOLET TERASTAL FESTIVAL JAPAN",
+      "sourcePage": "https://slabbed.eu/product/psa-9-sylveon-ex-rr-sv8a-069-pokemon-scarlet-violet-terastal-festival-japan",
+      "sourceUrl": "https://cdn.shopify.com/s/files/1/1024/4748/1219/files/s-l1600_4ee9d554-7cc1-4111-9676-04d2598b433e.jpg?v=1782746479",
+      "kind": "slab",
+      "originalDimensions": [
+        477,
+        771
+      ],
+      "sourceSHA256": "c62ba3d48df2ca3c5c4b659dcdbc40380e9b8e29c747a6d720e576bf3a09cb43",
+      "outputDimensions": [
+        640,
+        840
+      ],
+      "productRenderedDimensions": [
+        499,
+        806
+      ],
+      "processing": "Direct original photograph at full color, uniformly contained in original canvas. No pixelization or palette reduction."
+    },
+    "/assets/foil/catalog/slab-03.png": {
+      "product": "PSA 10 Pokemon Card Jolteon Ex 052/187 RR SV8a Japanese Card GEM MINT",
+      "sourcePage": "https://slabbed.eu/product/psa-10-pokemon-card-jolteon-ex-052-187-rr-sv8a-japanese-card-gem-mint",
+      "sourceUrl": "https://cdn.shopify.com/s/files/1/1024/4748/1219/files/s-l1600_b670b539-3db1-4edb-b8d3-7740f1c7b31e.jpg?v=1782746218",
+      "kind": "slab",
+      "originalDimensions": [
+        401,
+        650
+      ],
+      "sourceSHA256": "9ff6350863b785eca24189206dc2889b999529daf3405f3ef07af5c523d3155d",
+      "outputDimensions": [
+        640,
+        840
+      ],
+      "productRenderedDimensions": [
+        497,
+        806
+      ],
+      "processing": "Direct original photograph at full color, uniformly contained in original canvas. No pixelization or palette reduction."
+    },
+    "/assets/foil/catalog/slab-04.png": {
+      "product": "PSA 9 Mint Leafeon GX 067/066 Ultra Sun Full Art 2017 Japanese Card Sun & Moon",
+      "sourcePage": "https://slabbed.eu/product/psa-9-mint-leafeon-gx-067-066-ultra-sun-full-art-2017-japanese-card-sun-moon",
+      "sourceUrl": "https://cdn.shopify.com/s/files/1/1024/4748/1219/files/s-l1600_37d372dd-9230-4488-b55f-c6acf414d0c0.jpg?v=1782746215",
+      "kind": "slab",
+      "originalDimensions": [
+        522,
+        849
+      ],
+      "sourceSHA256": "2f7a3f1f8a06782ebe1cee947364bb96f222fbf8c1a6639943558b1cfe2016ab",
+      "outputDimensions": [
+        640,
+        840
+      ],
+      "productRenderedDimensions": [
+        496,
+        806
+      ],
+      "processing": "Direct original photograph at full color, uniformly contained in original canvas. No pixelization or palette reduction."
+    },
+    "/assets/foil/hero-slab.png": {
+      "product": "Gyarados GX SM212 Hidden Fates promo — PSA 9",
+      "sourcePage": "https://slabbed.eu/product/gyarados-sm212-hidden-fates-tins-promo-pokemon-psa-9-mint-1",
+      "sourceUrl": "https://cdn.shopify.com/s/files/1/1024/4748/1219/files/s-l1600_45a2db9a-d6bf-446a-92ab-a85803e5bfda.jpg?v=1782746212",
+      "kind": "slab",
+      "originalDimensions": [
+        489,
+        778
+      ],
+      "sourceSHA256": "0eede17a2a98a36a0d748118edf41361b6b660d69cc2f150fe0ff3c2e7e576b3",
+      "outputDimensions": [
+        640,
+        840
+      ],
+      "productRenderedDimensions": [
+        507,
+        806
+      ],
+      "processing": "Direct authentic original photograph, full color, uniformly contained in unchanged canvas. No pixelization, quantization, synthetic sharpening, artwork reconstruction, or nonuniform stretch."
+    }
+  }
+}

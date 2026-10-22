@@ -1,0 +1,2 @@
+ALTER TABLE "pending_reveals" DROP CONSTRAINT "pending_reveals_round_id_tin_pk";--> statement-breakpoint
+ALTER TABLE "pending_reveals" ADD CONSTRAINT "pending_reveals_round_id_tin_salt_pk" PRIMARY KEY("round_id","tin","salt");

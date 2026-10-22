@@ -1,0 +1,74 @@
+[
+  {
+    "id": "pack-01",
+    "image": "/assets/foil/catalog/pack-01.png",
+    "name": "Mega Brave",
+    "detail": "Booster pack",
+    "language": "Japanese",
+    "grader": null,
+    "grade": null
+  },
+  {
+    "id": "pack-02",
+    "image": "/assets/foil/catalog/pack-02.png",
+    "name": "Battle Partners",
+    "detail": "Booster pack",
+    "language": "Japanese",
+    "grader": null,
+    "grade": null
+  },
+  {
+    "id": "pack-03",
+    "image": "/assets/foil/catalog/pack-03.png",
+    "name": "The Glory of Team Rocket",
+    "detail": "Booster pack",
+    "language": "Japanese",
+    "grader": null,
+    "grade": null
+  },
+  {
+    "id": "pack-04",
+    "image": "/assets/foil/catalog/pack-04.png",
+    "name": "Inferno X",
+    "detail": "Booster pack",
+    "language": "Japanese",
+    "grader": null,
+    "grade": null
+  },
+  {
+    "id": "slab-01",
+    "image": "/assets/foil/catalog/slab-01.png",
+    "name": "Pikachu",
+    "detail": "020/M-P · McDonald’s promo",
+    "language": "Japanese",
+    "grader": "BGS",
+    "grade": "9.5"
+  },
+  {
+    "id": "slab-02",
+    "image": "/assets/foil/catalog/slab-02.png",
+    "name": "Sylveon ex",
+    "detail": "069/187 · Terastal Festival",
+    "language": "Japanese",
+    "grader": "PSA",
+    "grade": "9"
+  },
+  {
+    "id": "slab-03",
+    "image": "/assets/foil/catalog/slab-03.png",
+    "name": "Jolteon ex",
+    "detail": "052/187 · Terastal Festival",
+    "language": "Japanese",
+    "grader": "PSA",
+    "grade": "10"
+  },
+  {
+    "id": "slab-04",
+    "image": "/assets/foil/catalog/slab-04.png",
+    "name": "Leafeon GX",
+    "detail": "067/066 · Ultra Sun",
+    "language": "Japanese",
+    "grader": "PSA",
+    "grade": "9"
+  }
+]

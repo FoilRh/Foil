@@ -1,0 +1,27 @@
+# fly deploy --config services/tunnel-relay/fly.toml (from the repo root)
+# A CONNECT proxy for pack-site and shipping traffic. Fly terminates TLS to the PROXY on
+# 443 (browsers speak HTTPS to an "HTTPS" PAC proxy); the tunnelled site traffic inside
+# stays end-to-end TLS between the browser and the site. No access logs.
+app = "foil-tunnel-relay"
+primary_region = "iad"
+
+[build]
+  dockerfile = "../Dockerfile"
+  [build.args]
+    SERVICE = "tunnel-relay"
+
+[env]
+  ALLOWED_HOSTS = "collectorcrypt.com,thecardwall.com"
+
+[[services]]
+  internal_port = 8080
+  protocol = "tcp"
+  auto_stop_machines = "off"
+  min_machines_running = 1
+  [[services.ports]]
+    port = 443
+    handlers = ["tls"]
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"
