@@ -39,7 +39,12 @@ for (const k of ["GITHUB_PUBLIC_TOKEN", "GITHUB_PUBLIC_REPO", "PUBLIC_NAME", "PU
 
 function run(cmd: string[], cwd: string, opts: { input?: Uint8Array | string; env?: Record<string, string> } = {}) {
   const p = Bun.spawnSync(cmd, { cwd, stdin: opts.input === undefined ? "ignore" : new Blob([opts.input]), stdout: "pipe", stderr: "pipe", env: { ...process.env, ...opts.env } });
-  if (p.exitCode !== 0) throw new Error(`${cmd.slice(0, 3).join(" ")} failed: ${p.stderr.toString().replaceAll(cfg.GITHUB_PUBLIC_TOKEN!, "***").slice(-600)}`);
+  if (p.exitCode !== 0) {
+    // Name the command without its arguments: the push carries the token (base64) in a -c header.
+    const what = cmd.filter((a) => !a.startsWith("-") && !a.includes("extraheader")).slice(0, 2).join(" ");
+    const b64 = Buffer.from(`x-access-token:${cfg.GITHUB_PUBLIC_TOKEN}`).toString("base64");
+    throw new Error(`${what} failed: ${p.stderr.toString().replaceAll(cfg.GITHUB_PUBLIC_TOKEN!, "***").replaceAll(b64, "***").slice(-600)}`);
+  }
   return p.stdout;
 }
 const git = (args: string[], cwd = root, opts = {}) => run(["git", ...args], cwd, opts);

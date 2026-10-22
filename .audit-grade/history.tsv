@@ -3,3 +3,4 @@ date	commit	mode	rubric	grade	cap_applied	crit	high	med	low	A	B	C	D	E	F	G	policy
 2026-10-22	41e8b6d	rescore	v2	7.0	7.0 (live deployment differs)	0	0	0	0	10.0	10.0	9.0	6.5	10.0	7.0	10.0	8/8
 2026-10-22	9f21251	rescore	v2	9.4	none	0	0	0	0	10.0	10.0	9.0	9.0	10.0	7.0	10.0	8/8
 2026-10-22	88b9bd6	rescore	v2	9.5	none	0	0	0	0	10.0	10.0	9.5	9.0	10.0	7.0	10.0	8/8
+2026-10-23	4ba731c	rescore	v2	9.8	none	0	0	0	0	10.0	10.0	10.0	9.0	10.0	9.5	10.0	8/8
