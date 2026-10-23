@@ -5,7 +5,8 @@
  * every 10 minutes; each run writes a `monitor` row to the status table (read by
  * scripts/testnet-status.ts) and posts alerts to ALERT_WEBHOOK_URL when set.
  * Alerts on, within the last LOOKBACK_MINUTES (default 60; the service uses 11):
- *   - admin/role events: ownership, operator, guardian, pause, fee router, caps, params, bonds
+ *   - admin/role events: ownership, operator, guardian, pause, fee router, caps, params, bonds,
+ *     timelock schedules/executions/role changes and Safe owner/threshold changes and executions
  *     (StashPool); providers and clean-inbound (ScreeningGate); recipients (FeeRouter);
  *     attestors, treasury, slashes (Bonds); ownership and loss cover (FoilStaking)
  *   - pool withdrawals above WITHDRAW_ALERT_USDG (default 10000)
@@ -47,6 +48,19 @@ const events = parseAbi([
   "event Slashed(uint256 indexed id, address indexed who, uint256 amount)",
   "event LossCovered(address indexed to, uint256 foil, bytes32 reason)",
   "event Withdrawal(address indexed recipient, uint256 amount, uint256 protocolFee)",
+  // TimelockController: anything scheduled gives 24h to react before it can execute.
+  "event CallScheduled(bytes32 indexed id, uint256 indexed index, address target, uint256 value, bytes data, bytes32 predecessor, uint256 delay)",
+  "event CallExecuted(bytes32 indexed id, uint256 indexed index, address target, uint256 value, bytes data)",
+  "event Cancelled(bytes32 indexed id)",
+  "event MinDelayChange(uint256 oldDuration, uint256 newDuration)",
+  "event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender)",
+  "event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)",
+  // Safe (1.4.1): owner set, threshold, and every executed transaction.
+  "event AddedOwner(address indexed owner)",
+  "event RemovedOwner(address indexed owner)",
+  "event ChangedThreshold(uint256 threshold)",
+  "event ExecutionSuccess(bytes32 indexed txHash, uint256 payment)",
+  "event ExecutionFailure(bytes32 indexed txHash, uint256 payment)",
 ]);
 
 function json(envVar: string, file: () => string): Record<string, string> {
@@ -66,7 +80,7 @@ export async function check(lookbackMinutes = Number(process.env.LOOKBACK_MINUTE
     alerts.push(what);
   };
 
-  const watched = ["pool", "gate", "feeRouter", "bonds", "staking"].filter((k) => dep[k]);
+  const watched = ["pool", "gate", "feeRouter", "bonds", "staking", "timelock", "safe"].filter((k) => dep[k] && dep[k] !== dep.deployer);
   const nameOf = new Map(watched.map((k) => [dep[k]!.toLowerCase(), k]));
   // One call for the head: a load-balanced RPC can report a block number another node lacks.
   const b = await chain.getBlock({ blockTag: "latest" });
