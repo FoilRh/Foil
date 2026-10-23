@@ -31,6 +31,7 @@ import {TimelockController} from "@openzeppelin/contracts/governance/TimelockCon
 ///   MOCK_VERIFIERS  true: accept-all verifiers, for local service tests only (refused on 4663)
 ///   SAFE          2-of-3 Safe: receives the $FOIL supply; treasury and work recipient (default: deployer)
 ///   BURN_SINK     buy-and-burn address for the 5% (default: 0x…dEaD; mainnet requires it)
+///   ETH_PER_TIN, GAS_FEE_USDG  round parameters set before the handover (optional; wei / USDG base units)
 ///   MAX_DEPOSIT, MAX_TOTAL  canary caps in USDG base units (default on 4663 and 46630: $1k per
 ///                 deposit, $500k in the pool; 0 = none). Lifted later by the owner (timelock).
 /// Writes deployments/<chainid>.json.
@@ -98,6 +99,9 @@ contract Deploy is Script {
         uint256 maxDeposit = vm.envOr("MAX_DEPOSIT", live ? uint256(1_000e6) : 0);
         uint256 maxTotal = vm.envOr("MAX_TOTAL", live ? uint256(500_000e6) : 0);
         if (maxDeposit != 0 || maxTotal != 0) pool.setCaps(maxDeposit, maxTotal);
+        // Round parameters before the owner becomes the 24h timelock (bounded by the pool).
+        uint256 ethPerTin = vm.envOr("ETH_PER_TIN", uint256(0));
+        if (ethPerTin != 0) pool.setParams(vm.envOr("GAS_FEE_USDG", pool.gasFeeUsdg()), ethPerTin);
         if (owner != deployer) {
             gate.transferOwnership(owner);
             pool.transferOwnership(owner);

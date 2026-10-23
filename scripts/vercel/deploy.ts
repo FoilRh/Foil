@@ -215,7 +215,8 @@ function web() {
 
 /** Supabase pg_cron + pg_net call each service's /tick. The token is stored in cron.job (server-only DB). */
 async function cron() {
-  const sql = postgres(env.DATABASE_URL!, { prepare: false, max: 1 });
+  // Scheduling needs the project's admin role (CRON_DATABASE_URL); the service role cannot touch cron.
+  const sql = postgres(env.CRON_DATABASE_URL ?? env.DATABASE_URL!, { prepare: false, max: 1 });
   // One shared database: job names carry the network (testnet keeps its original names).
   const job = (svc: string) => (NETWORK === "testnet" ? `foil-${svc}-tick` : `foil-${NETWORK}-${svc}-tick`);
   const jobs: [string, string, string][] = [

@@ -1,3 +1,11 @@
 {
-  "web": "https://foil-delta.vercel.app"
+  "web": "https://foil-delta.vercel.app",
+  "relayer": "https://foil-mainnet-relayer.vercel.app",
+  "operator": "https://foil-mainnet-operator.vercel.app",
+  "ppoi-1": "https://foil-mainnet-ppoi-1.vercel.app",
+  "ppoi-2": "https://foil-mainnet-ppoi-2.vercel.app",
+  "indexer": "https://foil-mainnet-indexer.vercel.app",
+  "api": "https://foil-mainnet-api.vercel.app",
+  "relay": "https://foil-mainnet-relay.vercel.app",
+  "monitor": "https://foil-mainnet-monitor.vercel.app"
 }
