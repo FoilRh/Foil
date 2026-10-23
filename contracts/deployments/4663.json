@@ -15,5 +15,11 @@
   "safe": "0x0527b13C69296A8400d19fd2B592847AFEB33f83",
   "staking": "0xaf61eDa7069C032dF43d682003d218057b9e4d94",
   "startBlock": 95572918,
-  "usdg": "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168"
+  "usdg": "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168",
+  "joinsplitVerifier": "0x93569E12B30360248D0272c0584645cA114d8bC4",
+  "tinRequestVerifier": "0x27dD7A110240efB618045A0D264f92Ea9bc5Bf44",
+  "ppoiVerifier": "0xb6EEfB06D45E6A1F5a0eAf097a23Eb864E3259dE",
+  "timelock": "0x44867aef368E6F27808DF4dD0DBd8912A28DE732",
+  "buildCommit": "1c9fbde",
+  "sourceVerification": "https://repo.sourcify.dev/4663"
 }
