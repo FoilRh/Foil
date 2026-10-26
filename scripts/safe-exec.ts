@@ -2,7 +2,8 @@
  * Execute one call from the mainnet Safe (2-of-3): owners 1 and 2 sign, the deployer pays gas.
  *   NETWORK=mainnet bun scripts/safe-exec.ts <to> <calldata>           plan only
  *   NETWORK=mainnet bun scripts/safe-exec.ts <to> <calldata> --send    sign and execute
- * Owner keys come from deploy/<network>-owners.env (while they still live on this machine); the
+ * Owner keys: owner 1 from deploy/<network>-owners.env; the others you bring for the run with
+ * SAFE_KEY_FILES=<path to owner2.txt>[,...] (owners 2 and 3 are kept off this machine). The
  * Safe address and the deployer from deploy/<network>.env. Never prints secrets.
  */
 import { readFileSync } from "node:fs";
@@ -39,7 +40,15 @@ if (!process.argv.includes("--send")) {
   process.exit(0);
 }
 
-const signers = [owners.SAFE_OWNER1_PRIVATE_KEY, owners.SAFE_OWNER2_PRIVATE_KEY].map((k) => privateKeyToAccount(k as Hex));
+// Owner keys on this machine (normally only owner 1), plus owner keys you bring for this one run:
+// SAFE_KEY_FILES=E:/owner2.txt (comma-separated; files as exported, or a bare 0x key per line).
+const fromFiles = (process.env.SAFE_KEY_FILES ?? "").split(",").filter(Boolean)
+  .flatMap((f) => readFileSync(f.trim(), "utf8").match(/0x[0-9a-fA-F]{64}/g) ?? []);
+const keys = [owners.SAFE_OWNER1_PRIVATE_KEY, owners.SAFE_OWNER2_PRIVATE_KEY, owners.SAFE_OWNER3_PRIVATE_KEY, ...fromFiles].filter(Boolean);
+const signers = [...new Map(keys.map((k) => privateKeyToAccount(k as Hex)).map((a) => [a.address, a])).values()].slice(0, Number(threshold));
+if (signers.length < Number(threshold)) {
+  throw new Error(`need ${threshold} owner keys, have ${signers.length}: pass the others with SAFE_KEY_FILES=<path to owner2.txt>`);
+}
 const types = { SafeTx: [
   { name: "to", type: "address" }, { name: "value", type: "uint256" }, { name: "data", type: "bytes" }, { name: "operation", type: "uint8" },
   { name: "safeTxGas", type: "uint256" }, { name: "baseGas", type: "uint256" }, { name: "gasPrice", type: "uint256" },
