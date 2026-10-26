@@ -1,0 +1,9 @@
+Foil mainnet ceremony - LOCAL finalization (NOT deployed)
+
+Input: the four Phase-2 contributions a, b, c (2026-10-23) and d (2026-10-26), all made on the SAME machine.
+Contribution d is NOT independent; this does not satisfy the SECURITY.md condition.
+Beacon: Robinhood Chain mainnet block 98659081, hash 0xe2b73c46ae2e4a8224280fcfa84d3789ced9537240542032fb0c366df1715a53 (unix time 1793042960), 2^10 iterations.
+Phase 1: PSE Perpetual Powers of Tau, contribution 80 (ppot_0080_15.ptau).
+
+The live pool (contracts/deployments/4663.json) still uses the keys from circuits/ceremony/mainnet.
+These files are kept only in this folder; using them needs a new pool, verifiers and bonds deploy.

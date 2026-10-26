@@ -1,0 +1,34 @@
+Foil Phase-2 contribution by foil-mainnet-d (same machine as a-c NOT independent) at 2026-10-26T19:21:41.056Z
+
+joinsplit_0004.zkey sha256 5d858b717dc05c5c057e04478cb6d6896812677ee87f465932069ece131f9c19
+		067d3b59 07f8fb4a 085f65ce 88c32f0b
+		3839d27b ccc0e356 1bf08dc9 4fb26f0a
+		ca83b44b b35cce00 d3a7207b a9608e0e
+		bd606030 be81e7f4 4f9d50f5 8422b136
+[32;22m[INFO]  [39;1msnarkJS[0m: Contribution Hash: 
+		63c76e4a f5ef881d 85c705f4 3a996e39
+		5b728b9f 789f058b c2aaf91e 0b35f787
+		87b152c3 67382cb0 a6a1d2ed a8beb780
+		895d6a4f 825a629c 988863fe 4e291671
+
+tin_request_0004.zkey sha256 5d6379f4c84be3751c22d72c0da36bad2b2f946c3b79b5f449e2f4367a68ca4c
+		c530a459 d23d7b75 c7c7bc4f a2589020
+		89cd162e 4a12e1e2 8ae0c847 ef85a084
+		6837052d 3c17d501 9dc8134e 2d93a176
+		5e66e2f4 42dd5e0f 59e1169a b71e88fc
+[32;22m[INFO]  [39;1msnarkJS[0m: Contribution Hash: 
+		93cf7ac5 4ca23186 d760ca9c 6c7534df
+		1d8cde98 87c5d887 fb47cc7f b85e64a1
+		30cdf3c9 8182c4ae 6d8c07d1 fdf158a1
+		e60ab0da 1f27537a 5f400a31 13acb208
+
+ppoi_0004.zkey sha256 9e02c01c6e8ac03b2bf1ca23ee319b4ec1719ae4d0c910a945c370fb3576b029
+		d96d958c 9b489faf c9362ba4 72a19c8f
+		ff095a9f 1c86ad01 585d05d5 00233a7d
+		2cff1af6 9e182e0f f5e11b4f cd8d22c7
+		fe41ce51 cfd33e2f 762ddd32 defa5c13
+[32;22m[INFO]  [39;1msnarkJS[0m: Contribution Hash: 
+		1aaaf842 61d15f3a 2a7b06b3 b85c8a83
+		3e10efc4 3f003aff 55a40c49 b520d57e
+		45c3e10c b17b9c39 14141de6 0c702bc9
+		8b69b432 73b872dc e7ce7fec 0b838736
