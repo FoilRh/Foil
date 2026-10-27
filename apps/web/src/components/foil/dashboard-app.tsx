@@ -33,8 +33,10 @@ const subscribe=(fn:()=>void)=>{window.addEventListener("popstate",fn);window.ad
 function currentTab(){const value=new URLSearchParams(window.location.search).get("tab");return tabs.some(t=>t.id===value)?value??"overview":"overview";}
 export function DashboardApp(){
   const tab=useSyncExternalStore(subscribe,currentTab,()=>"overview");const workspace=useWorkspace();
-  const [dialog,setDialog]=useState<WorkspaceDialog|null>(null);const [toast,setToast]=useState("");const [wallet,setWallet]=useState("");
+  const [dialog,setDialogRaw]=useState<WorkspaceDialog|null>(null);const [toast,setToast]=useState("");const [wallet,setWallet]=useState("");
   const live=useLive();
+  // On a live deployment, money actions need the wallet: without it they open setup instead.
+  const setDialog=(d:WorkspaceDialog|null)=>setDialogRaw(d&&liveConfigured&&live.phase!=="unlocked"&&(d.kind==="deposit"||d.kind==="withdraw"||d.kind==="allocate"||d.kind==="gift")?{kind:"setup"}:d);
   const selected=tabs.find(t=>t.id===tab)??tabs[0];
   useEffect(()=>{if(!toast)return;const timer=window.setTimeout(()=>setToast(""),6000);return()=>window.clearTimeout(timer);},[toast]);
   function navigate(next:string){const url=new URL(location.href);url.searchParams.set("tab",next);url.searchParams.delete("gift");history.pushState(null,"",url);window.dispatchEvent(new Event("foil:navigate"));window.scrollTo({top:0});}

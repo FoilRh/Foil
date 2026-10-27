@@ -5,7 +5,7 @@ import {SelectField} from "./select-field";
 import {useState,type FormEvent} from "react";
 import { getCollectible,getTinCollectible } from "@/data/foil-catalog";
 import { TIN_SIZES,adjustBalance,allocateTin,createGift,downloadJson,logActivity,money,toggleShare,type Tin } from "@/lib/foil-workspace";
-import { findTin,liveCancelTin,liveCreateGift,liveDeposit,liveRequestTin,liveSendBack,liveTinKey,liveWithdraw,useLive } from "@/lib/foil-live";
+import { findTin,liveConfigured,liveCancelTin,liveCreateGift,liveDeposit,liveRequestTin,liveSendBack,liveTinKey,liveWithdraw,useLive } from "@/lib/foil-live";
 import type { TinSize } from "@foil/protocol";
 import { VaultSetup } from "./vault-setup";
 import { Modal } from "./modal";
@@ -33,6 +33,7 @@ export function WorkspaceDialogs({dialog,onClose,onSaved,onWallet}:{dialog:Works
       else if(isLive&&dialog.kind==="withdraw"){const to=recipient.trim();await liveWithdraw(Number(amount),to);logActivity("Withdrawal sent",`To ${to.slice(0,6)}…${to.slice(-4)}`,-Number(amount));onSaved("Withdrawal submitted.");}
       else if(isLive&&dialog.kind==="allocate"){const t=await liveRequestTin(Number(amount) as TinSize);logActivity("Tin requested",`Round ${t.roundId} · funded when the round executes`,-Number(amount),"tin-funding");onSaved("Tin requested. It is funded when its round executes, usually within 10 to 30 minutes.");}
       else if(isLive&&dialog.kind==="gift"){const t=await liveCreateGift(Number(amount) as TinSize,message);logActivity("Gift tin requested",`Round ${t.roundId} · link ready when funded`,-Number(amount),"tin-funding");onSaved("Gift requested. Its link appears in Gifts once the round executes.");}
+      else if(liveConfigured&&(dialog.kind==="deposit"||dialog.kind==="withdraw"||dialog.kind==="allocate"||dialog.kind==="gift"))throw new Error(live.phase==="locked"?"Unlock Foil first. Nothing moves until your wallet is unlocked.":"Set up Foil first. Nothing moves until your wallet exists.");
       else if(dialog.kind==="deposit"||dialog.kind==="withdraw"){adjustBalance(Number(amount),dialog.kind);onSaved("Workspace balance updated. No onchain funds moved.");}
       else if(dialog.kind==="allocate"){allocateTin(name,Number(amount));onSaved("Tin funding plan saved locally. Live round submission is not connected.");}
       else if(dialog.kind==="gift"){createGift(name,Number(amount),message);onSaved("Gift draft saved. No funds have been reserved.");}

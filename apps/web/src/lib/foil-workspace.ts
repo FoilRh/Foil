@@ -1,7 +1,7 @@
 "use client";
 import {TIN_DENOMINATIONS,regionAllowed} from "./foil-protocol";
 import { useSyncExternalStore } from "react";
-import { useLive } from "./foil-live";
+import { liveConfigured, useLive } from "./foil-live";
 import { mergeLimits, type BackupData, type Wallet } from "@foil/client";
 
 export interface Tin {id:string;name:string;productId:string;amount:number;status:"Kept"|"Ready"|"Queued";shared:boolean;created:string;referenceProductId?:string;requiresFundingReview?:boolean}
@@ -58,7 +58,8 @@ export function useWorkspace(){
   const local=useSyncExternalStore(subscribe,snapshot,()=>initial);
   const live=useLive();
   // The wallet mutates in place; live.version changes on every update, so derive each render.
-  return live.wallet?withLive(local,live.wallet):local;
+  // On a live deployment only a real wallet has a balance or tins; locally saved numbers never stand in for funds.
+  return live.wallet?withLive(local,live.wallet):liveConfigured?{...local,balance:0,tins:[]}:local;
 }
 /** Live mode: the starter balance and example tins are replaced by the wallet's own. */
 function withLive(local:Workspace,w:Wallet):Workspace{
