@@ -48,16 +48,7 @@ withdrawn to any address at any time.
 
 ## How it works
 
-```mermaid
-flowchart LR
-    U([User wallet]) -- deposit USDG --> Q[Entry queue]
-    Q -- screened by PPOI nodes --> P[(Shielded pool<br/>Poseidon Merkle tree)]
-    P -- zk proof: tin request --> R{{Funding round<br/>batched every 10 min}}
-    R -- USDG + gas ETH --> T[Fresh tin wallet]
-    T -- rip --> CC[Collector Crypt]
-    T -- send back --> Q
-    P -- zk proof: withdraw --> W([Any address])
-```
+<p align="center"><img src=".github/assets/flow.svg" alt="Deposit, screening, shielded pool, funding round, fresh tin, Collector Crypt; send-backs return through the entry queue; withdrawals go to any address" width="100%" /></p>
 
 1. **Deposit.** USDG enters an entry queue. Proof-of-innocence (PPOI) nodes screen it against
    sanctions lists; only admitted deposits become leaves in the pool's Merkle tree.
@@ -85,22 +76,7 @@ flowchart LR
 
 ## Architecture
 
-```mermaid
-flowchart TB
-    subgraph Device["User device"]
-        WEB[Web app<br/>keys · notes · prover]
-        EXT[Browser extension<br/>tin wallet · tx guard]
-    end
-    WEB -- OHTTP --> RELAY[OHTTP relay]
-    EXT -- OHTTP --> RELAY
-    RELAY --> API[API gateway<br/>Hono + tRPC]
-    API --> DB[(Postgres<br/>public data only)]
-    API --> RL[Relayer]
-    API --> OP[Round operator]
-    API --> PP[PPOI nodes ×2]
-    IDX[Indexer] --> DB
-    RL & OP & PP & IDX --> CHAIN[[Robinhood Chain<br/>StashPool · ScreeningGate · Bonds]]
-```
+<p align="center"><img src=".github/assets/architecture.svg" alt="User device talks over OHTTP to a relay and the API gateway, which drives the relayer, round operator, PPOI nodes and indexer against the Robinhood Chain contracts" width="100%" /></p>
 
 - **Client.** Seed and keys are derived and stored on the device in an encrypted store. Proofs
   are generated in a Web Worker with snarkjs; nothing secret leaves the browser.

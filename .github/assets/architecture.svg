@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 470" width="1200" height="470" font-family="'Segoe UI', -apple-system, Helvetica, Arial, sans-serif">
+  <title>Foil architecture: user device, OHTTP relay, API gateway, services, database and contracts</title>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#fcd47c"/>
+    </marker>
+  </defs>
+  <rect width="1200" height="470" rx="16" fill="#07110d"/>
+  <rect x="0.5" y="0.5" width="1199" height="469" rx="16" fill="none" stroke="#1d3328"/>
+
+  <!-- containers -->
+  <g fill="none" stroke="#2a4436" stroke-dasharray="4 5">
+    <rect x="30" y="40" width="220" height="390" rx="14"/>
+    <rect x="745" y="40" width="200" height="390" rx="14"/>
+    <rect x="975" y="40" width="195" height="390" rx="14"/>
+  </g>
+  <g font-size="12" font-weight="700" fill="#fcd47c" letter-spacing="1.5">
+    <text x="48" y="66">USER DEVICE</text>
+    <text x="763" y="66">SERVICES</text>
+    <text x="993" y="66">ROBINHOOD CHAIN</text>
+  </g>
+
+  <!-- device -->
+  <g font-size="15" font-weight="600" fill="#fff4d9" text-anchor="middle">
+    <rect x="50" y="110" width="180" height="70" rx="12" fill="#0c1b14" stroke="#2a4436"/>
+    <text x="140" y="140">Web app</text>
+    <rect x="50" y="270" width="180" height="70" rx="12" fill="#0c1b14" stroke="#2a4436"/>
+    <text x="140" y="300">Browser extension</text>
+  </g>
+  <g font-size="12" fill="#a0aa96" text-anchor="middle">
+    <text x="140" y="160">keys · notes · prover</text>
+    <text x="140" y="320">tin wallet · tx guard</text>
+    <text x="140" y="404">secrets never leave the device</text>
+  </g>
+
+  <!-- relay + gateway + db -->
+  <g font-size="15" font-weight="600" fill="#fff4d9" text-anchor="middle">
+    <rect x="300" y="190" width="170" height="70" rx="12" fill="#0c1b14" stroke="#2a4436"/>
+    <text x="385" y="220">OHTTP relay</text>
+    <rect x="520" y="190" width="175" height="70" rx="12" fill="#1a2a17" stroke="#fcd47c" stroke-width="1.5"/>
+    <text x="607" y="220" fill="#fcd47c">API gateway</text>
+    <rect x="520" y="340" width="175" height="64" rx="12" fill="#0c1b14" stroke="#2a4436"/>
+    <text x="607" y="367">Postgres</text>
+  </g>
+  <g font-size="12" fill="#a0aa96" text-anchor="middle">
+    <text x="385" y="240">sees the IP, not the request</text>
+    <text x="607" y="240">sees the request, not the IP</text>
+    <text x="607" y="387">public data only</text>
+  </g>
+
+  <!-- services -->
+  <g font-size="14" font-weight="600" fill="#fff4d9" text-anchor="middle">
+    <rect x="760" y="86" width="170" height="60" rx="11" fill="#0c1b14" stroke="#2a4436"/><text x="845" y="112">Relayer</text>
+    <rect x="760" y="166" width="170" height="60" rx="11" fill="#0c1b14" stroke="#2a4436"/><text x="845" y="192">Round operator</text>
+    <rect x="760" y="246" width="170" height="60" rx="11" fill="#0c1b14" stroke="#2a4436"/><text x="845" y="272">PPOI nodes ×2</text>
+    <rect x="760" y="326" width="170" height="60" rx="11" fill="#0c1b14" stroke="#2a4436"/><text x="845" y="352">Indexer</text>
+  </g>
+  <g font-size="11" fill="#a0aa96" text-anchor="middle">
+    <text x="845" y="130">submits shielded txs</text>
+    <text x="845" y="210">closes and funds rounds</text>
+    <text x="845" y="290">screening attestations</text>
+    <text x="845" y="370">public snapshots</text>
+  </g>
+
+  <!-- contracts -->
+  <g font-size="14" font-weight="600" fill="#fff4d9" text-anchor="middle">
+    <rect x="990" y="86" width="165" height="50" rx="11" fill="#1a2a17" stroke="#fcd47c" stroke-width="1.5"/><text x="1072" y="116" fill="#fcd47c">StashPool</text>
+    <rect x="990" y="152" width="165" height="50" rx="11" fill="#0c1b14" stroke="#2a4436"/><text x="1072" y="182">ScreeningGate</text>
+    <rect x="990" y="218" width="165" height="50" rx="11" fill="#0c1b14" stroke="#2a4436"/><text x="1072" y="248">Bonds · Staking</text>
+    <rect x="990" y="284" width="165" height="50" rx="11" fill="#0c1b14" stroke="#2a4436"/><text x="1072" y="314">FOIL · FeeRouter</text>
+    <rect x="990" y="350" width="165" height="50" rx="11" fill="#0c1b14" stroke="#2a4436"/><text x="1072" y="380">Timelock · Safe</text>
+  </g>
+
+  <!-- arrows -->
+  <g fill="none" stroke="#fcd47c" stroke-width="1.6" marker-end="url(#a)">
+    <path d="M230 145Q270 145 270 185T296 218"/>
+    <path d="M230 305Q270 305 270 265T296 232"/>
+    <path d="M470 225H516"/>
+    <path d="M607 260V336"/>
+    <path d="M695 214L756 116"/>
+    <path d="M695 220L756 196"/>
+    <path d="M695 230L756 276"/>
+    <path d="M930 111H986"/>
+    <path d="M930 196Q958 196 958 160T986 124"/>
+    <path d="M930 276Q958 276 958 232T986 182"/>
+  </g>
+  <g fill="none" stroke="#fcd47c" stroke-opacity=".7" stroke-width="1.6" stroke-dasharray="5 5" marker-end="url(#a)">
+    <path d="M760 356H703"/>
+    <path d="M986 362Q958 362 958 356T934 356"/>
+  </g>
+  <g font-size="11" fill="#a0aa96">
+    <text x="262" y="229" text-anchor="end">OHTTP</text>
+    <text x="728" y="372" text-anchor="middle">writes</text>
+    <text x="958" y="102" text-anchor="middle">txs</text>
+    <text x="958" y="382" text-anchor="middle">events</text>
+  </g>
+</svg>

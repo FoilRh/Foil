@@ -70,7 +70,7 @@ jobs:
           cd circuits && bun run setup:dev
           cd ../contracts && FOUNDRY_PROFILE=ffi forge test -vv
       - name: end-to-end over OHTTP with real proofs
-        run: bun test --timeout 120000 e2e # real proofs on CI runners are slow
+        run: bun test --timeout 300000 e2e # real proofs on shared CI runners can take over 2 min per test
 
   rhc-fork:
     runs-on: ubuntu-latest
