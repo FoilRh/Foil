@@ -10,10 +10,19 @@ export interface Activity {id:string;title:string;detail:string;amount:number;at
 export interface Workspace {version:1;balance:number;tins:Tin[];gifts:Gift[];activity:Activity[];handle:string;dailyLimit:number;weeklyLimit:number;coolOffUntil:string|null;pendingLimits:{daily:number;weekly:number;at:string}|null;region?:string|null}
 const KEY="foil-workspace-v1";
 const initial:Workspace={
-  version:1,balance:1280.5,handle:"quietcollector",dailyLimit:250,weeklyLimit:1000,coolOffUntil:null,pendingLimits:null,
-  tins:[{id:"tin-004",name:"Rayquaza VMAX",productId:"vault-01",amount:100,status:"Kept",shared:false,created:"2026-10-17T10:10:00Z"},{id:"tin-003",name:"Kaido & Linlin",productId:"vault-06",amount:50,status:"Kept",shared:true,created:"2026-10-16T09:20:00Z"},{id:"tin-002",name:"Ready pack tin",productId:"tin-unassigned",referenceProductId:"pack-01",amount:25,status:"Ready",shared:false,created:"2026-10-15T14:30:00Z"}],
-  gifts:[],activity:[{id:"initial-1",title:"Collection organized",detail:"Rayquaza VMAX added to its own tin",amount:0,at:"2026-10-17T10:10:00Z"},{id:"initial-2",title:"Room preference saved",detail:"One tin selected for a season handle",amount:0,at:"2026-10-16T09:20:00Z"}],
+  version:1,balance:0,handle:"",dailyLimit:250,weeklyLimit:1000,coolOffUntil:null,pendingLimits:null,tins:[],gifts:[],activity:[],
 };
+/** The example records earlier builds started every visitor with; dropped from saved workspaces on load. */
+const STARTER_TINS=new Set(["tin-002","tin-003","tin-004"]);
+const STARTER_ACTIVITY=new Set(["initial-1","initial-2"]);
+export function dropStarter(w:Workspace):Workspace{
+  return {...w,
+    balance:w.balance===1280.5?0:w.balance,
+    handle:w.handle==="quietcollector"?"":w.handle,
+    tins:w.tins.filter(t=>!(STARTER_TINS.has(t.id)&&t.created.startsWith("2026-10-1"))),
+    activity:w.activity.filter(a=>!STARTER_ACTIVITY.has(a.id)),
+  };
+}
 let state=initial;
 let loaded=false;
 let limitTimer:ReturnType<typeof setTimeout>|undefined;
@@ -28,15 +37,12 @@ const listeners=new Set<()=>void>();
 function load(){
   if(loaded||typeof window==="undefined")return;
   loaded=true;
-  try{const raw=JSON.parse(localStorage.getItem(KEY)??"null") as Workspace|null;if(raw?.version===1&&Number.isFinite(raw.balance)&&Array.isArray(raw.tins)&&Array.isArray(raw.gifts)&&Array.isArray(raw.activity))state={...initial,...raw};}catch{/* Invalid local state falls back to the starter collection. */}
+  try{const raw=JSON.parse(localStorage.getItem(KEY)??"null") as Workspace|null;if(raw?.version===1&&Number.isFinite(raw.balance)&&Array.isArray(raw.tins)&&Array.isArray(raw.gifts)&&Array.isArray(raw.activity))state={...initial,...raw};}catch{/* Invalid local state falls back to an empty workspace. */}
+  const cleaned=dropStarter(state);
+  let migrated=JSON.stringify(cleaned)!==JSON.stringify(state);
+  state=cleaned;
   // Preserve stored records while removing the old exact-card acquisition implication.
-  let migrated=false;
   const tins=state.tins.map(t=>{
-    // Restore the known starter tin's pack art after the earlier generic-art migration.
-    if(t.productId==="tin-unassigned"&&!t.referenceProductId&&t.id==="tin-002"&&t.created==="2026-10-15T14:30:00Z"){
-      migrated=true;
-      return {...t,referenceProductId:"pack-01"};
-    }
     if(t.status==="Kept"||t.productId==="tin-unassigned")return t;
     migrated=true;
     return {...t,referenceProductId:t.referenceProductId??t.productId,productId:"tin-unassigned",requiresFundingReview:!TIN_SIZES.some(size=>size===t.amount)};
