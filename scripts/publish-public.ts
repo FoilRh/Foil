@@ -6,7 +6,7 @@
  *
  * Rules (see the private repo's setup notes):
  * - only tracked files from HEAD, never the working tree, never gitignored files;
- * - no *.md, no `lovable` or `.claude` folders, nothing listed in PRIVATE_ONLY; the public
+ * - no *.md except the root README.md, no `lovable` or `.claude` folders, nothing listed in PRIVATE_ONLY; the public
  *   repo keeps its own LICENSE (MIT) and history, and each publish is one commit on top;
  * - every commit is authored and committed by PUBLIC_NAME <PUBLIC_EMAIL>, no trailers;
  * - aborts if any file name, file content or the message contains a PUBLIC_FORBIDDEN word, this
@@ -23,7 +23,7 @@ const PRIVATE_ONLY = [/(^|\/)apps\/web\/docs\/reference\/foil-cc-outreach\.pdf$/
 /** Files the public repo owns (its MIT LICENSE): never exported over, never deleted. */
 const PUBLIC_OWNED = new Set(["LICENSE"]);
 const excluded = (p: string) =>
-  /\.md$/i.test(p) || /(^|\/)lovable(\/|$)/i.test(p) || /(^|\/)\.claude(\/|$)/.test(p) || PRIVATE_ONLY.some((r) => r.test(p));
+  (/\.md$/i.test(p) && p !== "README.md") || /(^|\/)lovable(\/|$)/i.test(p) || /(^|\/)\.claude(\/|$)/.test(p) || PRIVATE_ONLY.some((r) => r.test(p));
 
 function envFile(f: string): Record<string, string> {
   if (!existsSync(f)) return {};

@@ -1,0 +1,247 @@
+<!doctype html>
+<!--
+  Source of the README banner (banner.webp / banner.gif). Open in a browser to preview it live.
+  The renderer drives it frame by frame through window.renderAt(t), t in [0, 1); every motion is
+  periodic in t, so the exported animation loops without a seam.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Foil banner</title>
+<style>
+  @font-face { font-family: "Barlow Condensed"; font-weight: 900; font-style: italic; src: url("../../apps/web/src/fonts/barlow-condensed-900-italic.woff2") format("woff2"); }
+  @font-face { font-family: "Barlow Condensed"; font-weight: 600; src: url("../../apps/web/src/fonts/barlow-condensed-600.woff2") format("woff2"); }
+  @font-face { font-family: "Sora"; font-weight: 400; src: url("../../apps/web/src/fonts/sora-400.woff2") format("woff2"); }
+  :root { --ink: #07110d; --ink-2: #0c1b14; --gold: #fcd47c; --gold-deep: #99712e; --paper: #fff4d9; --slate: #a0aa96; }
+  html, body { margin: 0; background: var(--ink); }
+  #banner { position: relative; width: 1280px; height: 360px; overflow: hidden; background: radial-gradient(120% 140% at 78% 50%, var(--ink-2) 0%, var(--ink) 62%); }
+  canvas { position: absolute; inset: 0; }
+  .veil { position: absolute; inset: 0; background: linear-gradient(90deg, var(--ink) 0%, rgba(7,17,13,.92) 30%, rgba(7,17,13,0) 58%); pointer-events: none; }
+  .copy { position: absolute; left: 72px; top: 50%; transform: translateY(-50%); color: var(--paper); }
+  .brand { display: flex; align-items: center; gap: 20px; }
+  .brand svg { width: 64px; height: 75px; }
+  .word { font: italic 900 128px/0.9 "Barlow Condensed", sans-serif; letter-spacing: 0.01em; }
+  .tag { margin-top: 18px; font: 400 22px/1.4 "Sora", sans-serif; color: var(--paper); opacity: .92; }
+  .chips { margin-top: 22px; display: flex; gap: 10px; }
+  .chip { font: 600 15px/1 "Barlow Condensed", sans-serif; letter-spacing: .14em; text-transform: uppercase; color: var(--gold); border: 1px solid rgba(252,212,124,.35); padding: 8px 12px 7px; border-radius: 999px; background: rgba(252,212,124,.06); }
+</style>
+<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js" } }</script>
+</head>
+<body>
+<div id="banner">
+  <canvas id="gl" width="1280" height="360"></canvas>
+  <div class="veil"></div>
+  <div class="copy">
+    <div class="brand">
+      <svg viewBox="0 0 18.7812 21.9686" aria-hidden="true"><g fill="#FCD47C">
+        <path d="M15.71 16.3982C16.2134 16.3983 16.7144 16.4467 17.2061 16.5428C16.6361 17.2442 15.9119 17.948 15.042 18.6424C13.8028 18.7912 12.6415 19.3504 11.75 20.242C11.4332 20.5588 11.1582 20.9096 10.9287 21.2859C10.1916 21.6733 9.69979 21.8941 9.65723 21.9129C9.57341 21.9499 9.48246 21.9686 9.39062 21.9686C9.2988 21.9686 9.20784 21.9499 9.12402 21.9129C9.09247 21.899 8.81428 21.7734 8.37207 21.5525C8.41315 21.4386 8.45747 21.3258 8.50391 21.2137C8.89589 20.2673 9.47004 19.4067 10.1943 18.6824C10.9185 17.9583 11.7784 17.3839 12.7246 16.992C13.6709 16.6 14.6857 16.3982 15.71 16.3982Z"/>
+        <path d="M15.71 12.2029C16.756 12.203 17.7872 12.342 18.7812 12.6053V12.7078C18.7812 13.3841 18.6274 14.0686 18.3252 14.7566C17.4805 14.5226 16.6019 14.3983 15.71 14.3982C13.1109 14.3982 10.6181 15.4306 8.78027 17.2684C7.82533 18.2233 7.08978 19.3561 6.60156 20.5877C6.01574 20.2431 5.37227 19.8396 4.72461 19.3816C5.31842 18.0286 6.15959 16.7826 7.22461 15.7176C9.47503 13.4672 12.5274 12.2029 15.71 12.2029Z"/>
+        <path d="M15.71 7.99981C16.7483 7.99982 17.7762 8.10064 18.7812 8.29473V10.5438C17.7756 10.3176 16.7456 10.203 15.71 10.2029C13.8716 10.2029 12.051 10.5649 10.3525 11.2684C8.65403 11.9719 7.11054 13.0036 5.81055 14.3035C4.70044 15.4136 3.78595 16.701 3.10449 18.1111C2.47852 17.562 1.94219 17.0104 1.50391 16.4588C1.499 16.4526 1.49414 16.4464 1.48926 16.4402C2.22348 15.0946 3.15139 13.8484 4.25488 12.7449C7.29297 9.70684 11.4135 7.99981 15.71 7.99981Z"/>
+        <path d="M9.20312 0.0271534C9.32546 -0.00904571 9.45579 -0.00905652 9.57812 0.0271534L18.3164 2.61211C18.4508 2.6519 18.5686 2.73354 18.6523 2.84454C18.736 2.95548 18.7812 3.09007 18.7812 3.22833V6.26055C17.7733 6.08798 16.7462 5.99982 15.71 5.99981C10.883 5.99981 6.25398 7.9177 2.84082 11.3309C1.8853 12.2864 1.04679 13.3369 0.334961 14.4607C0.112958 13.8722 1.58977e-05 13.2871 0 12.7078V3.22833C6.9128e-05 3.09002 0.0451923 2.9555 0.128906 2.84454C0.212682 2.73349 0.33042 2.65189 0.464844 2.61211L9.20312 0.0271534Z"/>
+      </g></svg>
+      <span class="word">FOIL</span>
+    </div>
+    <div class="tag">Private pack rips on Robinhood Chain.</div>
+    <div class="chips"><span class="chip">Shielded pool</span><span class="chip">Groth16</span><span class="chip">OHTTP</span><span class="chip">Mainnet</span></div>
+  </div>
+</div>
+<script type="module">
+import * as THREE from "three";
+
+const TAU = Math.PI * 2;
+const W = 1280, H = 360;
+const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById("gl"), antialias: true, alpha: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1);
+renderer.setSize(W, H, false);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(30, W / H, 0.1, 100);
+camera.position.set(0, 0, 12);
+
+// --- The logo mark, drawn into a texture for the card face -----------------------------------
+const markSvg = document.querySelector(".brand svg").outerHTML.replace("<svg", '<svg xmlns="http://www.w3.org/2000/svg" width="376" height="440"');
+const markImg = new Image();
+markImg.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(markSvg);
+await markImg.decode();
+const markCanvas = document.createElement("canvas");
+markCanvas.width = 512; markCanvas.height = 716;
+const mctx = markCanvas.getContext("2d");
+mctx.drawImage(markImg, (512 - 376) / 2, (716 - 440) / 2 - 20);
+const markTex = new THREE.CanvasTexture(markCanvas);
+markTex.colorSpace = THREE.SRGBColorSpace;
+
+// --- Holographic foil card -------------------------------------------------------------------
+const CW = 2.5, CH = 3.5, R = 0.18;
+const shape = new THREE.Shape();
+shape.moveTo(-CW / 2 + R, -CH / 2);
+shape.lineTo(CW / 2 - R, -CH / 2); shape.quadraticCurveTo(CW / 2, -CH / 2, CW / 2, -CH / 2 + R);
+shape.lineTo(CW / 2, CH / 2 - R); shape.quadraticCurveTo(CW / 2, CH / 2, CW / 2 - R, CH / 2);
+shape.lineTo(-CW / 2 + R, CH / 2); shape.quadraticCurveTo(-CW / 2, CH / 2, -CW / 2, CH / 2 - R);
+shape.lineTo(-CW / 2, -CH / 2 + R); shape.quadraticCurveTo(-CW / 2, -CH / 2, -CW / 2 + R, -CH / 2);
+const cardGeo = new THREE.ExtrudeGeometry(shape, { depth: 0.04, bevelEnabled: true, bevelThickness: 0.02, bevelSize: 0.02, bevelSegments: 3, curveSegments: 12 });
+cardGeo.center();
+
+const foil = new THREE.ShaderMaterial({
+  uniforms: { uMark: { value: markTex }, uSize: { value: new THREE.Vector2(CW, CH) }, uPhase: { value: 0 } },
+  vertexShader: /* glsl */ `
+    varying vec2 vUv; varying vec3 vN; varying vec3 vW;
+    uniform vec2 uSize;
+    void main() {
+      vUv = position.xy / uSize + 0.5;
+      vN = normalize(mat3(modelMatrix) * normal);
+      vec4 w = modelMatrix * vec4(position, 1.0);
+      vW = w.xyz;
+      gl_Position = projectionMatrix * viewMatrix * w;
+    }`,
+  fragmentShader: /* glsl */ `
+    varying vec2 vUv; varying vec3 vN; varying vec3 vW;
+    uniform sampler2D uMark; uniform float uPhase;
+    // Brand-tinted thin-film palette: gold, peach, lavender, mint.
+    vec3 film(float x) {
+      vec3 a = vec3(0.62, 0.55, 0.50), b = vec3(0.38, 0.30, 0.30), c = vec3(1.0), d = vec3(0.00, 0.18, 0.42);
+      return a + b * cos(6.28318 * (c * x + d));
+    }
+    void main() {
+      vec3 v = normalize(cameraPosition - vW);
+      vec3 n = normalize(vN);
+      float facing = abs(n.z);
+      float ndv = clamp(dot(n, v), 0.0, 1.0);
+      // Fine diffraction grating so the film shifts across the face, not just with the angle.
+      float grating = sin((vUv.x * 0.8 + vUv.y) * 42.0) * 0.035;
+      float k = ndv * 1.6 + vUv.y * 0.55 - vUv.x * 0.35 + grating + uPhase;
+      vec3 holo = film(k);
+      // A sheen band that sweeps as the card turns.
+      float band = smoothstep(0.16, 0.0, abs(vUv.x + vUv.y * 0.55 - 0.78 - uPhase * 1.9));
+      vec3 base = mix(vec3(0.05, 0.10, 0.08), holo, 0.68);
+      base += band * vec3(1.0, 0.93, 0.78) * 0.5;
+      // Inner border and the embossed logo mark.
+      vec2 e = min(vUv, 1.0 - vUv);
+      float frame = smoothstep(0.045, 0.040, min(e.x, e.y * 0.71)) - smoothstep(0.032, 0.027, min(e.x, e.y * 0.71));
+      vec4 mark = texture2D(uMark, vUv);
+      float shadow = texture2D(uMark, vUv + vec2(-0.012, 0.009)).a;
+      vec3 gold = vec3(0.99, 0.83, 0.49);
+      base *= 1.0 - 0.45 * shadow * (1.0 - mark.a);   // embossed drop shadow
+      vec3 col = mix(base, mix(vec3(0.60, 0.44, 0.18), gold, 0.55 + 0.45 * band + 0.25 * ndv), mark.a);
+      col = mix(col, gold, frame * 0.8);
+      // Edges read as dark gold metal.
+      col = mix(vec3(0.60, 0.44, 0.18) * (0.6 + 0.4 * ndv), col, smoothstep(0.2, 0.9, facing));
+      float fres = pow(1.0 - ndv, 3.0);
+      col += fres * vec3(0.99, 0.83, 0.49) * 0.35;
+      gl_FragColor = vec4(col, 1.0);
+      #include <colorspace_fragment>
+    }`,
+});
+const card = new THREE.Mesh(cardGeo, foil);
+const cardRig = new THREE.Group();
+cardRig.add(card);
+cardRig.position.set(3.55, 0, 0);
+scene.add(cardRig);
+
+// --- Soft glow behind the card -----------------------------------------------------------------
+const glowCanvas = document.createElement("canvas");
+glowCanvas.width = glowCanvas.height = 256;
+const gctx = glowCanvas.getContext("2d");
+const grad = gctx.createRadialGradient(128, 128, 0, 128, 128, 128);
+grad.addColorStop(0, "rgba(252,212,124,0.32)"); grad.addColorStop(0.45, "rgba(252,212,124,0.08)"); grad.addColorStop(1, "rgba(252,212,124,0)");
+gctx.fillStyle = grad; gctx.fillRect(0, 0, 256, 256);
+const glow = new THREE.Mesh(new THREE.PlaneGeometry(7.5, 7.5), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(glowCanvas), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+glow.position.set(3.55, 0, -1.5);
+scene.add(glow);
+
+// --- Orbits: three tilted rings with nodes travelling once per loop -------------------------
+const rings = new THREE.Group();
+rings.position.copy(cardRig.position);
+scene.add(rings);
+const ringDefs = [
+  { r: 2.55, tilt: [1.15, 0.0, 0.35], dir: 1, nodes: 3 },
+  { r: 2.95, tilt: [1.35, 0.0, -0.55], dir: -1, nodes: 2 },
+  { r: 3.35, tilt: [0.95, 0.4, 0.1], dir: 1, nodes: 4 },
+];
+const nodeMat = new THREE.MeshBasicMaterial({ color: 0xfcd47c });
+const ringObjs = ringDefs.map((d) => {
+  const g = new THREE.Group();
+  g.rotation.set(...d.tilt);
+  const pts = Array.from({ length: 257 }, (_, i) => new THREE.Vector3(Math.cos((i / 256) * TAU) * d.r, Math.sin((i / 256) * TAU) * d.r, 0));
+  const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: 0xfcd47c, transparent: true, opacity: 0.22 }));
+  g.add(line);
+  const nodes = Array.from({ length: d.nodes }, () => {
+    const m = new THREE.Mesh(new THREE.SphereGeometry(0.055, 16, 12), nodeMat);
+    const halo = new THREE.Mesh(new THREE.SphereGeometry(0.13, 16, 12), new THREE.MeshBasicMaterial({ color: 0xfcd47c, transparent: true, opacity: 0.18 }));
+    m.add(halo);
+    g.add(m);
+    return m;
+  });
+  rings.add(g);
+  return { d, g, nodes };
+});
+
+// --- Particle field: each point drifts on its own closed path --------------------------------
+const N = 520;
+const rand = (() => { let s = 7; return () => ((s = (s * 16807) % 2147483647) / 2147483647); })();
+const base = new Float32Array(N * 3), phase = new Float32Array(N), amp = new Float32Array(N), sizes = new Float32Array(N);
+for (let i = 0; i < N; i++) {
+  const x = -1 + rand() * 9.2, y = (rand() - 0.5) * 4.6, z = (rand() - 0.5) * 6 - 1.5;
+  base.set([x, y, z], i * 3);
+  phase[i] = rand(); amp[i] = 0.05 + rand() * 0.18; sizes[i] = 0.6 + rand() * 1.6;
+}
+const pGeo = new THREE.BufferGeometry();
+pGeo.setAttribute("position", new THREE.BufferAttribute(base.slice(), 3));
+pGeo.setAttribute("aBase", new THREE.BufferAttribute(base, 3));
+pGeo.setAttribute("aPhase", new THREE.BufferAttribute(phase, 1));
+pGeo.setAttribute("aAmp", new THREE.BufferAttribute(amp, 1));
+pGeo.setAttribute("aSize", new THREE.BufferAttribute(sizes, 1));
+const pMat = new THREE.ShaderMaterial({
+  transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+  uniforms: { uT: { value: 0 } },
+  vertexShader: /* glsl */ `
+    attribute vec3 aBase; attribute float aPhase; attribute float aAmp; attribute float aSize;
+    uniform float uT; varying float vA;
+    void main() {
+      float a = 6.28318 * (uT + aPhase);
+      vec3 p = aBase + aAmp * vec3(sin(a), cos(a * 2.0) * 0.6, sin(a + 1.3));
+      vec4 mv = modelViewMatrix * vec4(p, 1.0);
+      gl_PointSize = aSize * 34.0 / -mv.z;
+      vA = 0.35 + 0.65 * (0.5 + 0.5 * sin(6.28318 * (2.0 * uT + aPhase * 3.0)));
+      gl_Position = projectionMatrix * mv;
+    }`,
+  fragmentShader: /* glsl */ `
+    varying float vA;
+    void main() {
+      float d = length(gl_PointCoord - 0.5);
+      float a = smoothstep(0.5, 0.0, d) * vA;
+      gl_FragColor = vec4(vec3(0.99, 0.86, 0.58) * a, a);
+    }`,
+});
+scene.add(new THREE.Points(pGeo, pMat));
+
+// --- Frame at loop position t in [0, 1) ------------------------------------------------------
+function renderAt(t) {
+  const a = TAU * t;
+  card.rotation.set(0.10 * Math.cos(a), 0.55 * Math.sin(a), 0.05 * Math.sin(a));
+  cardRig.position.y = 0.08 * Math.sin(2 * a);
+  foil.uniforms.uPhase.value = 0.18 * Math.sin(a);
+  for (const { d, nodes } of ringObjs) {
+    nodes.forEach((m, i) => {
+      const ang = d.dir * a + (i / nodes.length) * TAU;
+      m.position.set(Math.cos(ang) * d.r, Math.sin(ang) * d.r, 0);
+    });
+  }
+  rings.rotation.y = 0.12 * Math.sin(a);
+  pMat.uniforms.uT.value = t;
+  renderer.render(scene, camera);
+}
+window.renderAt = renderAt;
+await document.fonts.ready;
+window.bannerReady = true;
+
+if (!new URLSearchParams(location.search).has("capture")) {
+  const LOOP_MS = 6000;
+  const tick = (ms) => { renderAt((ms % LOOP_MS) / LOOP_MS); requestAnimationFrame(tick); };
+  requestAnimationFrame(tick);
+} else {
+  renderAt(0);
+}
+</script>
+</body>
+</html>
