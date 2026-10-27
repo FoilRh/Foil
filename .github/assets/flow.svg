@@ -10,12 +10,12 @@
 
   <!-- withdraw -->
   <rect x="410" y="26" width="170" height="34" rx="17" fill="#0c1b14" stroke="#fcd47c" stroke-opacity=".45"/>
-  <text x="495" y="48" text-anchor="middle" font-size="13" fill="#fff4d9">Withdraw to any address</text>
+  <text x="495" y="48" text-anchor="middle" font-size="14" fill="#fff4d9">Withdraw to any address</text>
   <path d="M495 118V66" stroke="#fcd47c" stroke-width="1.6" marker-end="url(#a)"/>
-  <text x="503" y="94" font-size="11" fill="#a0aa96">zk proof</text>
+  <text x="503" y="94" font-size="13" fill="#a0aa96">zk proof</text>
 
   <!-- nodes -->
-  <g font-size="15" font-weight="600" fill="#fff4d9" text-anchor="middle">
+  <g font-size="16.5" font-weight="600" fill="#fff4d9" text-anchor="middle">
     <rect x="45" y="118" width="150" height="64" rx="12" fill="#0c1b14" stroke="#2a4436"/>
     <text x="120" y="146">Your wallet</text>
     <rect x="235" y="118" width="150" height="64" rx="12" fill="#0c1b14" stroke="#2a4436"/>
@@ -29,7 +29,7 @@
     <rect x="995" y="118" width="150" height="64" rx="12" fill="#0c1b14" stroke="#2a4436"/>
     <text x="1070" y="146">Collector Crypt</text>
   </g>
-  <g font-size="12" fill="#a0aa96" text-anchor="middle">
+  <g font-size="13.5" fill="#a0aa96" text-anchor="middle">
     <text x="120" y="166">USDG</text>
     <text x="310" y="166">PPOI screening</text>
     <text x="500" y="166">Poseidon Merkle tree</text>
@@ -42,7 +42,7 @@
   <g stroke="#fcd47c" stroke-width="1.6" marker-end="url(#a)">
     <path d="M195 150H231"/><path d="M385 150H421"/><path d="M575 150H611"/><path d="M765 150H801"/><path d="M955 150H991"/>
   </g>
-  <g font-size="11" fill="#a0aa96" text-anchor="middle">
+  <g font-size="13" fill="#a0aa96" text-anchor="middle">
     <text x="213" y="108">deposit</text>
     <text x="403" y="108">admitted</text>
     <text x="593" y="108">zk proof</text>
@@ -52,5 +52,5 @@
 
   <!-- send back -->
   <path d="M880 182V236Q880 252 864 252H326Q310 252 310 236V186" fill="none" stroke="#fcd47c" stroke-opacity=".7" stroke-width="1.6" stroke-dasharray="5 5" marker-end="url(#a)"/>
-  <text x="595" y="276" text-anchor="middle" font-size="12" fill="#a0aa96">send back cards and leftover USDG · screened again</text>
+  <text x="595" y="276" text-anchor="middle" font-size="13.5" fill="#a0aa96">send back cards and leftover USDG · screened again</text>
 </svg>

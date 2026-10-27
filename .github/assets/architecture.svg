@@ -49,13 +49,13 @@
   </g>
 
   <!-- services -->
-  <g font-size="14" font-weight="600" fill="#fff4d9" text-anchor="middle">
+  <g font-size="15" font-weight="600" fill="#fff4d9" text-anchor="middle">
     <rect x="760" y="86" width="170" height="60" rx="11" fill="#0c1b14" stroke="#2a4436"/><text x="845" y="112">Relayer</text>
     <rect x="760" y="166" width="170" height="60" rx="11" fill="#0c1b14" stroke="#2a4436"/><text x="845" y="192">Round operator</text>
     <rect x="760" y="246" width="170" height="60" rx="11" fill="#0c1b14" stroke="#2a4436"/><text x="845" y="272">PPOI nodes ×2</text>
     <rect x="760" y="326" width="170" height="60" rx="11" fill="#0c1b14" stroke="#2a4436"/><text x="845" y="352">Indexer</text>
   </g>
-  <g font-size="11" fill="#a0aa96" text-anchor="middle">
+  <g font-size="12.5" fill="#a0aa96" text-anchor="middle">
     <text x="845" y="130">submits shielded txs</text>
     <text x="845" y="210">closes and funds rounds</text>
     <text x="845" y="290">screening attestations</text>
@@ -63,7 +63,7 @@
   </g>
 
   <!-- contracts -->
-  <g font-size="14" font-weight="600" fill="#fff4d9" text-anchor="middle">
+  <g font-size="15" font-weight="600" fill="#fff4d9" text-anchor="middle">
     <rect x="990" y="86" width="165" height="50" rx="11" fill="#1a2a17" stroke="#fcd47c" stroke-width="1.5"/><text x="1072" y="116" fill="#fcd47c">StashPool</text>
     <rect x="990" y="152" width="165" height="50" rx="11" fill="#0c1b14" stroke="#2a4436"/><text x="1072" y="182">ScreeningGate</text>
     <rect x="990" y="218" width="165" height="50" rx="11" fill="#0c1b14" stroke="#2a4436"/><text x="1072" y="248">Bonds · Staking</text>
@@ -88,7 +88,7 @@
     <path d="M760 356H703"/>
     <path d="M986 362Q958 362 958 356T934 356"/>
   </g>
-  <g font-size="11" fill="#a0aa96">
+  <g font-size="12.5" fill="#a0aa96">
     <text x="262" y="229" text-anchor="end">OHTTP</text>
     <text x="728" y="372" text-anchor="middle">writes</text>
     <text x="958" y="102" text-anchor="middle">txs</text>
