@@ -1,0 +1,112 @@
+<!doctype html>
+<!--
+  Chrome Web Store images for the Foil extension. Each element with data-out is captured at
+  its own size (1280x800 screenshots, 440x280 small promo tile). The confirm window is the
+  extension's real confirm.html from dist/, so build the extension first.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Foil store assets</title>
+<style>
+  @font-face { font-family: "Barlow Condensed"; font-weight: 900; font-style: italic; src: url("../../web/src/fonts/barlow-condensed-900-italic.woff2") format("woff2"); }
+  @font-face { font-family: "Barlow Condensed"; font-weight: 600; src: url("../../web/src/fonts/barlow-condensed-600.woff2") format("woff2"); }
+  @font-face { font-family: "Sora"; font-weight: 400; src: url("../../web/src/fonts/sora-400.woff2") format("woff2"); }
+  :root { --ink: #07110d; --ink-2: #0c1b14; --line: #2a4436; --gold: #fcd47c; --paper: #fff4d9; --slate: #a0aa96; --peach: #f3bca3; }
+  body { margin: 0; background: #222; display: grid; gap: 40px; padding: 40px; justify-content: start; }
+  .shot { position: relative; width: 1280px; height: 800px; overflow: hidden; color: var(--paper); font-family: "Sora", sans-serif;
+    background: radial-gradient(90% 120% at 80% 40%, #12261c 0%, var(--ink) 60%); }
+  .tile { position: relative; width: 440px; height: 280px; overflow: hidden; color: var(--paper); font-family: "Sora", sans-serif;
+    background: radial-gradient(120% 140% at 85% 30%, #142a1f 0%, var(--ink) 65%); }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .brand svg { width: 40px; height: 47px; }
+  .word { font: italic 900 56px/0.9 "Barlow Condensed", sans-serif; }
+  h1 { font: italic 900 76px/0.95 "Barlow Condensed", sans-serif; text-transform: uppercase; margin: 34px 0 0; }
+  h1 em { color: var(--gold); font-style: inherit; }
+  .lead { font-size: 22px; line-height: 1.5; color: var(--paper); opacity: .9; margin-top: 22px; max-width: 520px; }
+  .copy { position: absolute; left: 80px; top: 90px; width: 560px; }
+  .window { position: absolute; right: 90px; top: 150px; width: 440px; border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
+    box-shadow: 0 30px 80px rgba(0,0,0,.55), 0 0 0 1px rgba(252,212,124,.08); background: #08140f; }
+  .bar { height: 38px; display: flex; align-items: center; gap: 8px; padding: 0 14px; background: #0f1f17; border-bottom: 1px solid var(--line); font-size: 13px; color: var(--slate); }
+  .dot { width: 11px; height: 11px; border-radius: 50%; background: #2a4436; }
+  iframe { display: block; width: 100%; height: 262px; border: 0; }
+  ul.list { list-style: none; padding: 0; margin: 30px 0 0; display: grid; gap: 16px; font-size: 20px; }
+  ul.list li { display: flex; gap: 14px; align-items: baseline; }
+  .ok { color: var(--gold); font-weight: 700; } .no { color: var(--peach); font-weight: 700; }
+  .steps { position: absolute; right: 80px; top: 130px; width: 520px; display: grid; gap: 18px; }
+  .step { border: 1px solid var(--line); background: rgba(12,27,20,.85); border-radius: 14px; padding: 20px 24px; }
+  .step b { display: block; font: 600 24px/1.1 "Barlow Condensed", sans-serif; letter-spacing: .06em; text-transform: uppercase; color: var(--gold); }
+  .step span { display: block; margin-top: 8px; font-size: 17px; line-height: 1.5; color: var(--slate); }
+  .foot { position: absolute; left: 80px; bottom: 60px; font-size: 16px; color: var(--slate); }
+</style>
+</head>
+<body>
+<template id="mark"><svg viewBox="0 0 18.7812 21.9686" aria-hidden="true"><g fill="#FCD47C">
+  <path d="M15.71 16.3982C16.2134 16.3983 16.7144 16.4467 17.2061 16.5428C16.6361 17.2442 15.9119 17.948 15.042 18.6424C13.8028 18.7912 12.6415 19.3504 11.75 20.242C11.4332 20.5588 11.1582 20.9096 10.9287 21.2859C10.1916 21.6733 9.69979 21.8941 9.65723 21.9129C9.57341 21.9499 9.48246 21.9686 9.39062 21.9686C9.2988 21.9686 9.20784 21.9499 9.12402 21.9129C9.09247 21.899 8.81428 21.7734 8.37207 21.5525C8.41315 21.4386 8.45747 21.3258 8.50391 21.2137C8.89589 20.2673 9.47004 19.4067 10.1943 18.6824C10.9185 17.9583 11.7784 17.3839 12.7246 16.992C13.6709 16.6 14.6857 16.3982 15.71 16.3982Z"/>
+  <path d="M15.71 12.2029C16.756 12.203 17.7872 12.342 18.7812 12.6053V12.7078C18.7812 13.3841 18.6274 14.0686 18.3252 14.7566C17.4805 14.5226 16.6019 14.3983 15.71 14.3982C13.1109 14.3982 10.6181 15.4306 8.78027 17.2684C7.82533 18.2233 7.08978 19.3561 6.60156 20.5877C6.01574 20.2431 5.37227 19.8396 4.72461 19.3816C5.31842 18.0286 6.15959 16.7826 7.22461 15.7176C9.47503 13.4672 12.5274 12.2029 15.71 12.2029Z"/>
+  <path d="M15.71 7.99981C16.7483 7.99982 17.7762 8.10064 18.7812 8.29473V10.5438C17.7756 10.3176 16.7456 10.203 15.71 10.2029C13.8716 10.2029 12.051 10.5649 10.3525 11.2684C8.65403 11.9719 7.11054 13.0036 5.81055 14.3035C4.70044 15.4136 3.78595 16.701 3.10449 18.1111C2.47852 17.562 1.94219 17.0104 1.50391 16.4588C1.499 16.4526 1.49414 16.4464 1.48926 16.4402C2.22348 15.0946 3.15139 13.8484 4.25488 12.7449C7.29297 9.70684 11.4135 7.99981 15.71 7.99981Z"/>
+  <path d="M9.20312 0.0271534C9.32546 -0.00904571 9.45579 -0.00905652 9.57812 0.0271534L18.3164 2.61211C18.4508 2.6519 18.5686 2.73354 18.6523 2.84454C18.736 2.95548 18.7812 3.09007 18.7812 3.22833V6.26055C17.7733 6.08798 16.7462 5.99982 15.71 5.99981C10.883 5.99981 6.25398 7.9177 2.84082 11.3309C1.8853 12.2864 1.04679 13.3369 0.334961 14.4607C0.112958 13.8722 1.58977e-05 13.2871 0 12.7078V3.22833C6.9128e-05 3.09002 0.0451923 2.9555 0.128906 2.84454C0.212682 2.73349 0.33042 2.65189 0.464844 2.61211L9.20312 0.0271534Z"/>
+</g></svg></template>
+
+<!-- 1: what it is -->
+<section class="shot" data-out="screenshot-1.png">
+  <div class="copy">
+    <div class="brand"><span data-mark></span><span class="word">FOIL</span></div>
+    <h1>A fresh tin<br/>for <em>every rip</em></h1>
+    <p class="lead">Open packs on Collector Crypt from a single-use wallet funded by your private Foil Stash. The site only ever sees that one tin.</p>
+  </div>
+  <div class="window">
+    <div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span>&nbsp;Confirm in Foil</div>
+    <iframe src="../dist/confirm.html?id=1&o=https%3A%2F%2Fgacha.collectorcrypt.com&s=%E2%88%92%2425.00%20USDG%2C%20%2B1%20card"></iframe>
+  </div>
+  <p class="foot">foilprivacy.com · Robinhood Chain</p>
+</section>
+
+<!-- 2: the guard -->
+<section class="shot" data-out="screenshot-2.png">
+  <div class="copy">
+    <div class="brand"><span data-mark></span><span class="word">FOIL</span></div>
+    <h1>Checked<br/><em>before you sign</em></h1>
+    <ul class="list">
+      <li><span class="ok">✓</span> Pay for a pack at the pack vault</li>
+      <li><span class="ok">✓</span> Pay shipping to the shipping payee</li>
+      <li><span class="no">✕</span> Approvals to unknown addresses</li>
+      <li><span class="no">✕</span> Sending USDG or cards anywhere else</li>
+    </ul>
+  </div>
+  <div class="window" style="top:190px">
+    <div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span>&nbsp;Confirm in Foil</div>
+    <iframe src="../dist/confirm.html?id=2&o=https%3A%2F%2Fgacha.collectorcrypt.com&s=%E2%88%92%2412.00%20USDG%20shipping"></iframe>
+  </div>
+  <p class="foot">Every request from the pack site is shown to you first. Anything outside the allowed actions is blocked.</p>
+</section>
+
+<!-- 3: fresh storage and private traffic -->
+<section class="shot" data-out="screenshot-3.png">
+  <div class="copy">
+    <div class="brand"><span data-mark></span><span class="word">FOIL</span></div>
+    <h1>Nothing to<br/><em>link your tins</em></h1>
+    <p class="lead">Your keys stay in your Foil tab. The extension holds none, collects nothing and talks only to foilprivacy.com.</p>
+  </div>
+  <div class="steps">
+    <div class="step"><b>One tin at a time</b><span>The pack site sees only your current tin, never your main wallet or your other tins.</span></div>
+    <div class="step"><b>Clean slate per tin</b><span>Switching tins wipes the pack site's cookies, storage and caches, so it cannot connect them.</span></div>
+    <div class="step"><b>Private requests</b><span>Chain requests go through your Foil tab over Oblivious HTTP, so no provider sees your tins from one IP.</span></div>
+  </div>
+</section>
+
+<!-- small promo tile -->
+<section class="tile" data-out="promo-small-440x280.png">
+  <div style="position:absolute;left:34px;top:46px">
+    <div class="brand"><span data-mark></span><span class="word">FOIL</span></div>
+    <div style="font:italic 900 34px/1 'Barlow Condensed',sans-serif;text-transform:uppercase;margin-top:26px">A fresh tin<br/><span style="color:var(--gold)">for every rip</span></div>
+    <div style="margin-top:16px;font-size:14px;color:var(--slate)">Private pack rips on Robinhood Chain</div>
+  </div>
+</section>
+
+<script>
+  const mark = document.getElementById("mark").innerHTML;
+  document.querySelectorAll("[data-mark]").forEach((el) => (el.outerHTML = mark));
+</script>
+</body>
+</html>

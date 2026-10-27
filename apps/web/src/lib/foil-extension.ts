@@ -20,6 +20,8 @@ import { publicEnv } from "@/env";
 import { assertRipAllowed, logActivity } from "./foil-workspace";
 
 const EXT_ID = publicEnv.NEXT_PUBLIC_FOIL_EXTENSION_ID;
+/** The extension's Chrome Web Store page, once its ID is configured. */
+export const EXTENSION_STORE_URL = EXT_ID ? `https://chromewebstore.google.com/detail/${EXT_ID}` : null;
 const TRANSFER = parseAbiItem("event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)");
 
 interface ChromePort {

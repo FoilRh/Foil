@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { readyTins } from "@foil/client";
 import { useLive } from "@/lib/foil-live";
-import { startRipping, stopRipping, useRipping } from "@/lib/foil-extension";
+import { EXTENSION_STORE_URL, startRipping, stopRipping, useRipping } from "@/lib/foil-extension";
 import { money } from "@/lib/foil-workspace";
 import { Action, Badge, Panel } from "./dashboard-ui";
 
@@ -39,7 +39,7 @@ export function LiveRips() {
       {rip.tin && <p className="text-sm">Active tin: <span className="text-accent">Tin {rip.tin.index + 1}</span> · {money(Number(rip.tin.usdg ?? rip.tin.size) / 1e6)} USDG. The pack site sees only this tin.</p>}
       {rip.paused && <p className="text-sm text-peach">{rip.paused}</p>}
       <p className="text-xs leading-copy text-foreground-subtle">The extension shows the pack site one fresh tin at a time. Every request is checked and shown to you before the tin signs; anything that would send funds or cards elsewhere is blocked. When a card lands, Foil switches to the next ready tin and clears the site&apos;s storage so it cannot link your tins.</p>
-      {!rip.available && <p className="text-xs leading-copy text-foreground-subtle">Install the Foil extension in this browser, then reload this page.</p>}
+      {!rip.available && <p className="text-xs leading-copy text-foreground-subtle">{EXTENSION_STORE_URL ? <><a href={EXTENSION_STORE_URL} target="_blank" rel="noopener noreferrer" className="text-accent underline underline-offset-4">Install the Foil extension</a> from the Chrome Web Store, then reload this page.</> : "Install the Foil extension in this browser, then reload this page."}</p>}
       {(error || rip.error) && <p role="alert" className="text-sm text-highlight-secondary">{error || rip.error}</p>}
       {rip.connected
         ? <Action secondary onClick={() => stopRipping()}>Stop ripping</Action>

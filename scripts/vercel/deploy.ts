@@ -184,6 +184,8 @@ function web() {
     env: {
       ...process.env, NEXT_PUBLIC_CHAIN_ID: String(CHAIN_ID), NEXT_PUBLIC_SITE_URL: site,
       NEXT_PUBLIC_OHTTP_RELAY_URL: live ? urls.relay! : "", NEXT_PUBLIC_OHTTP_KEY_CONFIG: live ? env.OHTTP_KEY_CONFIG! : "",
+      // The Chrome Web Store ID of the Foil extension (FOIL_EXTENSION_ID in deploy/<network>.env).
+      NEXT_PUBLIC_FOIL_EXTENSION_ID: env.FOIL_EXTENSION_ID ?? "",
     },
   });
   if (b.exitCode !== 0) throw new Error("web build failed");
