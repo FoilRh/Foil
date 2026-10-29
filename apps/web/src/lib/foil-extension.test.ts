@@ -37,9 +37,11 @@ describe.skipIf(!hasFoundry())("ripping through the extension bridge", () => {
       } else if (m.type === "reply") replies.set(m.id as number, { result: m.result, error: m.error as string | undefined });
     },
     onMessage: { addListener: (fn: (m: Record<string, unknown>) => void) => void (deliver = fn) },
-    onDisconnect: { addListener: () => {} },
+    onDisconnect: { addListener: (fn: () => void) => void drops.push(fn) },
     disconnect() {},
   };
+  const drops: (() => void)[] = [];
+  let connects = 0;
   /** What a pack site's provider call does, end to end (auto-approving confirmations). */
   async function site(method: string, params: unknown[]) {
     const d = decide(session, SITE, method, params);
@@ -54,7 +56,7 @@ describe.skipIf(!hasFoundry())("ripping through the extension bridge", () => {
   }
 
   beforeAll(async () => {
-    (globalThis as { chrome?: unknown }).chrome = { runtime: { connect: () => fakePort } };
+    (globalThis as { chrome?: unknown }).chrome = { runtime: { connect: () => (connects++, fakePort) } };
     bridge = await import("./foil-extension");
     workspace = await import("./foil-workspace");
     workspace.updateRegion("US");
@@ -101,6 +103,15 @@ describe.skipIf(!hasFoundry())("ripping through the extension bridge", () => {
   test("an attack from the site is blocked before the app is even asked", async () => {
     const tin = session.policy!.tin;
     await expect(site("eth_sendTransaction", [{ from: tin, to: s.chain.deployment.usdg, data: encodeFunctionData({ abi: ERC20_ABI, functionName: "transfer", args: ["0xbadbadbadbadbadbadbadbadbadbadbadbadbad0", 1n] }) }])).rejects.toThrow(/blocked/);
+  });
+
+  test("the extension's worker restarts: the app reconnects and hands back the same tin", async () => {
+    const tin = session.policy!.tin;
+    session.policy = null; // a restarted worker has lost what it held in memory
+    const before = connects;
+    drops.at(-1)!(); // the browser drops the port when it stops the worker
+    expect(connects).toBe(before + 1);
+    expect(await site("eth_requestAccounts", [])).toEqual([tin]);
   });
 
   test("rip: approve + pay; the card lands; spend recorded; tin retired; no tin left → pause", async () => {

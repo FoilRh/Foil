@@ -22,8 +22,9 @@ const appCalls = new Map<number, (r: { result?: unknown; error?: string }) => vo
 const confirms = new Map<number, (approved: boolean) => void>();
 let seq = 0;
 
-// Session survives a worker restart (MV3 workers are short-lived).
-chrome.storage.session.get("session").then((v) => {
+// Session survives a worker restart (MV3 workers are short-lived). Handlers await this, so a
+// request that wakes the worker is answered with the restored tin, not an empty session.
+const restored = chrome.storage.session.get("session").then((v) => {
   const s = v.session as { policy: WirePolicy | null; pausedReason: string | null } | undefined;
   if (s) session = { policy: s.policy ? fromWire(s.policy) : null, pausedReason: s.pausedReason };
 });
@@ -101,6 +102,7 @@ chrome.runtime.onConnect.addListener((port) => {
   port.onDisconnect.addListener(() => pages.delete(port));
   port.onMessage.addListener(async (req: { id: number; method: string; params: unknown[]; origin: string }) => {
     const reply = (body: { result?: unknown; error?: { code: number; message: string } }) => port.postMessage({ id: req.id, ...body });
+    await restored;
     const d = decide(session, req.origin, req.method, req.params);
     try {
       if (d.kind === "result") return reply({ result: d.result });
@@ -125,6 +127,9 @@ chrome.runtime.onConnectExternal.addListener((port) => {
     broadcast("accountsChanged", []);
   });
   port.onMessage.addListener(async (msg: { type: string; id?: number; policy?: WirePolicy | null; reason?: string; result?: unknown; error?: string }) => {
+    // "ping": the Foil tab's heartbeat. Any message keeps the worker (and every port) alive.
+    if (msg.type === "ping") return;
+    await restored;
     if (msg.type === "reply" && msg.id !== undefined) {
       appCalls.get(msg.id)?.({ result: msg.result, error: msg.error });
       appCalls.delete(msg.id);

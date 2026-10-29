@@ -164,13 +164,36 @@ export async function startRipping(w: Wallet) {
   if (!cfg.cc) throw new Error("Pack sites are not connected yet.");
   wallet = w;
   cc = { chainId: cfg.chainId, usdg: cfg.usdg as Address, vault: cfg.cc.vault as Address, cards: cfg.cc.cards as Address, shippingPayees: cfg.cc.shippingPayees as Address[] };
-  port = rt.connect(EXT_ID!, { name: "foil-app" });
-  port.onMessage.addListener((m) => void (m.type === "read" || m.type === "sign" ? handle(m) : undefined));
-  port.onDisconnect.addListener(() => stopRipping());
+  port = connectPort(rt);
   emit({ connected: true, error: null });
   await nextTin();
   clearInterval(poller);
-  poller = setInterval(() => void watch().catch((e) => emit({ error: e instanceof Error ? e.message : "Watch failed." })), 5_000);
+  poller = setInterval(() => {
+    // Heartbeat: browsers stop an extension worker after ~30 s without messages, which drops
+    // the pack page's connection mid-sign-in. Any message keeps it awake while ripping.
+    try { port?.postMessage({ type: "ping" }); } catch { /* dropped: onDisconnect reconnects */ }
+    void watch().catch((e) => emit({ error: e instanceof Error ? e.message : "Watch failed." }));
+  }, 5_000);
+}
+
+let reconnectedAt = 0;
+function connectPort(rt: ChromeRuntime): ChromePort {
+  const p = rt.connect(EXT_ID!, { name: "foil-app" });
+  p.onMessage.addListener((m) => void (m.type === "read" || m.type === "sign" ? handle(m) : undefined));
+  p.onDisconnect.addListener(() => {
+    if (port !== p) return;
+    // The extension's worker restarted: reconnect once and hand it the same tin again. A
+    // second drop within 5 s means the extension is gone (removed or disabled): stop.
+    if (wallet && Date.now() - reconnectedAt > 5_000) {
+      reconnectedAt = Date.now();
+      port = connectPort(rt);
+      if (policy) port.postMessage({ type: "session", policy: toWire(policy) });
+    } else {
+      port = null; // already disconnected: posting on it would throw
+      stopRipping();
+    }
+  });
+  return p;
 }
 
 export function stopRipping() {
