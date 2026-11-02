@@ -140,7 +140,8 @@ chrome.runtime.onConnectExternal.addListener((port) => {
       await setSession(msg.policy ?? null, msg.reason ?? null);
       await routeThroughTunnel(Boolean(msg.policy));
       if (changed) {
-        await Promise.all(tabs.map((t) => (!t.url ? undefined : t.closed ? chrome.tabs.create({ url: t.url }) : chrome.tabs.update(t.id!, { url: t.url }))));
+        // A tab still loading shows its target only in pendingUrl: reopen that, or it stays blank.
+        await Promise.all(tabs.map((t) => { const url = t.pendingUrl || t.url; return !url ? undefined : t.closed ? chrome.tabs.create({ url }) : chrome.tabs.update(t.id!, { url }); }));
         broadcast("accountsChanged", session.policy ? [session.policy.tin] : []);
       }
       port.postMessage({ type: "session-ack", tin: session.policy?.tin ?? null });

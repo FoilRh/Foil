@@ -166,7 +166,12 @@ export async function startRipping(w: Wallet) {
   cc = { chainId: cfg.chainId, usdg: cfg.usdg as Address, vault: cfg.cc.vault as Address, cards: cfg.cc.cards as Address, shippingPayees: cfg.cc.shippingPayees as Address[] };
   port = connectPort(rt);
   emit({ connected: true, error: null });
+  // The extension acks a session only after it has cleared and reloaded the pack tabs; opening
+  // the pack site before that races the wipe and leaves a blank tab. Wait for it (or 15 s).
+  const acked = new Promise<void>((ok) => { ackWaiter = ok; setTimeout(ok, 15_000); });
   await nextTin();
+  await acked;
+  ackWaiter = null;
   clearInterval(poller);
   poller = setInterval(() => {
     // Heartbeat: browsers stop an extension worker after ~30 s without messages, which drops
@@ -177,9 +182,13 @@ export async function startRipping(w: Wallet) {
 }
 
 let reconnectedAt = 0;
+let ackWaiter: (() => void) | null = null;
 function connectPort(rt: ChromeRuntime): ChromePort {
   const p = rt.connect(EXT_ID!, { name: "foil-app" });
-  p.onMessage.addListener((m) => void (m.type === "read" || m.type === "sign" ? handle(m) : undefined));
+  p.onMessage.addListener((m) => {
+    if (m.type === "session-ack") ackWaiter?.();
+    else if (m.type === "read" || m.type === "sign") void handle(m);
+  });
   p.onDisconnect.addListener(() => {
     if (port !== p) return;
     // The extension's worker restarted: reconnect once and hand it the same tin again. A

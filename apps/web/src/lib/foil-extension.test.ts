@@ -34,6 +34,8 @@ describe.skipIf(!hasFoundry())("ripping through the extension bridge", () => {
       if (m.type === "session") {
         session.policy = m.policy ? fromWire(m.policy as WirePolicy) : null;
         session.pausedReason = (m.reason as string) ?? null;
+        acks++;
+        queueMicrotask(() => deliver?.({ type: "session-ack", tin: session.policy?.tin ?? null }));
       } else if (m.type === "reply") replies.set(m.id as number, { result: m.result, error: m.error as string | undefined });
     },
     onMessage: { addListener: (fn: (m: Record<string, unknown>) => void) => void (deliver = fn) },
@@ -41,6 +43,7 @@ describe.skipIf(!hasFoundry())("ripping through the extension bridge", () => {
     disconnect() {},
   };
   const drops: (() => void)[] = [];
+  let acks = 0;
   let connects = 0;
   /** What a pack site's provider call does, end to end (auto-approving confirmations). */
   async function site(method: string, params: unknown[]) {
@@ -95,7 +98,10 @@ describe.skipIf(!hasFoundry())("ripping through the extension bridge", () => {
   });
 
   test("start: the site sees exactly one fresh tin, on RHC", async () => {
+    const t0 = Date.now();
     await bridge.startRipping(wallet);
+    expect(acks).toBe(1); // returned once the extension acked the session (so the site may open)
+    expect(Date.now() - t0).toBeLessThan(14_000); // not via the 15 s fallback
     expect(await site("eth_requestAccounts", [])).toEqual([wallet.state.tins[0]!.address]);
     expect(await site("eth_chainId", [])).toBe("0x1237");
   }, 60_000);
