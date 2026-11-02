@@ -3,7 +3,7 @@ import { useState } from "react";
 import { readyTins } from "@foil/client";
 import { useLive } from "@/lib/foil-live";
 import { EXTENSION_STORE_URL, startRipping, stopRipping, useRipping } from "@/lib/foil-extension";
-import { money } from "@/lib/foil-workspace";
+import { assertRipAllowed, money } from "@/lib/foil-workspace";
 import { Action, Badge, Panel } from "./dashboard-ui";
 
 /** Browser mode (Build §5A): rip on the pack site through the Foil extension, one fresh tin per rip. */
@@ -20,6 +20,10 @@ export function LiveRips() {
     setBusy(true);
     setError("");
     try {
+      // Same checks the bridge applies before it hands the extension a tin (region, cool-off,
+      // limits): fail here with the reason, instead of opening a pack site with no tin connected.
+      const first = ready[0];
+      if (first) assertRipAllowed(Number(first.usdg ?? first.size) / 1e6);
       await startRipping(w!);
       window.open("https://gacha.collectorcrypt.com", "_blank", "noopener,noreferrer");
     } catch (e) {
