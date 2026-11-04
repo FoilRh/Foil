@@ -257,18 +257,52 @@ export class Wallet {
     return r.txHash;
   }
 
-  /** Up to two unspent notes covering `target` (largest first). */
-  private select(target: bigint): [OwnedNote, OwnedNote] {
-    const unspent = this.state.notes.filter((n) => !n.spent).sort((x, y) => (BigInt(y.amount) > BigInt(x.amount) ? 1 : -1));
-    const pick = unspent.slice(0, 2);
+  /** Our unspent notes, largest first. */
+  private unspent(): NoteRec[] {
+    return this.state.notes.filter((n) => !n.spent).sort((x, y) => (BigInt(y.amount) > BigInt(x.amount) ? 1 : -1));
+  }
+
+  /** Up to two unspent notes covering `target` (largest first), or exactly `use`. */
+  private select(target: bigint, use?: NoteRec[]): [OwnedNote, OwnedNote] {
+    const unspent = this.unspent();
+    const pick = use ?? unspent.slice(0, 2);
     const total = pick.reduce((s, n) => s + BigInt(n.amount), 0n);
-    if (total < target) {
-      throw new Error(unspent.length > 2 ? "Combine notes first: a spend uses at most two." : "Not enough in your Stash.");
-    }
+    if (total < target) throw new Error("Not enough in your Stash.");
     const owned = pick.map((n) => ({ amount: BigInt(n.amount), rho: BigInt(n.rho), index: n.leaf }));
     const notes: OwnedNote[] = owned;
     while (notes.length < 2) notes.push({ amount: 0n, rho: randomField() }); // zero dummy, no membership
     return notes as [OwnedNote, OwnedNote];
+  }
+
+  /**
+   * How many of our largest notes it takes to pay `target`, counting one relayer fee for
+   * each merge needed to bring them down to two. Null if all of them are not enough.
+   */
+  private coverCount(target: bigint): number | null {
+    const u = this.unspent();
+    let sum = 0n;
+    for (let k = 1; k <= u.length; k++) {
+      sum += BigInt(u[k - 1]!.amount);
+      if (sum - this.cfg.relayerFee * BigInt(Math.max(0, k - 2)) >= target) return k;
+    }
+    return null;
+  }
+
+  /**
+   * A spend proves at most two input notes. When `target` needs more, merge the two smallest
+   * of the notes it needs into one (a private transfer to ourselves, one relayer fee), wait
+   * for it, and repeat until two notes cover it. Nothing is spent if even all notes fall short.
+   */
+  private async mergeFor(target: bigint): Promise<void> {
+    for (let round = 0; round < 8; round++) {
+      const k = this.coverCount(target);
+      if (k === null || k <= 2) return; // select() reports a shortfall itself
+      const pair = this.unspent().slice(0, k).slice(-2);
+      const hash = await this.joinsplit(0n, "0x0000000000000000000000000000000000000000", null, pair);
+      const r = await this.chain.waitForTransactionReceipt({ hash });
+      if (r.status !== "success") throw new Error("Combining notes failed. Try again.");
+      await this.sync();
+    }
   }
 
   private proof(name: "joinsplit" | "tin_request", input: Record<string, unknown>): Promise<SolidityProof> {
@@ -314,18 +348,20 @@ export class Wallet {
 
   /** Withdraw to an outside wallet (0.25% protocol fee + relayer fee). */
   async withdraw(amount: bigint, recipient: Address): Promise<Hex> {
+    await this.mergeFor(amount + this.cfg.relayerFee);
     return this.joinsplit(-amount, recipient, null);
   }
 
   /** Private transfer to another Foil stash address. */
   async send(amount: bigint, to: { mpk: bigint; ekPub: Uint8Array }): Promise<Hex> {
+    await this.mergeFor(amount + this.cfg.relayerFee);
     return this.joinsplit(0n, "0x0000000000000000000000000000000000000000", { amount, ...to });
   }
 
-  private async joinsplit(extAmount: bigint, recipient: Address, to: { amount: bigint; mpk: bigint; ekPub: Uint8Array } | null) {
+  private async joinsplit(extAmount: bigint, recipient: Address, to: { amount: bigint; mpk: bigint; ekPub: Uint8Array } | null, use?: NoteRec[]) {
     const fee = this.cfg.relayerFee;
     const out = -extAmount + (to?.amount ?? 0n);
-    const inputs = this.select(out + fee);
+    const inputs = this.select(out + fee, use);
     const change = inputs[0].amount + inputs[1].amount - out - fee;
     const changeRho = randomField();
     const otherRho = randomField();
@@ -349,7 +385,9 @@ export class Wallet {
     const sizeMicros = BigInt(size) * 1_000_000n;
     const i = this.state.nextTin;
     const tin = this.keys.tin(i);
-    const [reserved, roundId] = await Promise.all([this.read<bigint>("reservedFor", [sizeMicros]), this.read<bigint>("currentRound")]);
+    const reserved = await this.read<bigint>("reservedFor", [sizeMicros]);
+    await this.mergeFor(reserved + this.cfg.relayerFee);
+    const roundId = await this.read<bigint>("currentRound"); // after any merge, which can take a while
     const inputs = this.select(reserved + this.cfg.relayerFee);
     const changeRho = randomField();
     const changeAmount = inputs[0].amount + inputs[1].amount - reserved - this.cfg.relayerFee;
