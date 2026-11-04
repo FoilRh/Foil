@@ -65,10 +65,18 @@ let policy: Policy | null = null;
 let poller: ReturnType<typeof setInterval> | undefined;
 let fromBlock = 0n;
 
+const LOG_CHUNK = 2_000_000n;
 async function holdings(w: Wallet, t: TinRec) {
   const chain = createChainClient(w.api);
   const usdg = (await chain.readContract({ address: cc!.usdg, abi: usdgAbi, functionName: "balanceOf", args: [t.address] })) as bigint;
-  const logs = await chain.getLogs({ address: cc!.cards, event: TRANSFER, args: { to: t.address }, fromBlock: w.cfg.startBlock });
+  // Public RPCs refuse very wide log ranges (10M+ blocks fails): scan from when the tin was
+  // requested (older records: from the pool's start) in chunks of at most 2M blocks.
+  const head = await chain.getBlockNumber();
+  const logs = [];
+  for (let from = BigInt(t.block ?? w.cfg.startBlock); from <= head; from += LOG_CHUNK) {
+    const to = from + LOG_CHUNK - 1n > head ? head : from + LOG_CHUNK - 1n;
+    logs.push(...(await chain.getLogs({ address: cc!.cards, event: TRANSFER, args: { to: t.address }, fromBlock: from, toBlock: to })));
+  }
   const cards: bigint[] = [];
   for (const l of logs) {
     const id = l.args.tokenId!;

@@ -53,6 +53,8 @@ export type TinState = "Requested" | "Funded" | "Cancelled" | "SelfExecuted";
 export interface TinRec {
   index: number; address: Address; roundId: string; reqIdx: number; size: string; reserved: string;
   state: TinState; receipt?: unknown; createdAt: string;
+  /** Chain block when it was requested: its address is secret until funded, so no card can reach it earlier. */
+  block?: string;
   /** From the public tin-set snapshot (M8): current USDG and card token IDs. */
   usdg?: string; cards?: string[];
   /** A gift tin (Build §6): shared by link; `takenBack` once the giver reclaimed it. */
@@ -385,7 +387,7 @@ export class Wallet {
     const sizeMicros = BigInt(size) * 1_000_000n;
     const i = this.state.nextTin;
     const tin = this.keys.tin(i);
-    const reserved = await this.read<bigint>("reservedFor", [sizeMicros]);
+    const [reserved, block] = await Promise.all([this.read<bigint>("reservedFor", [sizeMicros]), this.chain.getBlockNumber()]);
     await this.mergeFor(reserved + this.cfg.relayerFee);
     const roundId = await this.read<bigint>("currentRound"); // after any merge, which can take a while
     const inputs = this.select(reserved + this.cfg.relayerFee);
@@ -403,7 +405,7 @@ export class Wallet {
     if (!ref) throw new Error("request not found after inclusion");
     const rec: TinRec = {
       index: i, address: tin.address, roundId: roundId.toString(), reqIdx: ref.reqIdx, size: sizeMicros.toString(),
-      reserved: reserved.toString(), state: "Requested", createdAt: new Date().toISOString(),
+      reserved: reserved.toString(), state: "Requested", createdAt: new Date().toISOString(), block: block.toString(),
     };
     this.state = { ...this.state, nextTin: i + 1, tins: [rec, ...this.state.tins] };
     this.onChange(this.state);
