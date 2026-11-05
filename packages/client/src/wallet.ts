@@ -518,7 +518,7 @@ export class Wallet {
    * Post a hit to this season's Rip Room (Build §7). Links this tin to the season handle;
    * a second post links those tins to each other (the UI warns before that).
    */
-  async postHit(t: TinRec, tokenId: bigint) {
+  async postHit(t: TinRec, tokenId: bigint | string) {
     const post = await this.api.rooms.post.mutate(await signPost(this.keys, this.keys.tin(t.index).privateKey, tokenId));
     this.state = { ...this.state, tins: this.state.tins.map((x) => (x.index === t.index ? { ...x, posted: [...(x.posted ?? []), post.tokenId] } : x)) };
     this.onChange(this.state);

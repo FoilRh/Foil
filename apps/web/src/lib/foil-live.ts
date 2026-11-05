@@ -257,7 +257,7 @@ export async function liveSendBack(t: TinRec, amountUsdg: number) {
 export const liveTinKey = (t: TinRec) => need().exportTinKey(t);
 
 /** Rip Rooms (Build §7): opt-in post of one hit under this season's handle. */
-export async function livePostHit(t: TinRec, tokenId: bigint) {
+export async function livePostHit(t: TinRec, tokenId: bigint | string) {
   const post = await need().postHit(t, tokenId);
   emit({});
   return post;

@@ -7,6 +7,8 @@ import { logActivity, money } from "@/lib/foil-workspace";
 import { Action, Badge, Empty, Panel } from "./dashboard-ui";
 
 type Standing = { handle: string; hits: number; insuredTotal: string };
+/** A card a tin pulled: on RHC (token id) or on Collector Crypt's Solana account ("sol:" id). */
+type Hit = { t: TinRec; tokenId: string; name: string | null; grade: string | null; insuredValue: string | null; soldBack: boolean };
 
 /** Rip Room (Build §7): opt-in, per-hit posts under a per-season handle. */
 export function LiveRoom({ notify }: { notify: (text: string) => void }) {
@@ -15,6 +17,7 @@ export function LiveRoom({ notify }: { notify: (text: string) => void }) {
   const [feed, setFeed] = useState<RoomPost[]>([]);
   const [board, setBoard] = useState<Standing[]>([]);
   const [confirm, setConfirm] = useState<{ t: TinRec; tokenId: string } | null>(null);
+  const [pulls, setPulls] = useState<Hit[]>([]);
   const [busy, setBusy] = useState(false);
   const handle = w ? seasonHandle(w.keys) : null;
 
@@ -24,14 +27,33 @@ export function LiveRoom({ notify }: { notify: (text: string) => void }) {
     w.api.rooms.leaderboard.query({}).then(setBoard).catch(() => setBoard([]));
   }, [w, live.version]);
 
+  // Cards pulled on Collector Crypt live on Solana: ask the API per tin (over OHTTP, one at a time).
+  const tinCount = w?.state.tins.length ?? 0;
+  useEffect(() => {
+    if (!w) return;
+    let stop = false;
+    void (async () => {
+      const found: Hit[] = [];
+      for (const t of w.state.tins.filter((x) => x.state === "Funded" && !x.gift)) {
+        const cards = await w.api.rooms.pulls.mutate({ tin: t.address }).catch(() => []);
+        found.push(...cards.map((c) => ({ t, tokenId: c.id, name: c.name, grade: c.grade, insuredValue: c.insuredValue, soldBack: !c.held })));
+      }
+      if (!stop) setPulls(found);
+    })();
+    return () => { stop = true; };
+  }, [w, tinCount]);
+
   if (!w || !handle) return null;
-  const hits = w.state.tins.flatMap((t) => (t.cards ?? []).map((tokenId) => ({ t, tokenId })));
+  const hits: Hit[] = [
+    ...w.state.tins.flatMap((t) => (t.cards ?? []).map((tokenId) => ({ t, tokenId, name: null, grade: null, insuredValue: null, soldBack: false }))),
+    ...pulls,
+  ];
   const postedCount = w.state.tins.reduce((n, t) => n + (t.posted?.length ?? 0), 0);
 
   async function post(t: TinRec, tokenId: string) {
     setBusy(true);
     try {
-      await livePostHit(t, BigInt(tokenId));
+      await livePostHit(t, tokenId);
       logActivity("Hit posted", `${handle!.name} · ${handle!.season}`);
       notify("Posted to the Room.");
     } catch (e) {
@@ -48,10 +70,10 @@ export function LiveRoom({ notify }: { notify: (text: string) => void }) {
     </Panel>
 
     <Panel title="Your hits" eyebrow="Cards in your tins">
-      {hits.length ? <div className="divide-y divide-foreground/15">{hits.map(({ t, tokenId }) => {
+      {hits.length ? <div className="divide-y divide-foreground/15">{hits.map(({ t, tokenId, name, grade, insuredValue, soldBack }) => {
         const posted = t.posted?.includes(tokenId);
         return <div key={`${t.index}-${tokenId}`} className="flex flex-wrap items-center justify-between gap-4 py-4">
-          <div><p className="type-caps text-lg">Card #{tokenId}</p><p className="text-xs text-foreground-subtle">Tin {t.index + 1}</p></div>
+          <div><p className="type-caps text-lg">{name ?? `Card #${tokenId}`}</p><p className="text-xs text-foreground-subtle">Tin {t.index + 1}{grade ? ` · ${grade}` : ""}{insuredValue ? ` · insured $${money(Number(insuredValue) / 1e6)}` : ""}{soldBack ? " · sold back" : ""}</p></div>
           {posted ? <Badge muted>Posted</Badge>
             : confirm?.t.index === t.index && confirm.tokenId === tokenId
               ? <div className="flex flex-wrap items-center gap-2"><p className="text-xs text-peach">This links this tin to your other posted tins.</p><Action disabled={busy} onClick={() => void post(t, tokenId)}>Post anyway</Action><Action secondary onClick={() => setConfirm(null)}>Keep private</Action></div>

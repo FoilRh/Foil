@@ -135,3 +135,30 @@ test("rpc: gas estimates for Relay's depository pass only while the bridge is op
   const closed = createApp(key, ctx({ chain: ok }));
   expect(JSON.parse((await call(closed, key, "/trpc/rpc", est)).text).error.message).toContain("not allowed");
 });
+
+test("rooms: a Collector Crypt card pulled on Solana can be posted; one the tin did not pull cannot", async () => {
+  const { privateKeyToAccount } = await import("viem/accounts");
+  const { bytesToHex } = await import("viem");
+  const { ed25519 } = await import("@noble/curves/ed25519.js");
+  const { handleName, postMessage, seasonOf } = await import("@foil/protocol");
+  const tin = privateKeyToAccount(`0x${"33".repeat(32)}`);
+  const sk = ed25519.utils.randomSecretKey();
+  const handlePub = bytesToHex(ed25519.getPublicKey(sk));
+  const handle = handleName(handlePub);
+  const season = seasonOf();
+  const PULLED = "sol:HVeJ7A7fwseBG7uhKNUmhWYHm381sGC7UhaUo4JXJUMH";
+  const meta = { name: "2025 #065 Ivysaur PSA 9 Japanese", grade: "MINT 9", image: null, insuredValue: "22000000" };
+  const key = await generateGatewayKey(1);
+  const app = createApp(key, ctx({ solanaCards: { pulls: async (t) => (t.toLowerCase() === tin.address.toLowerCase() ? [{ id: PULLED, held: false, meta }] : []) } }));
+  const post = async (tokenId: string) => {
+    const msg = postMessage(season, handle, tokenId, tin.address);
+    const body = { season, handle, handlePub, tokenId, tin: tin.address, sigTin: await tin.signMessage({ message: msg }), sigHandle: bytesToHex(ed25519.sign(new TextEncoder().encode(msg), sk)) };
+    return JSON.parse((await call(app, key, "/trpc/rooms.post", body)).text);
+  };
+  expect((await post("sol:9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM")).error.message).toContain("did not pull");
+  const ok = (await post(PULLED)).result.data;
+  expect(ok).toMatchObject({ tokenId: PULLED, name: meta.name, insuredValue: "22000000" });
+  expect((await post(PULLED)).error.message).toContain("already posted");
+  const pulls = JSON.parse((await call(app, key, "/trpc/rooms.pulls", { tin: tin.address })).text).result.data;
+  expect(pulls).toEqual([{ id: PULLED, held: false, ...meta }]);
+});

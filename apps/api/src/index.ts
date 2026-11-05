@@ -5,6 +5,7 @@
  *   RELAYER_URL, RELAYER_ADDRESS, RELAYER_TOKEN, OPERATOR_URL, OPERATOR_TOKEN, START_BLOCK,
  *   DATABASE_URL, PPOI_URLS, PPOI_TOKENS
  *   BRIDGE_TICKET_SECRET (hex, 32 bytes): opens the Relay bridge to Collector Crypt's Solana balance
+ *   SOLANA_RPC_URL (optional): reads Collector Crypt cards on Solana for Rip Rooms
  * Every internal service has its OWN bearer token (its INTERNAL_TOKEN). ppoi-nodes are run
  * by independent operators, so a node's token must never open the relayer or operator.
  */
@@ -14,6 +15,7 @@ import { FEES, RELAY } from "@foil/protocol";
 import { unhex } from "@foil/ohttp";
 import { createDb } from "@foil/db";
 import { createApp } from "./app";
+import { solanaCards, solanaRpc } from "./solana-cards";
 import type { Ctx } from "./router";
 import { pgStores } from "./stores";
 
@@ -45,6 +47,7 @@ const Env = z.object({
   PPOI_URLS: z.string().default("").transform((s) => s.split(",").map((x) => x.trim()).filter(Boolean)),
   PPOI_TOKENS: z.string().default("").transform((s) => s.split(",").map((x) => x.trim()).filter(Boolean)),
   BRIDGE_TICKET_SECRET: z.string().regex(/^[0-9a-f]{64}$/).optional(),
+  SOLANA_RPC_URL: z.url().default("https://api.mainnet-beta.solana.com"),
 }).refine((e) => e.PPOI_URLS.length === e.PPOI_TOKENS.length && e.PPOI_TOKENS.every((t) => t.length >= 32), {
   message: "PPOI_TOKENS needs one token (32+ chars) per PPOI_URLS entry",
 }).refine((e) => new Set([e.RELAYER_TOKEN, e.OPERATOR_TOKEN, ...e.PPOI_TOKENS]).size === 2 + e.PPOI_TOKENS.length, {
@@ -106,6 +109,14 @@ export function relayCaller(base: string = RELAY.api): NonNullable<Ctx["bridge"]
   };
 }
 
+/** A card's metadata JSON (Arweave), size-capped. */
+async function fetchCardJson(url: string): Promise<unknown> {
+  const res = await fetch(url, { signal: AbortSignal.timeout(8_000) });
+  const text = await res.text();
+  if (!res.ok || text.length > 64_000) throw new Error("card metadata unavailable");
+  return JSON.parse(text);
+}
+
 /** Validates env (throws on bad config) and wires chain, stores and internal services into createApp. */
 export function appFromEnv(source: Record<string, string | undefined> = process.env) {
   const env = Env.parse(source);
@@ -129,6 +140,10 @@ export function appFromEnv(source: Record<string, string | undefined> = process.
     // Relay serves mainnet only; the bridge stays closed without its ticket secret.
     bridge: env.BRIDGE_TICKET_SECRET && env.CHAIN_ID === 4663
       ? { secret: unhex(env.BRIDGE_TICKET_SECRET), relay: relayCaller() }
+      : undefined,
+    // Cards pulled on Collector Crypt live on Solana; read them with the bridge (mainnet only).
+    solanaCards: env.BRIDGE_TICKET_SECRET && env.CHAIN_ID === 4663
+      ? solanaCards({ rpc: solanaRpc(env.SOLANA_RPC_URL), relay: relayCaller(), fetchJson: fetchCardJson })
       : undefined,
   };
   return createApp({ keyId: env.OHTTP_KEY_ID, privateKey: unhex(env.OHTTP_PRIVATE_KEY), publicKey: unhex(env.OHTTP_PUBLIC_KEY) }, ctx);

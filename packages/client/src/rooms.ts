@@ -13,7 +13,8 @@ export function seasonHandle(keys: Keys, season = seasonOf()) {
 }
 
 /** Both signatures for posting `tokenId` held by the tin with this key. */
-export async function signPost(keys: Keys, tinKey: Hex, tokenId: bigint, season = seasonOf()) {
+/** `tokenId`: an RHC card token id, or a Solana card id ("sol:" + asset address). */
+export async function signPost(keys: Keys, tinKey: Hex, tokenId: bigint | string, season = seasonOf()) {
   const h = seasonHandle(keys, season);
   const tin = privateKeyToAccount(tinKey);
   const msg = postMessage(season, h.name, tokenId.toString(), tin.address);

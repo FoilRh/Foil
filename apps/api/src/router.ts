@@ -16,6 +16,7 @@ import {
   RELAY, diffSnapshots, handleName, isSolanaAddress, postMessage, seasonOf, stashPoolAbi, usdgAbi, type ProtocolHealth, type RoundSnapshot,
 } from "@foil/protocol";
 import type { Stores } from "./stores";
+import type { SolanaCards } from "./solana-cards";
 
 export interface Ctx {
   chain: PublicClient;
@@ -42,6 +43,8 @@ export interface Ctx {
    * side, so Relay never sees a client), `secret` signs the tickets that let a tin pay the depository.
    */
   bridge?: { secret: Uint8Array; relay(path: string, body?: unknown): Promise<unknown> };
+  /** Collector Crypt cards on Solana pulled by a tin's funded accounts (Rip Rooms). */
+  solanaCards?: SolanaCards;
 }
 
 const Bytes32 = z.string().regex(/^0x[0-9a-fA-F]{64}$/);
@@ -172,11 +175,13 @@ export const appRouter = t.router({
     post: t.procedure
       .input(z.object({
         season: z.string().regex(/^\d{4}-Q[1-4]$/), handle: z.string().max(40), handlePub: z.string().regex(/^0x[0-9a-f]{64}$/),
-        tokenId: z.string().regex(/^\d{1,78}$/), tin: z.string().refine(isAddress),
+        // A card NFT on RHC (decimal token id) or a Collector Crypt card on Solana ("sol:" + asset address).
+        tokenId: z.string().regex(/^(\d{1,78}|sol:[1-9A-HJ-NP-Za-km-z]{32,44})$/), tin: z.string().refine(isAddress),
         sigTin: z.string().refine(isHex), sigHandle: z.string().regex(/^0x[0-9a-f]{128}$/),
       }))
       .mutation(async ({ ctx, input }) => {
-        if (!ctx.cardNft) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "rooms are not open yet" });
+        const onSolana = input.tokenId.startsWith("sol:");
+        if (onSolana ? !ctx.solanaCards : !ctx.cardNft) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "rooms are not open yet" });
         if (input.season !== seasonOf()) throw new TRPCError({ code: "BAD_REQUEST", message: "posts go to the current season" });
         if (input.handle !== handleName(input.handlePub)) throw new TRPCError({ code: "BAD_REQUEST", message: "handle does not match its key" });
         const msg = postMessage(input.season, input.handle, input.tokenId, input.tin);
@@ -185,16 +190,32 @@ export const appRouter = t.router({
         if (!ed25519.verify(hexToBytes(input.sigHandle as `0x${string}`), new TextEncoder().encode(msg), hexToBytes(input.handlePub as `0x${string}`))) {
           throw new TRPCError({ code: "UNAUTHORIZED", message: "handle signature invalid" });
         }
-        if (!(await holdsOrMinted(ctx.chain, ctx.cardNft, input.tin as Address, BigInt(input.tokenId)))) {
-          throw new TRPCError({ code: "FORBIDDEN", message: "this tin does not hold that card" });
+        let meta;
+        if (onSolana) {
+          // Pulled by this tin: Collector Crypt delivered it to an account the tin funded.
+          const pull = (await ctx.solanaCards!.pulls(input.tin)).find((p) => p.id === input.tokenId);
+          if (!pull) throw new TRPCError({ code: "FORBIDDEN", message: "this tin did not pull that card" });
+          meta = pull.meta;
+        } else {
+          if (!(await holdsOrMinted(ctx.chain, ctx.cardNft!, input.tin as Address, BigInt(input.tokenId)))) {
+            throw new TRPCError({ code: "FORBIDDEN", message: "this tin does not hold that card" });
+          }
+          meta = await ctx.stores.cardMeta(input.tokenId);
         }
         const post = await ctx.stores.addPost(
           { season: input.season, handle: input.handle, handlePub: input.handlePub, tokenId: input.tokenId, tin: input.tin },
-          await ctx.stores.cardMeta(input.tokenId),
+          meta,
         );
         if (post === "taken") throw new TRPCError({ code: "CONFLICT", message: "that handle belongs to another key this season" });
         if (!post) throw new TRPCError({ code: "CONFLICT", message: "this hit is already posted this season" });
         return post;
+      }),
+    /** Collector Crypt cards this tin pulled on Solana (held or sold back), with their metadata. */
+    pulls: t.procedure
+      .input(z.object({ tin: z.string().refine(isAddress) }))
+      .mutation(async ({ ctx, input }) => {
+        if (!ctx.solanaCards) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "rooms are not open yet" });
+        return (await ctx.solanaCards.pulls(input.tin)).map((p) => ({ id: p.id, held: p.held, ...p.meta }));
       }),
     list: t.procedure
       .input(z.object({ season: z.string().optional(), limit: z.number().int().min(1).max(100).default(50) }))
