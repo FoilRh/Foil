@@ -4,6 +4,11 @@
  * each pulled card to that account as a Metaplex Core asset in its collection. A pull is a Core
  * transfer of a Collector Crypt asset to an account the tin funded; it stays a pull after a
  * buyback, so a hit can still be posted.
+ *
+ * A Relay deposit names any recipient, so funding alone proves nothing: anyone could bridge cents
+ * to someone else's account and claim its pulls. An account counts for a tin only if that tin's
+ * Relay delivery is the account's FIRST transaction (each tin signs in to a fresh account, which
+ * its own bridge opens). Its keys sit with Collector Crypt's login provider, so it cannot sign.
  */
 import type { CardMeta } from "./stores";
 
@@ -59,20 +64,35 @@ export function cardMetaFrom(name: string, json: any): CardMeta {
 export function solanaCards(deps: { rpc: Rpc; relay: Relay; fetchJson: FetchJson }): SolanaCards {
   const { rpc, relay, fetchJson } = deps;
 
-  /** Solana accounts this tin funded through Relay (completed requests only). */
-  async function fundedAccounts(tin: string): Promise<string[]> {
+  /** Solana accounts this tin funded through Relay (completed requests), with the delivering tx hashes. */
+  async function fundedAccounts(tin: string): Promise<Map<string, Set<string>>> {
     const r = (await relay(`/requests/v2?user=${tin}&limit=50`)) as { requests?: any[] };
-    const out = new Set<string>();
+    const out = new Map<string, Set<string>>();
     for (const q of r.requests ?? []) {
       if (q.status !== "success" || typeof q.recipient !== "string") continue;
-      if ((q.data?.outTxs ?? []).some((t: { chainId?: number }) => t.chainId === SOLANA_CHAIN)) out.add(q.recipient);
+      for (const t of (q.data?.outTxs ?? []) as { chainId?: number; hash?: string }[]) {
+        if (t.chainId !== SOLANA_CHAIN || typeof t.hash !== "string") continue;
+        if (!out.has(q.recipient)) out.set(q.recipient, new Set());
+        out.get(q.recipient)!.add(t.hash);
+      }
     }
-    return [...out];
+    return out;
   }
 
-  /** Collector Crypt assets ever delivered to `account` (from its recent history). */
-  async function delivered(account: string): Promise<string[]> {
-    const sigs: { signature: string; err: unknown }[] = await rpc("getSignaturesForAddress", [account, { limit: 100 }]);
+  /** The account's whole history, newest first (capped: these accounts are single-use). */
+  async function history(account: string): Promise<{ signature: string; err: unknown }[]> {
+    const all: { signature: string; err: unknown }[] = [];
+    for (let page = 0; page < 10; page++) {
+      const before = all.at(-1)?.signature;
+      const sigs: { signature: string; err: unknown }[] = await rpc("getSignaturesForAddress", [account, { limit: 1000, ...(before ? { before } : {}) }]);
+      all.push(...sigs);
+      if (sigs.length < 1000) return all;
+    }
+    return []; // too long a history for a fresh per-tin account: not counted
+  }
+
+  /** Collector Crypt assets delivered to `account` in `sigs`. */
+  async function delivered(account: string, sigs: { signature: string; err: unknown }[]): Promise<string[]> {
     const assets = new Set<string>();
     for (const s of sigs) {
       if (s.err) continue;
@@ -89,11 +109,14 @@ export function solanaCards(deps: { rpc: Rpc; relay: Relay; fetchJson: FetchJson
   }
 
   return {
-    // ponytail: scans each account's last 100 transactions per call; an indexer cache replaces it at scale.
+    // ponytail: scans each account's history per call; an indexer cache replaces it at scale.
     async pulls(tin) {
       const out: SolanaPull[] = [];
-      for (const account of await fundedAccounts(tin)) {
-        for (const asset of await delivered(account)) {
+      for (const [account, deliveries] of await fundedAccounts(tin)) {
+        const sigs = await history(account);
+        // Only an account this tin's bridge opened: its first transaction is one of the tin's deliveries.
+        if (!sigs.length || !deliveries.has(sigs.at(-1)!.signature)) continue;
+        for (const asset of await delivered(account, sigs)) {
           const info = await rpc("getAccountInfo", [asset, { encoding: "base64" }]);
           if (!info?.value || info.value.owner !== CORE_PROGRAM) continue;
           const a = parseCoreAsset(Uint8Array.from(atob(info.value.data[0]), (c) => c.charCodeAt(0)));

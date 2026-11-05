@@ -42,22 +42,29 @@ test("pulls: genuine Collector Crypt deliveries to funded accounts only, held or
     transaction: { message: { accountKeys: [asset, collection, "payer", "auth", newOwner, CORE_PROGRAM], instructions: [{ programIdIndex: 5, accounts: [0, 1, 2, 3, 4, 5] }] } },
     meta: {},
   });
-  const txs: Record<string, unknown> = { s1: tx(ASSET, CC_COLLECTION, ACCOUNT), s2: tx(FAKE, FAKE, ACCOUNT), s3: tx(FAKE, CC_COLLECTION, FAKE) };
+  // History newest first; "fill" (Relay's delivery for the honest tin) is the account's first transaction.
+  const txs: Record<string, unknown> = { s1: tx(ASSET, CC_COLLECTION, ACCOUNT), s2: tx(FAKE, FAKE, ACCOUNT), s3: tx(FAKE, CC_COLLECTION, FAKE), fill: { transaction: { message: { accountKeys: [], instructions: [] } }, meta: {} } };
+  const HONEST = "0x914d972f0ff23340bc998f3fa03b07f5660d33ed", ATTACKER = "0x00000000000000000000000000000000000000bb";
   let owner = "Low6UekJP3QrFVMfNRTL8CPK2SiGFhvp57sgF2pkmVu"; // bought back
   const sc = solanaCards({
-    relay: async () => ({ requests: [
-      { status: "success", recipient: ACCOUNT, data: { outTxs: [{ chainId: 792703809 }] } },
-      { status: "failure", recipient: FAKE, data: { outTxs: [{ chainId: 792703809 }] } },
+    relay: async (path) => ({ requests: path.includes(HONEST) ? [
+      { status: "success", recipient: ACCOUNT, data: { outTxs: [{ chainId: 792703809, hash: "fill" }] } },
+      { status: "failure", recipient: FAKE, data: { outTxs: [{ chainId: 792703809, hash: "x" }] } },
+    ] : [
+      // A later bridge of a few cents to the same account, by someone else: not the account's first transaction.
+      { status: "success", recipient: ACCOUNT, data: { outTxs: [{ chainId: 792703809, hash: "s2" }] } },
     ] }),
     rpc: async (method, params) => {
-      if (method === "getSignaturesForAddress") return params[0] === ACCOUNT ? Object.keys(txs).map((signature) => ({ signature, err: null })) : [];
+      if (method === "getSignaturesForAddress") return params[0] === ACCOUNT && !(params[1] as { before?: string }).before ? Object.keys(txs).map((signature) => ({ signature, err: null })) : [];
       if (method === "getTransaction") return txs[params[0] as string];
       if (method === "getAccountInfo") return { value: { owner: CORE_PROGRAM, data: [assetData(owner, "Ivysaur", "https://arweave.net/x")] } };
       throw new Error(method);
     },
     fetchJson: async () => META,
   });
-  expect(await sc.pulls("0x914d972f0ff23340bc998f3fa03b07f5660d33ed")).toEqual([{ id: `sol:${ASSET}`, held: false, meta: cardMetaFrom("x", META) }]);
+  expect(await sc.pulls(HONEST)).toEqual([{ id: `sol:${ASSET}`, held: false, meta: cardMetaFrom("x", META) }]);
   owner = ACCOUNT;
-  expect((await sc.pulls("0x914d972f0ff23340bc998f3fa03b07f5660d33ed"))[0]!.held).toBe(true);
+  expect((await sc.pulls(HONEST))[0]!.held).toBe(true);
+  // Bridging to someone else's account does not make its pulls yours.
+  expect(await sc.pulls(ATTACKER)).toEqual([]);
 });
