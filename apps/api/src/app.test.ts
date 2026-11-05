@@ -124,3 +124,14 @@ test("bridge: only a Foil-quoted Relay deposit from the tin is broadcast", async
   depositor = other.address;
   expect((await quote()).error.message).toContain("unexpected bridge route");
 });
+
+test("rpc: gas estimates for Relay's depository pass only while the bridge is open", async () => {
+  const { RELAY } = await import("@foil/protocol");
+  const key = await generateGatewayKey(1);
+  const est = { method: "eth_estimateGas", params: [{ from: POOL, to: RELAY.depository, data: "0xe8017952" }] };
+  const ok = { request: async () => "0x5208" } as never;
+  const open = createApp(key, ctx({ chain: ok, bridge: { secret: new Uint8Array(32), relay: async () => ({}) } }));
+  expect(JSON.parse((await call(open, key, "/trpc/rpc", est)).text).result.data).toBe("0x5208");
+  const closed = createApp(key, ctx({ chain: ok }));
+  expect(JSON.parse((await call(closed, key, "/trpc/rpc", est)).text).error.message).toContain("not allowed");
+});

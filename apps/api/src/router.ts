@@ -117,7 +117,8 @@ export const appRouter = t.router({
     .mutation(async ({ ctx, input }) => {
       if (!RPC_METHODS.has(input.method)) throw new TRPCError({ code: "FORBIDDEN", message: `${input.method} not allowed` });
       const target = (input.params[0] ?? {}) as { to?: string; address?: string };
-      const allowed = [ctx.pool, ctx.usdg, ctx.gate, ctx.vault, ctx.cardNft].filter(Boolean).map((a) => a!.toLowerCase());
+      // Relay's depository joins the list while the bridge is open: a tin estimates gas for its deposit.
+      const allowed = [ctx.pool, ctx.usdg, ctx.gate, ctx.vault, ctx.cardNft, ctx.bridge ? RELAY.depository : undefined].filter(Boolean).map((a) => a!.toLowerCase());
       if ((input.method === "eth_call" || input.method === "eth_estimateGas") && !allowed.includes(String(target.to).toLowerCase())) {
         throw new TRPCError({ code: "FORBIDDEN", message: "eth_call target not allowed" });
       }
