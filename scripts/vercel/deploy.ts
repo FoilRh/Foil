@@ -117,6 +117,7 @@ async function services() {
   }
   const api = `${PREFIX}-api`;
   ensureProject(api);
+  if (NETWORK === "mainnet" && !env.RELAY_GATEWAY_TOKEN) throw new Error("RELAY_GATEWAY_TOKEN is required on mainnet (32+ random chars in deploy/mainnet.env)");
   setEnv(api, svc("api", {
     ...chain,
     OHTTP_KEY_ID: env.OHTTP_KEY_ID!, OHTTP_PRIVATE_KEY: env.OHTTP_PRIVATE_KEY!, OHTTP_PUBLIC_KEY: env.OHTTP_PUBLIC_KEY!,
@@ -127,6 +128,8 @@ async function services() {
     ...cc,
     // Opens the Relay bridge (tickets for tin deposits to Collector Crypt's Solana balance) when set.
     ...(env.BRIDGE_TICKET_SECRET ? { BRIDGE_TICKET_SECRET: env.BRIDGE_TICKET_SECRET } : {}),
+    // Locks /gateway to the relay (the relay sends it; see relay()). Deploy the relay first when adding it.
+    ...(env.RELAY_GATEWAY_TOKEN ? { RELAY_GATEWAY_TOKEN: env.RELAY_GATEWAY_TOKEN } : {}),
   }));
   urls.api = deployOnly(api, buildDir);
   saveUrls();
@@ -164,7 +167,10 @@ function relay() {
   if (!urls.api) throw new Error("deploy the API first (deploy.ts services)");
   // Only the mainnet relay serves the public website; testnet's accepts local development only.
   const origins = NETWORK === "mainnet" ? [...new Set(webOrigins())] : ["http://localhost:3000"];
-  setEnv(project, svc("ohttp-relay", { GATEWAY_URL: `${urls.api}/gateway`, ALLOWED_ORIGINS: origins.join(",") }));
+  setEnv(project, svc("ohttp-relay", {
+    GATEWAY_URL: `${urls.api}/gateway`, ALLOWED_ORIGINS: origins.join(","),
+    ...(env.RELAY_GATEWAY_TOKEN ? { GATEWAY_TOKEN: env.RELAY_GATEWAY_TOKEN } : {}),
+  }));
   urls.relay = deployOnly(project, buildDir);
   saveUrls();
 }

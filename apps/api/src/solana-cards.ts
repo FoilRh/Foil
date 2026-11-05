@@ -9,6 +9,10 @@
  * to someone else's account and claim its pulls. An account counts for a tin only if that tin's
  * Relay delivery is the account's FIRST transaction (each tin signs in to a fresh account, which
  * its own bridge opens). Its keys sit with Collector Crypt's login provider, so it cannot sign.
+ *
+ * Privacy: clients never ask about their own tins. The server computes pulls for every tin in the
+ * public tin snapshot that has spent USDG, caches them, and serves one list to everyone; each
+ * client matches its tins locally (like the tin snapshot itself). Work per tin is bounded.
  */
 import type { CardMeta } from "./stores";
 
@@ -18,13 +22,29 @@ export const CC_COLLECTION = "CCryptUfeFSZ3Fgc9FLeKrhLVAP67FSqi1GuVoj9CRac";
 const SOLANA_CHAIN = 792703809;
 /** Core TransferV1 accounts: asset, collection, payer, authority, new owner, ... */
 const NEW_OWNER = 4;
+/** Bounds per tin: newest funded accounts, history of a fresh account, cards per account. */
+export const LIMITS = { accounts: 3, history: 100, cards: 20 };
+/** Snapshot refresh: at most once a minute; a tin is rescanned when its USDG changed or every 10 minutes. */
+const SNAPSHOT_TTL_MS = 60_000;
+const TIN_TTL_MS = 600_000;
 
 export interface SolanaPull { id: string; held: boolean; meta: CardMeta }
-export interface SolanaCards { pulls(tin: string): Promise<SolanaPull[]> }
+export type SnapshotPull = { tin: string; id: string; held: boolean } & CardMeta;
+export interface PullsSnapshot { asOf: string; pulls: SnapshotPull[] }
+export interface SolanaCards {
+  /** One tin's pulls, uncached (tests and internal use). */
+  pulls(tin: string): Promise<SolanaPull[]>;
+  /** A tin's pulls for checking a post: spent tins only, cached per tin (60 s), deduped. */
+  pullsOf(tin: string): Promise<SolanaPull[]>;
+  /** Every candidate tin's pulls, cached; what clients download and match locally. */
+  snapshot(): Promise<PullsSnapshot>;
+}
 
 type Rpc = (method: string, params: unknown[]) => Promise<any>;
 type Relay = (path: string) => Promise<unknown>;
 type FetchJson = (url: string) => Promise<any>;
+/** Tins that may have funded Collector Crypt (spent USDG), with a key that changes when they move funds. */
+type Candidates = () => Promise<{ tin: string; key: string }[]>;
 
 const B58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 function base58(bytes: Uint8Array): string {
@@ -61,34 +81,26 @@ export function cardMetaFrom(name: string, json: any): CardMeta {
   };
 }
 
-export function solanaCards(deps: { rpc: Rpc; relay: Relay; fetchJson: FetchJson }): SolanaCards {
+export function solanaCards(deps: { rpc: Rpc; relay: Relay; fetchJson: FetchJson; candidates?: Candidates; now?: () => number }): SolanaCards {
   const { rpc, relay, fetchJson } = deps;
+  const now = deps.now ?? Date.now;
 
-  /** Solana accounts this tin funded through Relay (completed requests), with the delivering tx hashes. */
+  /** The tin's newest Solana recipients through Relay (completed requests), with the delivering tx hashes. */
   async function fundedAccounts(tin: string): Promise<Map<string, Set<string>>> {
-    const r = (await relay(`/requests/v2?user=${tin}&limit=50`)) as { requests?: any[] };
+    const r = (await relay(`/requests/v2?user=${tin}&limit=20`)) as { requests?: any[] };
     const out = new Map<string, Set<string>>();
     for (const q of r.requests ?? []) {
       if (q.status !== "success" || typeof q.recipient !== "string") continue;
       for (const t of (q.data?.outTxs ?? []) as { chainId?: number; hash?: string }[]) {
         if (t.chainId !== SOLANA_CHAIN || typeof t.hash !== "string") continue;
-        if (!out.has(q.recipient)) out.set(q.recipient, new Set());
+        if (!out.has(q.recipient)) {
+          if (out.size >= LIMITS.accounts) continue;
+          out.set(q.recipient, new Set());
+        }
         out.get(q.recipient)!.add(t.hash);
       }
     }
     return out;
-  }
-
-  /** The account's whole history, newest first (capped: these accounts are single-use). */
-  async function history(account: string): Promise<{ signature: string; err: unknown }[]> {
-    const all: { signature: string; err: unknown }[] = [];
-    for (let page = 0; page < 10; page++) {
-      const before = all.at(-1)?.signature;
-      const sigs: { signature: string; err: unknown }[] = await rpc("getSignaturesForAddress", [account, { limit: 1000, ...(before ? { before } : {}) }]);
-      all.push(...sigs);
-      if (sigs.length < 1000) return all;
-    }
-    return []; // too long a history for a fresh per-tin account: not counted
   }
 
   /** Collector Crypt assets delivered to `account` in `sigs`. */
@@ -104,27 +116,66 @@ export function solanaCards(deps: { rpc: Rpc; relay: Relay; fetchJson: FetchJson
         const a = ix.accounts.map((i) => keys[i]);
         if (a[1] === CC_COLLECTION && a[NEW_OWNER] === account && a[0]) assets.add(a[0]);
       }
+      if (assets.size >= LIMITS.cards) break;
     }
     return [...assets];
   }
 
-  return {
-    // ponytail: scans each account's history per call; an indexer cache replaces it at scale.
-    async pulls(tin) {
-      const out: SolanaPull[] = [];
-      for (const [account, deliveries] of await fundedAccounts(tin)) {
-        const sigs = await history(account);
-        // Only an account this tin's bridge opened: its first transaction is one of the tin's deliveries.
-        if (!sigs.length || !deliveries.has(sigs.at(-1)!.signature)) continue;
-        for (const asset of await delivered(account, sigs)) {
-          const info = await rpc("getAccountInfo", [asset, { encoding: "base64" }]);
-          if (!info?.value || info.value.owner !== CORE_PROGRAM) continue;
-          const a = parseCoreAsset(Uint8Array.from(atob(info.value.data[0]), (c) => c.charCodeAt(0)));
-          const json = a.uri.startsWith("https://") ? await fetchJson(a.uri).catch(() => null) : null;
-          out.push({ id: `sol:${asset}`, held: a.owner === account, meta: cardMetaFrom(a.name, json) });
-        }
+  async function pulls(tin: string): Promise<SolanaPull[]> {
+    const out: SolanaPull[] = [];
+    for (const [account, deliveries] of await fundedAccounts(tin)) {
+      // A fresh per-tin account has a short history: one page, and a full page means it is not one.
+      const sigs: { signature: string; err: unknown }[] = await rpc("getSignaturesForAddress", [account, { limit: LIMITS.history }]);
+      if (!sigs.length || sigs.length >= LIMITS.history) continue;
+      // Only an account this tin's bridge opened: its first transaction is one of the tin's deliveries.
+      if (!deliveries.has(sigs.at(-1)!.signature)) continue;
+      for (const asset of await delivered(account, sigs)) {
+        const info = await rpc("getAccountInfo", [asset, { encoding: "base64" }]);
+        if (!info?.value || info.value.owner !== CORE_PROGRAM) continue;
+        const a = parseCoreAsset(Uint8Array.from(atob(info.value.data[0]), (c) => c.charCodeAt(0)));
+        const json = a.uri.startsWith("https://") ? await fetchJson(a.uri).catch(() => null) : null;
+        out.push({ id: `sol:${asset}`, held: a.owner === account, meta: cardMetaFrom(a.name, json) });
       }
-      return out;
+    }
+    return out;
+  }
+
+  // One scan per tin at a time, reused until the tin's USDG moves or it ages out. Shared by the
+  // snapshot and rooms.post, so neither lets a caller trigger more Solana work than this.
+  const perTin = new Map<string, { key: string; at: number; pulls: Promise<SolanaPull[]> }>();
+  function scan(tin: string, key: string, ttl: number): Promise<SolanaPull[]> {
+    const e = perTin.get(tin);
+    if (e && e.key === key && now() - e.at <= ttl) return e.pulls;
+    const p = pulls(tin);
+    perTin.set(tin, { key, at: now(), pulls: p });
+    p.catch(() => { if (perTin.get(tin)?.pulls === p) { if (e) perTin.set(tin, e); else perTin.delete(tin); } });
+    return p;
+  }
+
+  let cached: { at: number; snap: PullsSnapshot } | null = null;
+  let inFlight: Promise<PullsSnapshot> | null = null;
+
+  async function build(): Promise<PullsSnapshot> {
+    const all: SnapshotPull[] = [];
+    // ponytail: rescans changed or stale tins one by one; move into the indexer's cron when tins number in the thousands.
+    for (const { tin, key } of (await deps.candidates?.()) ?? []) {
+      const got = await scan(tin.toLowerCase(), key, TIN_TTL_MS).catch(() => perTin.get(tin.toLowerCase())?.pulls.catch(() => []) ?? []);
+      for (const p of got) all.push({ tin: tin.toLowerCase(), id: p.id, held: p.held, ...p.meta, image: null });
+    }
+    return { asOf: new Date(now()).toISOString(), pulls: all };
+  }
+
+  return {
+    pulls,
+    async pullsOf(tin) {
+      // Only a tin that spent USDG (public snapshot) can have bridged to Collector Crypt; anything else costs no Solana call.
+      const c = ((await deps.candidates?.()) ?? []).find((x) => x.tin.toLowerCase() === tin.toLowerCase());
+      return c ? scan(c.tin.toLowerCase(), c.key, SNAPSHOT_TTL_MS) : [];
+    },
+    async snapshot() {
+      if (cached && now() - cached.at < SNAPSHOT_TTL_MS) return cached.snap;
+      inFlight ??= build().then((snap) => { cached = { at: now(), snap }; return snap; }).finally(() => { inFlight = null; });
+      return inFlight;
     },
   };
 }

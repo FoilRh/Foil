@@ -16,10 +16,10 @@ const ctx = (over: Partial<Ctx> = {}): Ctx => ({
 });
 
 /** One tRPC POST through OHTTP; returns the inner status and JSON. */
-async function call(app: ReturnType<typeof createApp>, key: GatewayKey, path: string, body: unknown) {
+async function call(app: ReturnType<typeof createApp>, key: GatewayKey, path: string, body: unknown, method = "POST") {
   const c = await encapsulateRequest(key, encodeRequest({
-    method: "POST", scheme: "https", authority: "foil.internal", path, headers: [["content-type", "application/json"]],
-    body: new TextEncoder().encode(JSON.stringify(body)),
+    method, scheme: "https", authority: "foil.internal", path, headers: method === "GET" ? [] : [["content-type", "application/json"]],
+    body: method === "GET" ? new Uint8Array() : new TextEncoder().encode(JSON.stringify(body)),
   }));
   const res = await app.fetch(new Request("http://api/gateway", { method: "POST", headers: { "content-type": "message/ohttp-req" }, body: c.request as Uint8Array<ArrayBuffer> }));
   const inner = decodeResponse(await c.openResponse(new Uint8Array(await res.arrayBuffer())));
@@ -149,7 +149,12 @@ test("rooms: a Collector Crypt card pulled on Solana can be posted; one the tin 
   const PULLED = "sol:HVeJ7A7fwseBG7uhKNUmhWYHm381sGC7UhaUo4JXJUMH";
   const meta = { name: "2025 #065 Ivysaur PSA 9 Japanese", grade: "MINT 9", image: null, insuredValue: "22000000" };
   const key = await generateGatewayKey(1);
-  const app = createApp(key, ctx({ solanaCards: { pulls: async (t) => (t.toLowerCase() === tin.address.toLowerCase() ? [{ id: PULLED, held: false, meta }] : []) } }));
+  const snapshot = { asOf: "2026-11-05T00:00:00.000Z", pulls: [{ tin: tin.address.toLowerCase(), id: PULLED, held: false, ...meta }] };
+  const app = createApp(key, ctx({ solanaCards: {
+    pulls: async () => [],
+    pullsOf: async (t) => (t.toLowerCase() === tin.address.toLowerCase() ? [{ id: PULLED, held: false, meta }] : []),
+    snapshot: async () => snapshot,
+  } }));
   const post = async (tokenId: string) => {
     const msg = postMessage(season, handle, tokenId, tin.address);
     const body = { season, handle, handlePub, tokenId, tin: tin.address, sigTin: await tin.signMessage({ message: msg }), sigHandle: bytesToHex(ed25519.sign(new TextEncoder().encode(msg), sk)) };
@@ -159,6 +164,23 @@ test("rooms: a Collector Crypt card pulled on Solana can be posted; one the tin 
   const ok = (await post(PULLED)).result.data;
   expect(ok).toMatchObject({ tokenId: PULLED, name: meta.name, insuredValue: "22000000" });
   expect((await post(PULLED)).error.message).toContain("already posted");
-  const pulls = JSON.parse((await call(app, key, "/trpc/rooms.pulls", { tin: tin.address })).text).result.data;
-  expect(pulls).toEqual([{ id: PULLED, held: false, ...meta }]);
+  // Clients download everyone's pulls and match their tins locally; no per-tin lookup exists.
+  const snap = JSON.parse((await call(app, key, "/trpc/rooms.pullsSnapshot", undefined, "GET")).text).result.data;
+  expect(snap).toEqual(snapshot);
+  expect((await call(app, key, "/trpc/rooms.pulls", { tin: tin.address })).status).toBe(404);
+});
+
+test("gateway: with a relay token set, sealed requests must come through the relay", async () => {
+  const key = await generateGatewayKey(1);
+  const app = createApp(key, ctx(), { relayToken: "r".repeat(40) });
+  const sealed = async (relayHeader?: string) => {
+    const c = await encapsulateRequest(key, encodeRequest({ method: "GET", scheme: "https", authority: "foil.internal", path: "/trpc/rooms.list", headers: [], body: new Uint8Array() }));
+    return app.fetch(new Request("http://api/gateway", {
+      method: "POST", body: c.request as Uint8Array<ArrayBuffer>,
+      headers: { "content-type": "message/ohttp-req", ...(relayHeader ? { "x-foil-relay": relayHeader } : {}) },
+    }));
+  };
+  expect((await sealed()).status).toBe(403);
+  expect((await sealed("wrong".repeat(8))).status).toBe(403);
+  expect((await sealed("r".repeat(40))).status).toBe(200);
 });

@@ -91,6 +91,23 @@ withdrawn to any address at any time.
 - **Contracts.** `StashPool` holds the notes and runs rounds, `ScreeningGate` admits screened
   entries, `Bonds` and `FoilStaking` secure operators, and `FeeRouter` splits protocol fees.
 
+### External dependencies and trust assumptions
+
+| Dependency | Trusted with | If it fails or misbehaves |
+| --- | --- | --- |
+| **Robinhood Chain** (sequencer, public RPC) | ordering and inclusion; reads | delays only; exits never depend on Foil's services |
+| **USDG** (Paxos) | the stablecoin itself | issuer risk, as for any USDG holder |
+| **OHTTP relay and gateway** | relay sees client IPs, gateway sees requests | both are run by Foil today, so OHTTP hides users from third parties but not from Foil (accepted in `SECURITY.md`; an independent relay operator is planned). The gateway only accepts traffic forwarded by the relay |
+| **Relay** ([relay.link](https://relay.link)) | each Collector Crypt funding in transit: the tin's USDG in, USDC on Solana out | a stuck or failed fill is refunded by Relay; a tin can only pay Relay's pinned depository with a quote ticket signed by Foil's API, and a pack site can never trigger it |
+| **Collector Crypt** | packs, cards, buybacks and shipping, on Solana | the Collector Crypt account a tin signs in to is held by Collector Crypt's login provider; Foil never holds its keys |
+| **Solana RPC** (public endpoint) | reading Collector Crypt cards for Rip Room | Rip Room shows fewer pulls; no funds involved |
+| **Screening providers** (PPOI nodes) | admitting deposits and send-backs | entries wait for standby, then the owner of the funds can admit them itself |
+
+**Public links, by design:** a funded tin's bridge publicly links that tin to its Collector Crypt
+Solana account (one-to-one, both single-use). Rip Room downloads one list of every bridged tin's pulls
+and matches yours locally, so no request ever names your tins. Posting a hit links that tin to your
+season handle.
+
 ## Repository layout
 
 | Path | Description |

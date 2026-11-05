@@ -193,7 +193,7 @@ export const appRouter = t.router({
         let meta;
         if (onSolana) {
           // Pulled by this tin: Collector Crypt delivered it to an account the tin funded.
-          const pull = (await ctx.solanaCards!.pulls(input.tin)).find((p) => p.id === input.tokenId);
+          const pull = (await ctx.solanaCards!.pullsOf(input.tin)).find((p) => p.id === input.tokenId);
           if (!pull) throw new TRPCError({ code: "FORBIDDEN", message: "this tin did not pull that card" });
           meta = pull.meta;
         } else {
@@ -210,13 +210,14 @@ export const appRouter = t.router({
         if (!post) throw new TRPCError({ code: "CONFLICT", message: "this hit is already posted this season" });
         return post;
       }),
-    /** Collector Crypt cards this tin pulled on Solana (held or sold back), with their metadata. */
-    pulls: t.procedure
-      .input(z.object({ tin: z.string().refine(isAddress) }))
-      .mutation(async ({ ctx, input }) => {
-        if (!ctx.solanaCards) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "rooms are not open yet" });
-        return (await ctx.solanaCards.pulls(input.tin)).map((p) => ({ id: p.id, held: p.held, ...p.meta }));
-      }),
+    /**
+     * Collector Crypt cards pulled on Solana by every tin that spent USDG (public data, cached), one
+     * list for everyone: clients match their own tins locally and never name one in a request.
+     */
+    pullsSnapshot: t.procedure.query(async ({ ctx }) => {
+      if (!ctx.solanaCards) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "rooms are not open yet" });
+      return ctx.solanaCards.snapshot();
+    }),
     list: t.procedure
       .input(z.object({ season: z.string().optional(), limit: z.number().int().min(1).max(100).default(50) }))
       .query(({ ctx, input }) => ctx.stores.listPosts(input.season ?? seasonOf(), input.limit)),

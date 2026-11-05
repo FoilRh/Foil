@@ -10,6 +10,7 @@ import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import {
   concat, decapsulateRequest, decodeRequest, encodeKeyConfig, encodeResponse, type GatewayKey,
 } from "@foil/ohttp";
+import { timingSafeEqual } from "node:crypto";
 import { appRouter, type Ctx } from "./router";
 
 // Our byte arrays are always ArrayBuffer-backed; TS 5.9's BodyInit wants that spelled out.
@@ -22,14 +23,21 @@ export const MAX_BATCH = 10;
 // No per-procedure rate limit here: behind OHTTP every caller looks the same, so any cap
 // would be one budget that a spammer could exhaust for everyone (and lock users out of
 // exits). Per-client limits live in the OHTTP relay, which sees client IPs
-// (services/ohttp-relay); this gateway caps body and batch size only.
+// (services/ohttp-relay); this gateway caps body and batch size only. With `relayToken` set it
+// accepts only requests that came through the relay, so those limits cannot be bypassed.
 
 /** tRPC-shaped error, so the client surfaces the message. */
 const fail = (httpStatus: number, code: string, message: string) =>
   Response.json({ error: { message, code: -32600, data: { code, httpStatus } } }, { status: httpStatus });
 
 /** The public Hono app: serves the key config and decapsulates /gateway requests into the private tRPC router. */
-export function createApp(key: GatewayKey, ctx: Ctx) {
+export function createApp(key: GatewayKey, ctx: Ctx, opts: { relayToken?: string } = {}) {
+  const expected = opts.relayToken ? new TextEncoder().encode(opts.relayToken) : null;
+  const fromRelay = (got: string | undefined) => {
+    if (!expected) return true;
+    const g = new TextEncoder().encode(got ?? "");
+    return g.length === expected.length && timingSafeEqual(g, expected);
+  };
   const inner = (req: Request) => fetchRequestHandler({ endpoint: "/trpc", req, router: appRouter, createContext: () => ctx });
 
   const app = new Hono();
@@ -40,6 +48,7 @@ export function createApp(key: GatewayKey, ctx: Ctx) {
   });
 
   app.post("/gateway", bodyLimit({ maxSize: MAX_REQUEST_BYTES, onError: (c) => c.text("payload too large", 413) }), async (c) => {
+    if (!fromRelay(c.req.header("x-foil-relay"))) return c.text("use the relay", 403);
     if (c.req.header("content-type") !== "message/ohttp-req") return c.text("unsupported media type", 415);
     let gw;
     try {

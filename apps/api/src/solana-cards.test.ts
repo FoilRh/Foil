@@ -1,6 +1,6 @@
 // Rip Rooms on Solana: a pull is a Collector Crypt card delivered to an account the tin funded.
 import { expect, test } from "bun:test";
-import { CC_COLLECTION, CORE_PROGRAM, cardMetaFrom, parseCoreAsset, solanaCards } from "./solana-cards";
+import { CC_COLLECTION, CORE_PROGRAM, LIMITS, cardMetaFrom, parseCoreAsset, solanaCards } from "./solana-cards";
 
 const ACCOUNT = "EYz4UX5fPmQ8MjzjfDw1yrYvmKT5aksQftKWoP6idALF";
 const ASSET = "HVeJ7A7fwseBG7uhKNUmhWYHm381sGC7UhaUo4JXJUMH";
@@ -67,4 +67,60 @@ test("pulls: genuine Collector Crypt deliveries to funded accounts only, held or
   expect((await sc.pulls(HONEST))[0]!.held).toBe(true);
   // Bridging to someone else's account does not make its pulls yours.
   expect(await sc.pulls(ATTACKER)).toEqual([]);
+});
+
+test("snapshot: every candidate tin's pulls in one cached list; a tin is rescanned only when its USDG moves", async () => {
+  let relayCalls = 0, clock = 0;
+  const tinA = "0x00000000000000000000000000000000000000aa", tinB = "0x00000000000000000000000000000000000000bb";
+  const sc = solanaCards({
+    relay: async (path) => { relayCalls++; return { requests: path.includes(tinA) ? [{ status: "success", recipient: ACCOUNT, data: { outTxs: [{ chainId: 792703809, hash: "fill" }] } }] : [] }; },
+    rpc: async (method, params) => {
+      if (method === "getSignaturesForAddress") return [{ signature: "s1", err: null }, { signature: "fill", err: null }];
+      if (method === "getTransaction") return params[0] === "s1"
+        ? { transaction: { message: { accountKeys: [ASSET, CC_COLLECTION, "payer", "auth", ACCOUNT, CORE_PROGRAM], instructions: [{ programIdIndex: 5, accounts: [0, 1, 2, 3, 4, 5] }] } }, meta: {} }
+        : { transaction: { message: { accountKeys: [], instructions: [] } }, meta: {} };
+      if (method === "getAccountInfo") return { value: { owner: CORE_PROGRAM, data: [assetData(ACCOUNT, "Ivysaur", "https://arweave.net/x")] } };
+      throw new Error(method);
+    },
+    fetchJson: async () => META,
+    candidates: async () => [{ tin: tinA, key: "100" }, { tin: tinB, key: "5" }],
+    now: () => clock,
+  });
+  const snap = await sc.snapshot();
+  expect(snap.pulls).toEqual([{ tin: tinA, id: `sol:${ASSET}`, held: true, ...cardMetaFrom("x", META), image: null }]);
+  expect(relayCalls).toBe(2);
+  await sc.snapshot(); // cached
+  clock += 61_000;
+  await sc.snapshot(); // rebuilt, but neither tin's USDG moved and 10 minutes have not passed
+  expect(relayCalls).toBe(2);
+});
+
+test("bounds: an account with a long history is not a fresh per-tin account and is skipped", async () => {
+  let txCalls = 0;
+  const sc = solanaCards({
+    relay: async () => ({ requests: [{ status: "success", recipient: ACCOUNT, data: { outTxs: [{ chainId: 792703809, hash: "fill" }] } }] }),
+    rpc: async (method) => {
+      if (method === "getSignaturesForAddress") return Array.from({ length: LIMITS.history }, (_, i) => ({ signature: i === LIMITS.history - 1 ? "fill" : `s${i}`, err: null }));
+      if (method === "getTransaction") { txCalls++; return null; }
+      throw new Error(method);
+    },
+    fetchJson: async () => META,
+  });
+  expect(await sc.pulls("0x914d972f0ff23340bc998f3fa03b07f5660d33ed")).toEqual([]);
+  expect(txCalls).toBe(0);
+});
+
+test("pullsOf: a tin that never spent USDG costs no call; concurrent checks of one tin share one scan", async () => {
+  let relayCalls = 0;
+  const tinA = "0x00000000000000000000000000000000000000aa";
+  const sc = solanaCards({
+    relay: async () => { relayCalls++; await new Promise((r) => setTimeout(r, 5)); return { requests: [] }; },
+    rpc: async (method) => { throw new Error(method); },
+    fetchJson: async () => META,
+    candidates: async () => [{ tin: tinA, key: "100" }],
+  });
+  expect(await sc.pullsOf("0x00000000000000000000000000000000000000bb")).toEqual([]);
+  expect(relayCalls).toBe(0);
+  await Promise.all(Array.from({ length: 10 }, () => sc.pullsOf(tinA.toUpperCase().replace("0X", "0x"))));
+  expect(relayCalls).toBe(1);
 });

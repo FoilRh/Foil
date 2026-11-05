@@ -27,19 +27,20 @@ export function LiveRoom({ notify }: { notify: (text: string) => void }) {
     w.api.rooms.leaderboard.query({}).then(setBoard).catch(() => setBoard([]));
   }, [w, live.version]);
 
-  // Cards pulled on Collector Crypt live on Solana: ask the API per tin (over OHTTP, one at a time).
+  // Cards pulled on Collector Crypt live on Solana. Download everyone's pulls (one public list) and
+  // match our tins here: no request ever names one of our tins, so they cannot be grouped.
   const tinCount = w?.state.tins.length ?? 0;
   useEffect(() => {
     if (!w) return;
     let stop = false;
-    void (async () => {
-      const found: Hit[] = [];
-      for (const t of w.state.tins.filter((x) => x.state === "Funded" && !x.gift)) {
-        const cards = await w.api.rooms.pulls.mutate({ tin: t.address }).catch(() => []);
-        found.push(...cards.map((c) => ({ t, tokenId: c.id, name: c.name, grade: c.grade, insuredValue: c.insuredValue, soldBack: !c.held })));
-      }
+    w.api.rooms.pullsSnapshot.query().then((snap) => {
+      const mine = new Map(w.state.tins.filter((x) => !x.gift).map((t) => [t.address.toLowerCase(), t]));
+      const found = snap.pulls.flatMap((c) => {
+        const t = mine.get(c.tin);
+        return t ? [{ t, tokenId: c.id, name: c.name, grade: c.grade, insuredValue: c.insuredValue, soldBack: !c.held }] : [];
+      });
       if (!stop) setPulls(found);
-    })();
+    }).catch(() => { if (!stop) setPulls([]); });
     return () => { stop = true; };
   }, [w, tinCount]);
 

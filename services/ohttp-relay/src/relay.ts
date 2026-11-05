@@ -11,9 +11,20 @@ export interface RelayOptions {
   /** Sealed requests per client IP per minute (default 300). The relay is the only hop that
    * sees the caller, so per-client limits belong here, not at the gateway. */
   perIpPerMinute?: number;
-  /** The client IP; default: the platform header (Fly-Client-IP, X-Real-IP, X-Forwarded-For). */
+  /** The client IP; default: X-Real-IP. Use `platformIp` so it is a header the host overwrites. */
   ipOf?: (req: Request) => string;
   upstream?: (input: string | URL | Request, init?: RequestInit) => Promise<Response>;
+  /** Shared with the gateway, which refuses requests without it, so its per-IP limit cannot be skipped. */
+  gatewayToken?: string;
+}
+
+/**
+ * The client IP from the header the hosting platform sets and overwrites: Fly-Client-IP on Fly,
+ * X-Real-IP on Vercel. Any other header can be sent by the client to dodge the per-IP limit.
+ */
+export function platformIp(env: Record<string, string | undefined>): (req: Request) => string {
+  const header = env.FLY_APP_NAME ? "fly-client-ip" : "x-real-ip";
+  return (r) => r.headers.get(header) ?? "unknown";
 }
 
 /**
@@ -24,8 +35,7 @@ export function createRelay(o: RelayOptions) {
   const up = o.upstream ?? fetch;
   const max = o.maxBody ?? 256 * 1024;
   const cap = o.perIpPerMinute ?? 300;
-  const ipOf = o.ipOf ?? ((r: Request) =>
-    r.headers.get("fly-client-ip") ?? r.headers.get("x-real-ip") ?? r.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown");
+  const ipOf = o.ipOf ?? platformIp({});
   // ponytail: in-memory fixed window per instance, cleared each minute (IPs are never kept
   // longer or logged). Move to a shared store if the relay scales out.
   let windowStart = 0;
@@ -58,7 +68,8 @@ export function createRelay(o: RelayOptions) {
       const body = new Uint8Array(await req.arrayBuffer());
       if (body.length > max) return new Response("too large", { status: 413, headers: h });
       // Only the ciphertext and its media type go upstream: no client headers, no IP.
-      const r = await up(o.gatewayUrl, { method: "POST", headers: { "content-type": "message/ohttp-req" }, body });
+      const headers: Record<string, string> = { "content-type": "message/ohttp-req", ...(o.gatewayToken ? { "x-foil-relay": o.gatewayToken } : {}) };
+      const r = await up(o.gatewayUrl, { method: "POST", headers, body });
       return new Response(r.body, { status: r.status, headers: { ...h, "content-type": "message/ohttp-res", "cache-control": "no-store" } });
     }
 
