@@ -16,6 +16,7 @@ import { newMemEmptyTrie } from "circomlibjs";
 const transferEvent = parseAbiItem("event Transfer(address indexed from, address indexed to, uint256 value)");
 const PENDING = 1;
 const KIND_SEND_BACK = 1;
+const LOG_CHUNK = 2_000_000n;
 
 export interface NodeDeps {
   pool: Address;
@@ -51,7 +52,13 @@ export function createNode(d: NodeDeps) {
    * tin, and that must not get the owner's own funds flagged.
    */
   async function inboundClean(tin: Address) {
-    const logs = await d.publicClient.getLogs({ address: d.usdg, event: transferEvent, args: { to: tin }, fromBlock: d.startBlock });
+    // Public RPCs refuse very wide log ranges (10M+ blocks fails): scan in chunks of at most 2M.
+    const head = await d.publicClient.getBlockNumber();
+    const logs = [];
+    for (let from = d.startBlock; from <= head; from += LOG_CHUNK) {
+      const to = from + LOG_CHUNK - 1n > head ? head : from + LOG_CHUNK - 1n;
+      logs.push(...(await d.publicClient.getLogs({ address: d.usdg, event: transferEvent, args: { to: tin }, fromBlock: from, toBlock: to })));
+    }
     const isClean = new Map<string, boolean>();
     let clean = 0n;
     for (const l of logs) {

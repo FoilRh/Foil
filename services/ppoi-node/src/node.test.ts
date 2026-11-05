@@ -35,7 +35,9 @@ const publicClient = {
     if (functionName === "tinSentBack") return sentBack[args[0] as string] ?? 0n;
     throw new Error(functionName);
   },
-  getLogs: async ({ args }: { args: { to: Address } }) => (inbound[args.to] ?? []).map(([from, value]) => ({ args: { from, value } })),
+  getBlockNumber: async () => 3_000_000n, // more than one 2M-block scan chunk
+  getLogs: async ({ args, fromBlock }: { args: { to: Address }; fromBlock: bigint }) =>
+    fromBlock === 0n ? (inbound[args.to] ?? []).map(([from, value]) => ({ args: { from, value } })) : [], // each log once, in the first chunk
   waitForTransactionReceipt: async () => ({}),
 };
 const walletClient = { writeContract: async ({ args }: { args: [bigint] }) => { flagged.push(args[0]); return "0x01"; } };
