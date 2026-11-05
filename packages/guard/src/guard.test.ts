@@ -5,7 +5,7 @@
  */
 import { describe, expect, test } from "bun:test";
 import { encodeFunctionData, parseAbi, toHex, type Address, type Hex } from "viem";
-import { CARD_ABI, CC_ABI, ERC20_ABI, checkRequest, checkSimulatedTransfers, type Policy } from "./guard";
+import { CARD_ABI, CC_ABI, ERC20_ABI, RELAY_DEPOSITORY_ABI, checkBridge, checkRequest, checkSimulatedTransfers, type Policy } from "./guard";
 
 const TIN = "0x1111111111111111111111111111111111111111" as Address;
 const ATTACKER = "0xbadbadbadbadbadbadbadbadbadbadbadbadbad0" as Address;
@@ -119,5 +119,41 @@ describe("simulation post-check", () => {
     expect(checkSimulatedTransfers([{ address: p.usdg, topics: [TRANSFER, topic(TIN), topic(p.vault)] }], p).allow).toBe(true);
     expect(checkSimulatedTransfers([{ address: p.usdg, topics: [TRANSFER, topic(TIN), topic(ATTACKER)] }], p).allow).toBe(false);
     expect(checkSimulatedTransfers([{ address: p.cards, topics: [TRANSFER, topic(TIN), topic(ATTACKER), topic("0x16df")] }], p).allow).toBe(false);
+  });
+});
+
+describe("Relay bridge to Collector Crypt's Solana balance", () => {
+  const DEPOSITORY = "0x4cd00e387622c35bddb9b4c962c136462338bc31" as Address;
+  const ID = `0x${"ab".repeat(32)}` as Hex;
+  const b = { chainId: 4663, tin: TIN, usdg: p.usdg, depository: DEPOSITORY, amountIn: 25_040_000n, depositId: ID, usdgBalance: 50_000_000n };
+  const approve = (spender: Address, amount: bigint) => encodeFunctionData({ abi: ERC20_ABI, functionName: "approve", args: [spender, amount] });
+  const deposit = (depositor: Address, token: Address, amount: bigint, id: Hex) =>
+    encodeFunctionData({ abi: RELAY_DEPOSITORY_ABI, functionName: "depositErc20", args: [depositor, token, amount, id] });
+
+  test("the deposit selector is Relay's live one (seen in a mainnet quote)", () => {
+    expect(deposit(TIN, p.usdg, 1n, ID).slice(0, 10)).toBe("0xe8017952");
+  });
+  test("allows exactly the quoted approval and deposit", () => {
+    expect(checkBridge({ from: TIN, to: p.usdg, data: approve(DEPOSITORY, b.amountIn) }, b).allow).toBe(true);
+    expect(checkBridge({ from: TIN, to: DEPOSITORY, data: deposit(TIN, p.usdg, b.amountIn, ID) }, b).allow).toBe(true);
+  });
+  test("refuses anything else", () => {
+    const no = (t: { to: Address; data: Hex; value?: bigint; from?: Address }, over = {}) => expect(checkBridge({ from: TIN, ...t }, { ...b, ...over }).allow).toBe(false);
+    no({ to: p.usdg, data: approve(ATTACKER, b.amountIn) }); // other spender
+    no({ to: p.usdg, data: approve(DEPOSITORY, b.amountIn + 1n) }); // more than quoted
+    no({ to: p.usdg, data: approve(DEPOSITORY, 2n ** 256n - 1n) }); // unlimited
+    no({ to: p.usdg, data: encodeFunctionData({ abi: ERC20_ABI, functionName: "transfer", args: [DEPOSITORY, b.amountIn] }) });
+    no({ to: DEPOSITORY, data: deposit(ATTACKER, p.usdg, b.amountIn, ID) }); // someone else's deposit
+    no({ to: DEPOSITORY, data: deposit(TIN, ATTACKER, b.amountIn, ID) }); // other token
+    no({ to: DEPOSITORY, data: deposit(TIN, p.usdg, b.amountIn - 1n, ID) }); // other amount
+    no({ to: DEPOSITORY, data: deposit(TIN, p.usdg, b.amountIn, `0x${"cd".repeat(32)}`) }); // other quote
+    no({ to: DEPOSITORY, data: deposit(TIN, p.usdg, b.amountIn, ID), value: 1n }); // ETH
+    no({ to: DEPOSITORY, data: deposit(TIN, p.usdg, b.amountIn, ID), from: ATTACKER }); // not the tin
+    no({ to: DEPOSITORY, data: deposit(TIN, p.usdg, b.amountIn, ID) }, { usdgBalance: b.amountIn - 1n }); // more than held
+    no({ to: ATTACKER, data: deposit(TIN, p.usdg, b.amountIn, ID) }); // a lookalike contract
+  });
+  test("a pack site can never reach the bridge through the normal guard", () => {
+    expect(checkRequest(...tx(p.usdg, approve(DEPOSITORY, b.amountIn)), p, SITE).allow).toBe(false);
+    expect(checkRequest(...tx(DEPOSITORY, deposit(TIN, p.usdg, b.amountIn, ID)), p, SITE).allow).toBe(false);
   });
 });

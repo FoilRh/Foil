@@ -4,12 +4,13 @@
  *   OHTTP_KEY_ID, OHTTP_PRIVATE_KEY, OHTTP_PUBLIC_KEY (hex),
  *   RELAYER_URL, RELAYER_ADDRESS, RELAYER_TOKEN, OPERATOR_URL, OPERATOR_TOKEN, START_BLOCK,
  *   DATABASE_URL, PPOI_URLS, PPOI_TOKENS
+ *   BRIDGE_TICKET_SECRET (hex, 32 bytes): opens the Relay bridge to Collector Crypt's Solana balance
  * Every internal service has its OWN bearer token (its INTERNAL_TOKEN). ppoi-nodes are run
  * by independent operators, so a node's token must never open the relayer or operator.
  */
 import { createPublicClient, http, isAddress, type Address } from "viem";
 import { z } from "zod";
-import { FEES } from "@foil/protocol";
+import { FEES, RELAY } from "@foil/protocol";
 import { unhex } from "@foil/ohttp";
 import { createDb } from "@foil/db";
 import { createApp } from "./app";
@@ -43,6 +44,7 @@ const Env = z.object({
   /** Comma-separated internal ppoi-node URLs, and one token per node in the same order. */
   PPOI_URLS: z.string().default("").transform((s) => s.split(",").map((x) => x.trim()).filter(Boolean)),
   PPOI_TOKENS: z.string().default("").transform((s) => s.split(",").map((x) => x.trim()).filter(Boolean)),
+  BRIDGE_TICKET_SECRET: z.string().regex(/^[0-9a-f]{64}$/).optional(),
 }).refine((e) => e.PPOI_URLS.length === e.PPOI_TOKENS.length && e.PPOI_TOKENS.every((t) => t.length >= 32), {
   message: "PPOI_TOKENS needs one token (32+ chars) per PPOI_URLS entry",
 }).refine((e) => new Set([e.RELAYER_TOKEN, e.OPERATOR_TOKEN, ...e.PPOI_TOKENS]).size === 2 + e.PPOI_TOKENS.length, {
@@ -86,6 +88,24 @@ export function ppoiAttester(nodes: Service[]): Ctx["attest"] {
   };
 }
 
+/**
+ * Relay's public API, called server side. Relay's own error text (e.g. "amount too low") is shown
+ * to the client; anything else stays behind the API's fixed "internal error".
+ */
+export function relayCaller(base: string = RELAY.api): NonNullable<Ctx["bridge"]>["relay"] {
+  return async (path, body) => {
+    const res = await fetch(`${base}${path}`, body === undefined ? undefined : {
+      method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body),
+    });
+    const json = (await res.json().catch(() => null)) as { message?: unknown } | null;
+    if (!res.ok) {
+      const message = typeof json?.message === "string" ? json.message.slice(0, 200) : "bridge unavailable";
+      throw Object.assign(new Error(`Bridge: ${message}`), { expose: true });
+    }
+    return json;
+  };
+}
+
 /** Validates env (throws on bad config) and wires chain, stores and internal services into createApp. */
 export function appFromEnv(source: Record<string, string | undefined> = process.env) {
   const env = Env.parse(source);
@@ -106,6 +126,10 @@ export function appFromEnv(source: Record<string, string | undefined> = process.
     relayer: { address: env.RELAYER_ADDRESS, feeFloor: FEES.relayerFloor.toString() },
     stores: pgStores(createDb(env.DATABASE_URL).db),
     attest: ppoiAttester(env.PPOI_URLS.map((url, i) => ({ url, token: env.PPOI_TOKENS[i]! }))),
+    // Relay serves mainnet only; the bridge stays closed without its ticket secret.
+    bridge: env.BRIDGE_TICKET_SECRET && env.CHAIN_ID === 4663
+      ? { secret: unhex(env.BRIDGE_TICKET_SECRET), relay: relayCaller() }
+      : undefined,
   };
   return createApp({ keyId: env.OHTTP_KEY_ID, privateKey: unhex(env.OHTTP_PRIVATE_KEY), publicKey: unhex(env.OHTTP_PUBLIC_KEY) }, ctx);
 }

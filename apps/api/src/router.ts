@@ -3,16 +3,17 @@
  * a client IP. Amounts are base-unit strings. There are no accounts and no per-user
  * state: every procedure is either public chain data or a pass-through to a service.
  */
+import { createHmac, timingSafeEqual } from "node:crypto";
 import { initTRPC, TRPCError } from "@trpc/server";
 import { z } from "zod";
 import {
-  hexToBytes, isAddress, isHex, parseAbiItem, parseTransaction, recoverMessageAddress, recoverTransactionAddress,
+  decodeFunctionData, encodeFunctionData, hexToBytes, isAddress, isHex, parseAbiItem, parseTransaction, recoverMessageAddress, recoverTransactionAddress,
   type Address, type PublicClient, type TransactionSerialized,
 } from "viem";
-import { checkTransaction, tokenIdsIn } from "@foil/guard";
+import { ERC20_ABI, RELAY_DEPOSITORY_ABI, checkBridge, checkTransaction, tokenIdsIn } from "@foil/guard";
 import { ed25519 } from "@noble/curves/ed25519.js";
 import {
-  diffSnapshots, handleName, postMessage, seasonOf, stashPoolAbi, usdgAbi, type ProtocolHealth, type RoundSnapshot,
+  RELAY, diffSnapshots, handleName, isSolanaAddress, postMessage, seasonOf, stashPoolAbi, usdgAbi, type ProtocolHealth, type RoundSnapshot,
 } from "@foil/protocol";
 import type { Stores } from "./stores";
 
@@ -36,7 +37,22 @@ export interface Ctx {
   shippingPayees?: Address[];
   /** Signatures from the ppoi-nodes that judge this entry clean (each node screens independently). */
   attest(seq: bigint): Promise<string[]>;
+  /**
+   * Relay bridge for funding Collector Crypt's Solana balance: `relay` calls Relay's API (server
+   * side, so Relay never sees a client), `secret` signs the tickets that let a tin pay the depository.
+   */
+  bridge?: { secret: Uint8Array; relay(path: string, body?: unknown): Promise<unknown> };
 }
+
+const Bytes32 = z.string().regex(/^0x[0-9a-fA-F]{64}$/);
+/** Ticket over one quoted bridge deposit: only Foil's own quotes can be broadcast to the depository. */
+const ticketFor = (secret: Uint8Array, chainId: number, tin: string, depositId: string, amountIn: bigint) =>
+  createHmac("sha256", secret).update(`${chainId}|${tin.toLowerCase()}|${depositId.toLowerCase()}|${amountIn}`).digest("hex");
+const sameHex = (a: string, b: string) => a.length === b.length && timingSafeEqual(Buffer.from(a, "hex"), Buffer.from(b, "hex"));
+type RelayQuote = {
+  steps?: { id: string; requestId?: string; items: { data?: { to?: string; data?: string; chainId?: number; value?: string } }[] }[];
+  details?: { recipient?: string; currencyOut?: { amount?: string } };
+};
 
 /** Backup blobs: 32-byte seed-derived locator; opaque ciphertext, capped in size. */
 const Locator = z.string().regex(/^0x[0-9a-f]{64}$/);
@@ -193,8 +209,61 @@ export const appRouter = t.router({
    * outside the allowlist even if a client is compromised. The sender's IP never reaches
    * the chain's RPC: requests arrive through OHTTP.
    */
+  bridge: t.router({
+    /**
+     * Quote: `amountOut` USDC (base units) to `recipient` on Solana, paid by `tin` in USDG on RHC.
+     * Relay's deposit call is checked (depository, depositor, token); its on-chain deposit id is what
+     * the ticket binds. Relay tracks the deposit under a separate requestId, used for status. The
+     * approval is built here, for exactly the deposit, rather than taken from Relay.
+     */
+    quote: t.procedure
+      .input(z.object({ tin: z.string().refine(isAddress), recipient: z.string().refine(isSolanaAddress, "not a Solana address"), amountOut: z.string().regex(/^\d+$/) }))
+      .mutation(async ({ ctx, input }) => {
+        if (!ctx.bridge) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "the bridge is not open yet" });
+        const amountOut = BigInt(input.amountOut);
+        if (amountOut < 1_000_000n || amountOut > 1_000_000_000n) throw new TRPCError({ code: "BAD_REQUEST", message: "between $1 and $1,000" });
+        const q = (await ctx.bridge.relay("/quote", {
+          user: input.tin, recipient: input.recipient, tradeType: "EXACT_OUTPUT", amount: amountOut.toString(),
+          originChainId: ctx.chainId, originCurrency: ctx.usdg, destinationChainId: RELAY.solanaChainId, destinationCurrency: RELAY.solanaUsdc,
+        })) as RelayQuote;
+        const bad = (message = "unexpected bridge route") => new TRPCError({ code: "BAD_GATEWAY", message });
+        const steps = q.steps ?? [];
+        const items = steps.flatMap((s) => s.items.map((i) => ({ requestId: s.requestId, ...i.data })));
+        const deposits = items.filter((d) => String(d.to).toLowerCase() === RELAY.depository);
+        const others = items.filter((d) => ![RELAY.depository, ctx.usdg.toLowerCase()].includes(String(d.to).toLowerCase()));
+        if (deposits.length !== 1 || others.length) throw bad();
+        const dep = deposits[0]!;
+        if (dep.chainId !== ctx.chainId || BigInt(dep.value ?? "0") !== 0n || !isHex(dep.data)) throw bad();
+        let args;
+        try { args = decodeFunctionData({ abi: RELAY_DEPOSITORY_ABI, data: dep.data }).args; } catch { throw bad(); }
+        const [depositor, token, amountIn, id] = args;
+        if (depositor.toLowerCase() !== input.tin.toLowerCase() || token.toLowerCase() !== ctx.usdg.toLowerCase()) throw bad();
+        if (!dep.requestId || !/^0x[0-9a-fA-F]{64}$/.test(dep.requestId)) throw bad();
+        const out = BigInt(q.details?.currencyOut?.amount ?? "0");
+        if (out < amountOut || (q.details?.recipient && q.details.recipient !== input.recipient)) throw bad("the quote does not deliver what was asked");
+        return {
+          requestId: dep.requestId, depositId: id, amountIn: amountIn.toString(), amountOut: out.toString(), recipient: input.recipient,
+          approve: { to: ctx.usdg, data: encodeFunctionData({ abi: ERC20_ABI, functionName: "approve", args: [RELAY.depository, amountIn] }) },
+          deposit: { to: RELAY.depository as Address, data: dep.data },
+          ticket: ticketFor(ctx.bridge.secret, ctx.chainId, input.tin, id, amountIn),
+        };
+      }),
+    /** Relay's progress for one deposit: waiting, pending, success, failure or refund. */
+    status: t.procedure
+      .input(z.object({ requestId: Bytes32 }))
+      .mutation(async ({ ctx, input }) => {
+        if (!ctx.bridge) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "the bridge is not open yet" });
+        const r = (await ctx.bridge.relay(`/intents/status/v2?requestId=${input.requestId}`)) as { status?: unknown };
+        return { status: typeof r?.status === "string" ? r.status : "unknown" };
+      }),
+  }),
+
   broadcast: t.procedure
-    .input(z.object({ raw: z.string().regex(/^0x[0-9a-fA-F]+$/).max(20_000) }))
+    .input(z.object({
+      raw: z.string().regex(/^0x[0-9a-fA-F]+$/).max(20_000),
+      /** A bridge deposit (or its approval) from a Foil quote: its deposit id, amountIn and ticket. */
+      bridge: z.object({ depositId: Bytes32, amountIn: z.string().regex(/^\d+$/), ticket: z.string().regex(/^[0-9a-f]{64}$/) }).optional(),
+    }))
     .mutation(async ({ ctx, input }) => {
       if (!ctx.vault || !ctx.cardNft) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "browser mode is not open yet" });
       const raw = input.raw as TransactionSerialized;
@@ -202,6 +271,21 @@ export const appRouter = t.router({
       try { tx = parseTransaction(raw); } catch { throw new TRPCError({ code: "BAD_REQUEST", message: "not a signed transaction" }); }
       if (tx.chainId !== ctx.chainId) throw new TRPCError({ code: "FORBIDDEN", message: "wrong network" });
       const from = await recoverTransactionAddress({ serializedTransaction: raw });
+      if (input.bridge) {
+        if (!ctx.bridge) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "the bridge is not open yet" });
+        const amountIn = BigInt(input.bridge.amountIn);
+        if (!sameHex(input.bridge.ticket, ticketFor(ctx.bridge.secret, ctx.chainId, from, input.bridge.depositId, amountIn))) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "not a Foil bridge quote" });
+        }
+        const usdgBalance = (await ctx.chain.readContract({ address: ctx.usdg, abi: usdgAbi, functionName: "balanceOf", args: [from] })) as bigint;
+        const v = checkBridge(
+          { from, to: tx.to ?? undefined, value: tx.value ?? 0n, data: tx.data, chainId: tx.chainId },
+          { chainId: ctx.chainId, tin: from, usdg: ctx.usdg, depository: RELAY.depository, amountIn, depositId: input.bridge.depositId as `0x${string}`, usdgBalance },
+        );
+        if (!v.allow) throw new TRPCError({ code: "FORBIDDEN", message: v.reason });
+        const hash = (await ctx.chain.request({ method: "eth_sendRawTransaction", params: [raw] } as never)) as string;
+        return { hash, summary: v.summary };
+      }
       const ids = tokenIdsIn({ to: tx.to ?? undefined, data: tx.data }, { vault: ctx.vault, cards: ctx.cardNft });
       const owners = await Promise.all(ids.map((id) => ctx.chain.readContract({
         address: ctx.cardNft!, abi: [{ type: "function", name: "ownerOf", stateMutability: "view", inputs: [{ name: "id", type: "uint256" }], outputs: [{ type: "address" }] }],

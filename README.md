@@ -58,8 +58,12 @@ withdrawn to any address at any time.
    into rounds that close on a 10-minute boundary once at least 8 requests are in, or after
    30 minutes at the latest. Reveals are sorted, so the order of tins says nothing about requesters.
 4. **Rip.** The round operator funds each tin with USDG and gas ETH in one transaction. The
-   browser extension drives the tin on Collector Crypt and its transaction guard allows only the
-   pack vault and the shipping payee as destinations.
+   browser extension signs the tin in to Collector Crypt, and its transaction guard allows only
+   the pack vault and the shipping payee as destinations. Collector Crypt sells packs from a
+   Solana USDC balance, so the tin funds that account through [Relay](https://relay.link): USDG
+   on Robinhood Chain in, USDC on Solana out. Foil's API quotes the bridge and signs a ticket for
+   it; the broadcast guard lets a tin pay Relay's depository only with that ticket, and a pack
+   site can never trigger it.
 5. **Return or exit.** Cards and leftover USDG go back through the entry queue; notes can be
    withdrawn to any address. Every exit path works while the protocol is paused.
 

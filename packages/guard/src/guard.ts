@@ -26,6 +26,8 @@ export const ERC20_ABI = parseAbi([
   "function approve(address spender, uint256 amount)",
   "function transfer(address to, uint256 amount)",
 ]);
+/** Relay's RHC depository: the one bridge a tin may pay into (see checkBridge). */
+export const RELAY_DEPOSITORY_ABI = parseAbi(["function depositErc20(address depositor, address token, uint256 amount, bytes32 id)"]);
 // The sell-back function's real name is not public; its selector is.
 const SELL_BACK_SELECTOR = "0x60dee04b";
 
@@ -256,4 +258,42 @@ export function tokenIdsIn(tx: { to?: string; data?: string }, p: Pick<Policy, "
     return [];
   }
   return [];
+}
+
+/**
+ * Funding Collector Crypt's Solana balance through Relay: only the two calls of one quoted bridge
+ * deposit. `approve` of exactly `amountIn` USDG to the pinned depository, or `depositErc20` of
+ * exactly that amount, from the tin, under the quote's deposit id. Started by Foil itself, never by
+ * a pack site: checkRequest does not route here.
+ */
+export function checkBridge(
+  tx: { from?: string; to?: string; value?: string | bigint; data?: string; chainId?: string | number },
+  b: { chainId: number; tin: Address; usdg: Address; depository: Address; amountIn: bigint; depositId: Hex; usdgBalance: bigint },
+): Verdict {
+  if (!tx.to || !isAddress(tx.to)) return deny("missing target");
+  if (tx.from && !eq(tx.from, b.tin)) return deny("only the tin can send");
+  if (tx.chainId !== undefined && Number(tx.chainId) !== b.chainId) return deny("wrong network");
+  if (tx.value !== undefined && BigInt(tx.value) !== 0n) return deny("sending ETH is refused");
+  if (b.amountIn <= 0n || b.amountIn > b.usdgBalance) return deny("more than the tin holds");
+  const data = (tx.data ?? "0x") as Hex;
+  if (eq(tx.to, b.usdg)) {
+    let d;
+    try { d = decodeFunctionData({ abi: ERC20_ABI, data }); } catch { return deny("USDG call not allowed"); }
+    if (d.functionName !== "approve") return deny("only an approval to the bridge");
+    const [spender, amount] = d.args;
+    if (!eq(spender, b.depository)) return deny("approval to an unknown spender");
+    if (amount !== b.amountIn) return deny("approval must match the quote");
+    return ok([{ kind: "usdg-approve", amount, spender }]);
+  }
+  if (eq(tx.to, b.depository)) {
+    let d;
+    try { d = decodeFunctionData({ abi: RELAY_DEPOSITORY_ABI, data }); } catch { return deny("bridge call not allowed"); }
+    const [depositor, token, amount, id] = d.args;
+    if (!eq(depositor, b.tin)) return deny("the deposit must be the tin's own");
+    if (!eq(token, b.usdg)) return deny("the deposit must be USDG");
+    if (amount !== b.amountIn) return deny("the deposit must match the quote");
+    if (!eq(id, b.depositId)) return deny("the deposit is for another quote");
+    return ok([{ kind: "usdg-out", amount, to: b.depository }]);
+  }
+  return deny("that contract is not the bridge");
 }

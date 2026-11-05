@@ -15,9 +15,9 @@ import { checkRequest, type Policy } from "@foil/guard";
 import {
   NO_READY_TIN, createChainClient, policyFor, readyTins, sendFromTin, type CcConfig, type TinRec, type Wallet,
 } from "@foil/client";
-import { usdgAbi } from "@foil/protocol";
+import { isSolanaAddress, usdgAbi } from "@foil/protocol";
 import { publicEnv } from "@/env";
-import { assertRipAllowed, logActivity } from "./foil-workspace";
+import { assertRipAllowed, logActivity, money } from "./foil-workspace";
 
 const EXT_ID = publicEnv.NEXT_PUBLIC_FOIL_EXTENSION_ID;
 /** The extension's Chrome Web Store page, once its ID is configured. */
@@ -222,3 +222,57 @@ export function stopRipping() {
   emit({ connected: false, tin: null, paused: null });
 }
 
+/**
+ * Collector Crypt sells packs against a Solana USDC balance. The active tin funds it through
+ * Relay: USDG on Robinhood Chain in, USDC on Solana out, to the account the tin signed in to.
+ * Foil's API fetches the quote (so Relay never sees this browser) and signs a ticket that its
+ * broadcast guard requires before a tin may pay Relay's depository.
+ */
+export interface CcFundingQuote {
+  requestId: string; depositId: string; amountIn: string; amountOut: string; recipient: string; ticket: string;
+  approve: { to: Address; data: Hex }; deposit: { to: Address; data: Hex };
+}
+
+export async function quoteCcFunding(recipient: string, usdc: number): Promise<CcFundingQuote> {
+  const w = wallet, t = state.tin;
+  if (!w || !t) throw new Error("Start ripping first: the active tin pays.");
+  const to = recipient.trim();
+  if (!isSolanaAddress(to)) throw new Error("That is not a Solana address. Copy it again from Collector Crypt.");
+  if (!Number.isFinite(usdc) || usdc < 1) throw new Error("Enter the pack price in USDC.");
+  const q = (await w.api.bridge.quote.mutate({ tin: t.address, recipient: to, amountOut: String(Math.round(usdc * 1e6)) })) as CcFundingQuote;
+  if (BigInt(q.amountIn) > BigInt(t.usdg ?? t.size)) {
+    throw new Error(`This tin holds ${money(Number(t.usdg ?? t.size) / 1e6)} USDG; the bridge needs ${money(Number(q.amountIn) / 1e6)}. Use a bigger tin.`);
+  }
+  return q;
+}
+
+/** Sends a quote from the active tin (approval, then deposit) and waits until Relay has delivered. */
+export async function fundCc(q: CcFundingQuote, progress: (step: string) => void): Promise<void> {
+  const w = wallet, t = state.tin;
+  if (!w || !t) throw new Error("Start ripping first: the active tin pays.");
+  assertRipAllowed(Number(q.amountIn) / 1e6); // the pack spend counts against limits, cool-off and region
+  const key = w.keys.tin(t.index).privateKey;
+  const chain = createChainClient(w.api);
+  const ticket = { depositId: q.depositId, amountIn: q.amountIn, ticket: q.ticket };
+  progress("Approving USDG for the bridge…");
+  await sendFromTin(w.api, chain, key, q.approve, ticket);
+  progress("Sending to Collector Crypt…");
+  await sendFromTin(w.api, chain, key, q.deposit, ticket);
+  logActivity("Collector Crypt funded", `Tin ${t.index + 1} · ${money(Number(q.amountOut) / 1e6)} USDC to Solana`, -Number(q.amountIn) / 1e6, "pack-spend");
+  for (let i = 0; i < 60; i++) {
+    const { status } = await w.api.bridge.status.mutate({ requestId: q.requestId });
+    if (status === "success") return;
+    if (status === "failure" || status === "refund" || status === "refunded") throw new Error("The bridge did not complete; Relay refunds the tin. Check the tin's balance in a few minutes.");
+    progress(status === "pending" ? "On its way to Solana…" : "Waiting for the bridge…");
+    await new Promise((r) => setTimeout(r, 3_000));
+  }
+  throw new Error("Still on its way. Check your Collector Crypt balance in a minute.");
+}
+
+/** The card lands in the Collector Crypt account, not the tin: retire the tin by hand and hand over the next. */
+export async function markActiveTinRipped(): Promise<void> {
+  const w = wallet, t = state.tin;
+  if (!w || !t) return;
+  w.markRipped(t.index);
+  await nextTin();
+}

@@ -8,7 +8,8 @@ import { privateKeyToAccount } from "viem/accounts";
 import type { Api } from "./api";
 
 /** Signs an EIP-1559 tx from the tin (gas +20%), broadcasts it via the API and waits for the receipt. */
-export async function sendFromTin(api: Api, chain: PublicClient, tinKey: Hex, call: { to: Hex; data: Hex }) {
+/** `bridge`: the quote's depositId, amountIn and ticket, for the two calls of a Relay bridge deposit. */
+export async function sendFromTin(api: Api, chain: PublicClient, tinKey: Hex, call: { to: Hex; data: Hex }, bridge?: { depositId: string; amountIn: string; ticket: string }) {
   const account = privateKeyToAccount(tinKey);
   const [nonce, chainId, block, tip, gas] = await Promise.all([
     chain.getTransactionCount({ address: account.address, blockTag: "pending" }),
@@ -22,7 +23,7 @@ export async function sendFromTin(api: Api, chain: PublicClient, tinKey: Hex, ca
     type: "eip1559", chainId, nonce, to: call.to, data: call.data, value: 0n,
     gas: (gas * 12n) / 10n, maxPriorityFeePerGas: tip, maxFeePerGas: base * 2n + tip,
   });
-  const { hash, summary } = await api.broadcast.mutate({ raw });
+  const { hash, summary } = await api.broadcast.mutate({ raw, ...(bridge ? { bridge } : {}) });
   await chain.waitForTransactionReceipt({ hash: hash as Hex });
   return { hash: hash as Hex, summary };
 }

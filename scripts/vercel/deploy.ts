@@ -125,6 +125,8 @@ async function services() {
     PPOI_URLS: `${urls["ppoi-1"]},${urls["ppoi-2"]}`, PPOI_TOKENS: `${env.PPOI1_TOKEN},${env.PPOI2_TOKEN}`,
     DATABASE_URL: env.DATABASE_URL!,
     ...cc,
+    // Opens the Relay bridge (tickets for tin deposits to Collector Crypt's Solana balance) when set.
+    ...(env.BRIDGE_TICKET_SECRET ? { BRIDGE_TICKET_SECRET: env.BRIDGE_TICKET_SECRET } : {}),
   }));
   urls.api = deployOnly(api, buildDir);
   saveUrls();
